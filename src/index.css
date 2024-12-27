@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body.active li {
+  cursor: pointer;
+}
+
+body.active .abrupt {
+  padding: 0 4px;
+}
+body.active .abrupt:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+body.active .step:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+body.active .selected,
+body.active .selected:hover {
+  background-color: rgba(255, 255, 0, 0.7);
+}
+
+#root {
+  display: none;
+}
+
+#root.active {
+  display: block;
+}
+
+/*
+  Manually added style due to tailwind preflight disable
+ */
+
+*,
+::before,
+::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+}

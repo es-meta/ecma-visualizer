@@ -1,0 +1,46 @@
+{
+  "name": "testing",
+  "description": "visualize a js program for corresponding ECMA spec",
+  "version": "1.0",
+  "manifest_version": 3,
+  "action": {
+    "default_icon": {
+      "16": "assets/dimmed-icon-16.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "storage",
+    "scripting",
+    "tabs",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://tc39.es/ecma262/2024/*"
+  ],
+  "content_scripts": [
+    {
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "assets/content.css"
+      ],
+      "matches": [
+        "https://tc39.es/ecma262/2024/*"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets/logo.jpeg"
+      ],
+      "matches": [
+        "https://tc39.es/*"
+      ]
+    }
+  ]
+}
