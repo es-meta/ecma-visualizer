@@ -1,5 +1,5 @@
 import { ElementType, ReactNode, useEffect, useState } from "react";
-import { Code, Route, Rabbit, Play } from "lucide-react";
+import { Code, Route, FlaskConical, Play } from "lucide-react";
 import ProgramViewer from "./ProgramViewer.tsx";
 import { ProgramResponse } from "../../types/message.ts";
 import FeatureViewer from "./FeatureViewer.tsx";
@@ -35,7 +35,7 @@ const Visualizer = () => {
 
   return (
     <div className="w-full flex flex-row justify-start p-3 gap-4 min-h-0 flex-auto">
-      <Card>
+      <Card disabled={!currentProgram}>
         <CardHeader title="Program" icon={Code}>
           <div className="cursor-pointer hover:scale-95 text-blue-600 text-sm flex flex-row gap-1 items-center">
             Run on Web Debugger
@@ -46,7 +46,7 @@ const Visualizer = () => {
           <ProgramViewer program={currentProgram ?? undefined} />
         </section>
       </Card>
-      <Card>
+      <Card disabled={!features}>
         <CardHeader title="Language Feature" icon={Route} />
         <section className="overflow-scroll grow-1 shrink-1 basis-auto">
           <FeatureViewer
@@ -56,17 +56,31 @@ const Visualizer = () => {
           />
         </section>
       </Card>
-      <Card>
-        <CardHeader title="JS Program" icon={Rabbit} />
+      <Card disabled={!features}>
+        <CardHeader title="Test262" icon={FlaskConical} />
+      </Card>
+      <Card disabled={!features}>
+        <CardHeader title="Test262" icon={FlaskConical} />
       </Card>
     </div>
   );
 };
 
-const Card = ({ children }: { children: ReactNode }) => {
+const Card = ({
+  children,
+  disabled,
+}: {
+  children: ReactNode;
+  disabled: boolean;
+}) => {
   return (
-    <div className="min-w-[350px] min-h-0 overflow-hidden divide-neutral-300 divide-y bg-white rounded-xl border border-neutral-300 flex flex-col">
+    <div className="relative min-w-[350px] min-h-0 overflow-hidden divide-neutral-300 divide-y bg-white rounded-xl border border-neutral-300 flex flex-col">
       {children}
+      {disabled && (
+        <div className="absolute top-0 left-0 size-full bg-neutral-200 opacity-70 flex justify-center items-center">
+          <p>Disabled</p>
+        </div>
+      )}
     </div>
   );
 };

@@ -100,33 +100,6 @@ async function modifyEcmaVisualizer() {
   window.dispatchEvent(
     new CustomEvent("custom", { detail: { programs, name } }),
   );
-
-  // document.getElementById("button-box")?.remove();
-  // if (programs === "no-prog") {
-  //   currentProgram = 'console.log("not ready")';
-  //   updateCode();
-  //   return;
-  // }
-  //
-  // currentPrograms = programs;
-  // currentFeatures = Object.keys(programs);
-  // currentProgram = currentPrograms[currentFeatures[0]];
-  // currentName = name;
-  //
-  // const $div = document.createElement("div");
-  // $div.id = "button-box";
-  // currentFeatures.forEach((feature, idx) => {
-  //   const $button = document.createElement("button");
-  //   $button.textContent = feature;
-  //   $button.addEventListener("click", () => {
-  //     currentProgram = currentPrograms[currentFeatures[idx]];
-  //     updateCode();
-  //   });
-  //   $div.appendChild($button);
-  // });
-  // document.getElementById("menu-search")!.appendChild($div);
-  //
-  // updateCode();
 }
 
 export async function request(msgTyp: MessageType, request: object = {}) {

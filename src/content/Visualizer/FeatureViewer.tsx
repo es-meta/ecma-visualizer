@@ -14,9 +14,7 @@ const FeatureViewer = ({
   selectedFeature?: string;
   handleFeatureChange: (feature: string) => void;
 }) => {
-  if (!features) return <h1>ToDo</h1>;
-
-  console.log("###", selectedFeature);
+  if (!features) return <div />;
 
   const grammarFeaturePair: GrammarFeaturePair[] = features.reduce(
     (acc, feature: string) => {

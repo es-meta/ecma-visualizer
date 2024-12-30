@@ -1,6 +1,6 @@
 import Visualizer from "./Visualizer/Visualizer.tsx";
 
-const logo = chrome.runtime.getURL("assets/logo.jpeg");
+const logo = chrome.runtime.getURL("images/logo.jpeg");
 
 const App = () => {
   return (

@@ -13,7 +13,7 @@ export default defineConfig({
       },
       output: {
         entryFileNames: "[name].js",
-        assetFileNames: "assets/content.css",
+        assetFileNames: "content.css",
       },
     },
   },

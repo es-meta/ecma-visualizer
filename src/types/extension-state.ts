@@ -8,6 +8,10 @@ export type TabIdStatePair = Record<number, TabState>;
 
 export type StepToNode = Record<string, Record<string, string>>;
 export type NodeToProgId = Record<string, Record<string, string>>;
+export type NodeToProgId2 = Record<
+  string,
+  Record<string, Record<string, string>>
+>;
 export type ProgIdToProg = Record<string, string>;
 
 export type ExtensionState = {
