@@ -1,3 +1,11 @@
+import {
+  isRecStrRecStrStr,
+  isRecStrStr,
+  NodeToProgId,
+  ProgIdToProg,
+  StepToNode,
+} from "./maps.ts";
+
 type InstallType = "admin" | "development" | "normal" | "sideload" | "other";
 
 export type TabState = {
@@ -5,14 +13,6 @@ export type TabState = {
 };
 
 export type TabIdStatePair = Record<number, TabState>;
-
-export type StepToNode = Record<string, Record<string, string>>;
-export type NodeToProgId = Record<string, Record<string, string>>;
-export type NodeToProgId2 = Record<
-  string,
-  Record<string, Record<string, string>>
->;
-export type ProgIdToProg = Record<string, string>;
 
 export type ExtensionState = {
   installType: InstallType;
@@ -33,24 +33,6 @@ export const DEFAULT_TAB_STATE: TabState = {
 };
 
 /* TypeGuards */
-
-function isRecStrStr(obj: unknown): obj is Record<string, string> {
-  if (typeof obj !== "object" || obj === null) return false;
-  for (const key in obj) {
-    if (typeof key !== "string" && typeof obj[key] !== "string") return false;
-  }
-  return true;
-}
-
-export function isRecStrRecStrStr(
-  obj: unknown,
-): obj is Record<string, Record<string, string>> {
-  if (typeof obj !== "object" || obj === null) return false;
-  for (const key in obj) {
-    if (typeof key !== "string" && isRecStrStr(obj[key])) return false;
-  }
-  return true;
-}
 
 export function isExtensionState(obj: unknown): obj is ExtensionState {
   if (typeof obj !== "object" || obj === null) return false;

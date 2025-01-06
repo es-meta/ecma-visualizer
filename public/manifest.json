@@ -1,5 +1,5 @@
 {
-  "name": "testing",
+  "name": "ECMA Visualizer",
   "description": "visualize a js program for corresponding ECMA spec",
   "version": "1.0",
   "manifest_version": 3,

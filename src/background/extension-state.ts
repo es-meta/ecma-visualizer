@@ -47,12 +47,12 @@ export async function setExtensionState(state: object) {
 async function toggleIcon(tabId: number, isActive: boolean) {
   if (isActive)
     await chrome.action.setIcon({
-      path: "assets/icon-16.png",
+      path: "images/icon-16.png",
       tabId: tabId,
     });
   else
     await chrome.action.setIcon({
-      path: "assets/dimmed-icon-16.png",
+      path: "images/dimmed-icon-16.png",
       tabId: tabId,
     });
 
