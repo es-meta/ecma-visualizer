@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { useEffect, useState } from "react";
 
 type GrammarFeaturePair = {
   grammar: Element;
@@ -9,27 +10,51 @@ const FeatureViewer = ({
   features,
   selectedFeature,
   handleFeatureChange,
+  convertToECMAId,
 }: {
   features?: string[];
   selectedFeature?: string;
   handleFeatureChange: (feature: string) => void;
+  convertToECMAId: (ESMetaAlg: string) => Promise<string>;
 }) => {
-  if (!features) return <div />;
+  const [grammarFeaturePairs, setGrammarFeaturePairs] = useState<
+    GrammarFeaturePair[] | null
+  >(null);
 
-  const grammarFeaturePair: GrammarFeaturePair[] = features.reduce(
-    (acc, feature: string) => {
-      const $emuAlg = document.getElementById(feature);
-      if ($emuAlg?.previousElementSibling) {
-        acc.push({ grammar: $emuAlg.previousElementSibling, feature });
-      }
-      return acc;
-    },
-    [] as GrammarFeaturePair[],
-  );
+  useEffect(() => {
+    if (!features) return;
+
+    (async () => {
+      const ecmaIds = Object.fromEntries(
+        await Promise.all(
+          features.map(async (feature) => {
+            const ecmaId = await convertToECMAId(feature);
+            return [ecmaId, feature];
+          }),
+        ),
+      );
+
+      const gfps = Object.keys(ecmaIds).reduce((acc, ecmaId: string) => {
+        const $emuAlg = document.querySelector(`[visId="${ecmaId}"]`);
+
+        if ($emuAlg?.previousElementSibling) {
+          acc.push({
+            grammar: $emuAlg.previousElementSibling,
+            feature: ecmaIds[ecmaId],
+          });
+        }
+        return acc;
+      }, [] as GrammarFeaturePair[]);
+
+      setGrammarFeaturePairs(gfps);
+    })();
+  }, [features]);
+
+  if (!features || grammarFeaturePairs === null) return <div />;
 
   return (
     <div className="p-3 m-0 flex flex-col gap-1">
-      {grammarFeaturePair.map((gf) => (
+      {grammarFeaturePairs.map((gf) => (
         <button
           key={crypto.randomUUID()}
           className={clsx(
@@ -38,7 +63,6 @@ const FeatureViewer = ({
           )}
           onClick={(e) => {
             e.preventDefault();
-            console.log("@@@", gf.feature);
             handleFeatureChange(gf.feature);
           }}
           dangerouslySetInnerHTML={{

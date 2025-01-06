@@ -1,4 +1,4 @@
-import { extractStep } from "./convert-id.ts";
+import { numToStep } from "./convert-id.ts";
 import { MessageType } from "../../types/message.ts";
 
 let $selectedEl: HTMLElement | null = null;
@@ -13,7 +13,7 @@ function modifySpec() {
 
     $emuAlgSiblings.forEach(($emuAlg, idx) => {
       const id = $emuClause.id.toLowerCase() + `[${idx}]`;
-      $emuAlg.id = id;
+      $emuAlg.setAttribute("visId", id);
       const $lis = $emuAlg.querySelectorAll(
         ":scope > ol > li",
       ) as NodeListOf<HTMLLIElement>;
@@ -32,7 +32,7 @@ function highlightStepsRecursively(
       ":scope > ol > li",
     ) as NodeListOf<HTMLLIElement>;
     const id =
-      idAcc + (depth === 0 ? "/" : ".") + extractStep(stepIdx + 1, depth);
+      idAcc + (depth === 0 ? "/" : ".") + numToStep(stepIdx + 1, depth);
 
     highlightStep($li, id);
     if (nestedList.length != 0)
@@ -42,7 +42,7 @@ function highlightStepsRecursively(
 
 function highlightStep($li: HTMLLIElement, id: string) {
   $li.classList.add("step");
-  $li.id = id;
+  $li.setAttribute("visId", id);
   let abruptCnt = 1;
   $li.childNodes.forEach((node) => {
     if (wrapQuestionMarks(node, `${id}?${abruptCnt}`)) abruptCnt++;
@@ -73,7 +73,7 @@ function wrapQuestionMarks(node: ChildNode, id: string) {
 
   const modifiedText = node.nodeValue.replace(
     /\?/g,
-    `<span class="abrupt" id="${id}">?</span>`,
+    `<span class="abrupt" visId="${id}">?</span>`,
   );
 
   if (modifiedText !== node.nodeValue) {
@@ -89,17 +89,16 @@ function wrapQuestionMarks(node: ChildNode, id: string) {
 async function modifyEcmaVisualizer() {
   if (!$selectedEl) return;
 
-  const chunks = $selectedEl.id.split("/");
-  console.log("Request", chunks[0], chunks[1]);
-  const { programs, name } = await request("prog", {
-    alg: chunks[0],
-    step: chunks[1],
-  });
-  console.log("Response", programs, name);
+  const chunks = $selectedEl.getAttribute("visId")!.split("/");
+  const [alg, step] = [chunks[0], chunks[1]];
+  // console.log("Request", chunks[0], chunks[1]);
+  // const { programs, name } = await request("prog", {
+  //   alg: chunks[0],
+  //   step: chunks[1],
+  // });
+  // console.log("Response", programs, name);
 
-  window.dispatchEvent(
-    new CustomEvent("custom", { detail: { programs, name } }),
-  );
+  window.dispatchEvent(new CustomEvent("custom", { detail: { alg, step } }));
 }
 
 export async function request(msgTyp: MessageType, request: object = {}) {

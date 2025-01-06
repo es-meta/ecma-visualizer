@@ -1,8 +1,10 @@
-import { createRoot } from "react-dom/client";
-import App from "./App.tsx";
+// import { createRoot } from "react-dom/client";
+// import App from "./App.tsx";
 import "../index.css";
 import modifySpec from "./util/modify-spec.ts";
 import { MessageType } from "../types/message.ts";
+import { createRoot } from "react-dom/client";
+import App from "./App.tsx";
 
 const $body = document.querySelector("body")!;
 const $root = document.createElement("section");
