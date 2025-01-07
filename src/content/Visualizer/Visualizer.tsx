@@ -1,5 +1,5 @@
 import { ElementType, ReactNode, useEffect, useState } from "react";
-import { Code, Route, FlaskConical, Layers, Play } from "lucide-react";
+import { Code, Layers, Play, Route } from "lucide-react";
 import ProgramViewer from "./ProgramViewer.tsx";
 import FeatureViewer from "./FeatureViewer.tsx";
 import IndexedDb from "../util/indexed-db.ts";
@@ -160,7 +160,7 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
       </Card>
       <Card disabled={features.length === 0}>
         <CardHeader title="Language Feature" icon={Route} />
-        <section className="overflow-scroll grow-1 shrink-1 basis-auto">
+        <section className="grow-1 shrink-1 basis-auto">
           <FeatureViewer
             selectedFeature={selectedFeature ?? undefined}
             features={features ?? undefined}
@@ -171,7 +171,7 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
       </Card>
       <Card disabled={callPaths.length === 0}>
         <CardHeader title="Call Path" icon={Layers} />
-        <section className="overflow-scroll grow-1 shrink-1 basis-auto">
+        <section className="grow-1 shrink-1 basis-auto">
           <CallPathViewer
             selectedCallPath={selectedCallPath ?? undefined}
             callPaths={callPaths}
@@ -180,10 +180,10 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
           />
         </section>
       </Card>
-      <Card disabled={!features}>
-        <CardHeader title="Test262" icon={FlaskConical} />
-        <div></div>
-      </Card>
+      {/*<Card disabled={!features}>*/}
+      {/*  <CardHeader title="Test262" icon={FlaskConical} />*/}
+      {/*  <div></div>*/}
+      {/*</Card>*/}
     </div>
   );
 };
@@ -224,6 +224,38 @@ const CardHeader = ({
       </h3>
       {children}
     </header>
+  );
+};
+
+export const EmptyVisualizer = () => {
+  return (
+    <div className="w-full flex flex-row justify-start p-3 gap-4 min-h-0 flex-auto overflow-x-scroll">
+      <Card disabled={true}>
+        <CardHeader title="Program" icon={Code}>
+          <a
+            href={``}
+            target="_blank"
+            className="cursor-pointer hover:scale-95 text-blue-600 text-sm flex flex-row gap-1 items-center"
+          >
+            Run on Web Debugger
+            <Play size={12} />
+          </a>
+        </CardHeader>
+        <section className="overflow-scroll grow-1 shrink-1 basis-auto"></section>
+      </Card>
+      <Card disabled={true}>
+        <CardHeader title="Language Feature" icon={Route} />
+        <section className="grow-1 shrink-1 basis-auto"></section>
+      </Card>
+      <Card disabled={true}>
+        <CardHeader title="Call Path" icon={Layers} />
+        <section className="grow-1 shrink-1 basis-auto"></section>
+      </Card>
+      {/*<Card disabled={!features}>*/}
+      {/*  <CardHeader title="Test262" icon={FlaskConical} />*/}
+      {/*  <div></div>*/}
+      {/*</Card>*/}
+    </div>
   );
 };
 

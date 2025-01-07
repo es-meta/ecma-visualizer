@@ -1,5 +1,3 @@
-// import { createRoot } from "react-dom/client";
-// import App from "./App.tsx";
 import "../index.css";
 import modifySpec from "./util/modify-spec.ts";
 import { MessageType } from "../types/message.ts";
@@ -41,12 +39,13 @@ function messageActive(active: boolean) {
 }
 
 async function initState() {
-  const { installType, active } = await request("init");
+  const { active } = await request("init");
 
   messageActive(active);
-  if (installType !== "development") return;
 
-  // For compare between extension steps and esmeta steps
+  // if (installType !== "development") return;
+
+  // DOM Extraction for full support in multi page mode
   // const button = Object.assign(document.createElement("button"), {
   //   id: "extract-button",
   //   textContent: "Extract!",
@@ -54,15 +53,13 @@ async function initState() {
   // document.body.append(button);
   //
   // button.addEventListener("click", () => {
-  //   const ids = [...document.querySelectorAll(".step, .abrupt")].map(
-  //     (el) => el.id,
-  //   );
-  //   const blob = new Blob([JSON.stringify(ids, null, 2)], {
+  //   const blob = new Blob([JSON.stringify(extractSDO(), null, 2)], {
   //     type: "application/json",
   //   });
+  //
   //   Object.assign(document.createElement("a"), {
   //     href: URL.createObjectURL(blob),
-  //     download: "steps.json",
+  //     download: "alg-to-feature.json",
   //   }).click();
   // });
 }

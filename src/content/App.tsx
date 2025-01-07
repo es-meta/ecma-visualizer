@@ -1,6 +1,7 @@
-import Visualizer from "./Visualizer/Visualizer.tsx";
+import Visualizer, { EmptyVisualizer } from "./Visualizer/Visualizer.tsx";
 import { ReactNode, useEffect, useState } from "react";
 import IndexedDb from "./util/indexed-db.ts";
+import { Frown, LoaderPinwheel } from "lucide-react";
 
 const logo = chrome.runtime.getURL("images/logo.jpeg");
 
@@ -10,13 +11,15 @@ const tables: Table[] = [
   "node-to-progId",
   "progId-to-prog",
   "step-to-node",
+  "alg-to-feature",
 ];
 export type Table =
   | "ecId-to-func"
   | "func-to-ecId"
   | "node-to-progId"
   | "progId-to-prog"
-  | "step-to-node";
+  | "step-to-node"
+  | "alg-to-feature";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -44,13 +47,48 @@ const App = () => {
     })();
   }, []);
 
-  if (loading) return <div>loading</div>;
-  if (error || !idxDb) return <div>error</div>;
   return (
-    <section className="overflow-hidden flex flex-col flex-auto divide-neutral-300 divide-y fixed w-dvw h-[450px] bottom-0 left-0 z-[999] bg-[#f5f5f5] shadow-[0_-2px_4px_rgba(0,0,0,0.1)]">
+    <section className="overflow-hidden flex flex-col flex-auto divide-neutral-300 divide-y fixed w-dvw h-[400px] bottom-0 left-0 z-[999] bg-[#f5f5f5] shadow-[0_-2px_4px_rgba(0,0,0,0.1)]">
       <VisualizerHeader />
-      <Visualizer db={idxDb} />
+      {loading && <Loading />}
+      {idxDb ? (
+        <Visualizer db={idxDb} />
+      ) : error ? (
+        <Error />
+      ) : (
+        <EmptyVisualizer />
+      )}
     </section>
+  );
+};
+
+const Loading = () => {
+  return (
+    <div className="absolute z-[999] bg-black bg-opacity-35 w-full h-full top-0 left-0 flex-auto flex justify-center items-center">
+      <div className="flex flex-row items-center gap-3">
+        <LoaderPinwheel className="animate-spin w-8 h-8" />
+        <div className="m-0 p-0 flex flex-col justify-start">
+          <p className="m-0 p-0 text-xl font-bold">Initializing</p>
+          <p className="m-0 p-0 text-base">Please wait a second..</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Error = () => {
+  return (
+    <div className="flex-auto flex justify-center items-center">
+      <div className="flex flex-row items-center gap-3">
+        <Frown className="w-7 h-7" />
+        <div className="m-0 p-0 flex flex-col justify-start">
+          <p className="m-0 p-0 text-lg">Sorry something went wrong</p>
+          <p className="m-0 p-0 text-sm">
+            Help us improve ECMA Visualizer by reporting the issue
+          </p>
+        </div>
+      </div>
+    </div>
   );
 };
 
