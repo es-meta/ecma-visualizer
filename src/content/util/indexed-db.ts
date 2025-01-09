@@ -1,5 +1,33 @@
 import { IDBPDatabase, openDB } from "idb";
-import { Table } from "../App.tsx";
+import {
+  EcIdToAlgoName,
+  EcIdToFunc,
+  FuncIdToFeature,
+  FuncIdToFunc,
+  FuncToEcId,
+  FuncToFuncId,
+  NodeIdToProgId,
+  NodeIdToTest262,
+  ProgIdToProg,
+  StepToNodeId,
+  TestIdToTest262,
+} from "../../types/maps.ts";
+
+export type Table = keyof TableTypes;
+
+type TableTypes = {
+  "step-to-nodeId": StepToNodeId;
+  "nodeId-to-progId": NodeIdToProgId;
+  "progId-to-prog": ProgIdToProg;
+  "nodeId-to-test262": NodeIdToTest262;
+  "func-to-ecId": FuncToEcId;
+  "ecId-to-func": EcIdToFunc;
+  "funcId-to-func": FuncIdToFunc;
+  "func-to-funcId": FuncToFuncId;
+  "ecId-to-algo-name": EcIdToAlgoName;
+  "funcId-to-featureHtml": FuncIdToFeature;
+  "testId-to-test262": TestIdToTest262;
+};
 
 class IndexedDb {
   private database: string;
@@ -23,11 +51,24 @@ class IndexedDb {
     });
   }
 
-  public async getValue(tableName: Table, key: number | string) {
-    if (this.db === null) return;
+  public async getValue<K extends Table>(
+    tableName: K,
+    key: number | string,
+  ): Promise<TableTypes[K][keyof TableTypes[K]] | null> {
+    if (this.db === null) throw new Error("[getValue] db is null");
+
     const tx = this.db.transaction(tableName, "readonly");
     const store = tx.objectStore(tableName);
-    return await store.get(key);
+    const val = await store.get(key);
+
+    if (val === undefined) {
+      console.error(`${key} not found in ${tableName}`);
+      return null;
+    }
+
+    console.log("---incomming---");
+    console.dir(val);
+    return val;
   }
 
   public async getAllValue(tableName: Table) {

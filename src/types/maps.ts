@@ -1,11 +1,21 @@
-export type ecIdToFunc = Record<string, string>;
-export type funcToEcId = Record<string, string>;
+export type FuncIdToFeature = Record<string, string>;
+export type EcIdToFunc = Record<string, string[]>;
+export type FuncToEcId = Record<string, string>;
+export type FuncIdToFunc = Record<string, string>;
+export type FuncToFuncId = Record<string, number>;
+export type EcIdToAlgoName = Record<string, string>;
 
-export type StepToNode = Record<string, Record<string, string>>;
-export type NodeToProgId = Record<string, FnCToProgId>;
+export type StepToNodeId = Record<string, Record<string, number>>;
+export type NodeIdToProgId = Record<string, FnCToProgId>;
+export type NodeIdToTest262 = Record<
+  string,
+  Record<string, Record<string, string>>
+>;
 export type ProgIdToProg = Record<string, string>;
+export type TestIdToTest262 = Record<string, string>;
 
-export type FnCToProgId = Record<string, Record<string, [string, number]>>;
+export type FnCToProgId = Record<string, CToProgId>;
+export type CToProgId = Record<string, [number, number]>;
 
 export function isRecStrStr(obj: unknown): obj is Record<string, string> {
   if (typeof obj !== "object" || obj === null) return false;

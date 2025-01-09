@@ -1,30 +1,31 @@
-import clsx from "clsx";
-import { ChevronUp } from "lucide-react";
 import { useEffect, useState } from "react";
-import { stepToNum } from "../util/convert-id.ts";
+import { ChevronUp } from "lucide-react";
+import clsx from "clsx";
 
 const CallPathViewer = ({
   callPaths,
+  convertFuncIdToAlgoName,
   selectedCallPath,
-  ...props
+  changeCallPath,
 }: {
-  callPaths?: string[];
-  selectedCallPath?: string;
-  handleCallPathChange: (callPath: string) => void;
-  convertToECMAId: (ESMetaAlg: string) => Promise<string>;
+  callPaths: string[];
+  selectedCallPath: string;
+  changeCallPath: (callPath: string) => void;
+  convertFuncIdToAlgoName: (funcId: string) => Promise<string | null>;
 }) => {
   if (!callPaths) return <div />;
 
   return (
-    <div className="min-w-full p-3 m-0 flex flex-col gap-1">
+    <div className="p-3 m-0 flex flex-col gap-1">
       {callPaths.map((callPath) => {
         const split = callPath.split("<");
         return (
           <CallPathButton
             split={split}
+            convertFuncIdToAlgoName={convertFuncIdToAlgoName}
             callPath={callPath}
             selected={selectedCallPath === callPath}
-            {...props}
+            changeCallPath={changeCallPath}
           />
         );
       })}
@@ -34,39 +35,48 @@ const CallPathViewer = ({
 
 const CallPathButton = ({
   split,
-  callPath,
+  convertFuncIdToAlgoName,
   selected,
-  handleCallPathChange,
-  convertToECMAId,
+  changeCallPath,
+  callPath,
 }: {
   split: string[];
-  callPath: string;
+  convertFuncIdToAlgoName: (funcId: string) => Promise<string | null>;
   selected: boolean;
-  handleCallPathChange: (callPath: string) => void;
-  convertToECMAId: (ESMetaAlg: string) => Promise<string>;
+  changeCallPath: (callPath: string) => void;
+  callPath: string;
 }) => {
+  /* ToDo */
+  const filtered = split.filter((sp) => sp !== "" && sp !== "ncp");
+
+  if (filtered.length === 0) return null;
   return (
     <button
       key={crypto.randomUUID()}
       className={clsx(
-        "min-w-full hover:bg-neutral-300 curs or-pointer bg-white border border-neutral-300 rounded-md text-sm p-2 flex flex-col gap-[1px] items-start",
-        selected && "!bg-neutral-400",
+        "w-full hover:bg-neutral-200 cursor-pointer bg-white border border-neutral-300 rounded-md text-sm py-1 px-2",
+        selected && "!bg-neutral-300 cursor-default",
       )}
       onClick={() => {
-        handleCallPathChange(callPath);
+        if (selected) return;
+        changeCallPath(callPath);
       }}
     >
-      {split.map((str, idx) => {
-        if (str === "") return null;
-
+      {filtered.map((str, idx) => {
         if (idx === split.length - 1)
           return (
-            <CallPathChunk esmetaAlg={str} convertToECMAId={convertToECMAId} />
+            <CallPathChunk
+              funcId={str}
+              convertFuncIdToAlgoName={convertFuncIdToAlgoName}
+            />
           );
         return (
           <>
-            <CallPathChunk esmetaAlg={str} convertToECMAId={convertToECMAId} />
-            <div className="mx-auto">
+            <CallPathChunk
+              funcId={str}
+              convertFuncIdToAlgoName={convertFuncIdToAlgoName}
+            />
+            <div className="flex justify-end">
               <ChevronUp />
             </div>
           </>
@@ -77,76 +87,45 @@ const CallPathButton = ({
 };
 
 const CallPathChunk = ({
-  esmetaAlg,
-  convertToECMAId,
+  funcId,
+  convertFuncIdToAlgoName,
 }: {
-  esmetaAlg: string;
-  convertToECMAId: (ESMetaAlg: string) => Promise<string>;
+  funcId: string;
+  convertFuncIdToAlgoName: (funcId: string) => Promise<string | null>;
 }) => {
-  const [stepEl, setStepEl] = useState<null | Element>(null);
-  const [stepStr, setStepStr] = useState<string | null>(null);
-  const [h1El, setH1El] = useState<Element | null>(null);
-  const [grammarEl, setGrammarEl] = useState<Element | null>(null);
+  const [h1, setH1] = useState<string | null>(null);
+  const [funcKind, setFuncKind] = useState<"SDO" | "NORMAL">("NORMAL");
 
   useEffect(() => {
-    const [alg, step] = esmetaAlg.split("/");
-    if (!alg || !step) return;
-
     (async () => {
-      const ecmaId = await convertToECMAId(alg);
-      const $emuAlg = document.querySelector(`[visId="${ecmaId}"]`);
-
-      setStepStr(step);
-
-      if (!$emuAlg) return;
-      const $emuClause = $emuAlg.parentElement;
-      if (!$emuClause) return;
-
-      const $h1 = $emuClause.querySelector("h1");
-      const $grammar = $emuClause.querySelector("emu-grammar");
-
-      setH1El($h1);
-      setGrammarEl($grammar);
-
-      let currentElement: Element | null = $emuAlg;
-      stepToNum(step).forEach((st) => {
-        const index = st;
-        if (currentElement) {
-          currentElement = currentElement.querySelector(
-            `:scope > ol > li:nth-child(${index})`,
-          );
-        }
-      });
-
-      setStepEl(currentElement);
+      const rawHtml = await convertFuncIdToAlgoName(funcId);
+      if (rawHtml?.includes("emu-nt")) {
+        setFuncKind("SDO");
+        setH1(`<emu-production collapsed>${rawHtml}</emu-production>`);
+      } else {
+        setFuncKind("NORMAL");
+        setH1(rawHtml);
+      }
     })();
-  }, [esmetaAlg]);
+  }, [funcId]);
 
-  if (stepEl == null || stepStr == null || h1El == null)
-    return <div>loading</div>;
+  if (h1 == null) return <div>loading</div>;
 
   return (
-    <div className="border p-2 border-neutral-300 rounded-md flex flex-col gap-2 w-full items-start">
-      {!grammarEl && (
+    <>
+      {funcKind === "SDO" && (
+        <p
+          className="text-sm m-0 p-0 text-left"
+          dangerouslySetInnerHTML={{ __html: h1 }}
+        />
+      )}
+      {funcKind === "NORMAL" && (
         <h1
-          className="text-sm m-0 p-0"
-          dangerouslySetInnerHTML={{ __html: h1El.innerHTML }}
+          className="text-sm m-0 p-0 text-left"
+          dangerouslySetInnerHTML={{ __html: h1 }}
         />
       )}
-      {grammarEl && (
-        <span
-          className="text-sm"
-          dangerouslySetInnerHTML={{ __html: grammarEl.innerHTML }}
-        />
-      )}
-      <div className="flex flex-row gap-2 justify-start items-center">
-        <span>{`${stepStr}.`}</span>
-        <li
-          className="whitespace-normal flex justify-start items-center"
-          dangerouslySetInnerHTML={{ __html: stepEl.innerHTML }}
-        />
-      </div>
-    </div>
+    </>
   );
 };
 

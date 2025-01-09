@@ -3,6 +3,7 @@ import modifySpec from "./util/modify-spec.ts";
 import { MessageType } from "../types/message.ts";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
+import { extractInlineSteps } from "./util/extract-dom.ts";
 
 const $body = document.querySelector("body")!;
 const $root = document.createElement("section");
@@ -46,22 +47,22 @@ async function initState() {
   // if (installType !== "development") return;
 
   // DOM Extraction for full support in multi page mode
-  // const button = Object.assign(document.createElement("button"), {
-  //   id: "extract-button",
-  //   textContent: "Extract!",
-  // });
-  // document.body.append(button);
-  //
-  // button.addEventListener("click", () => {
-  //   const blob = new Blob([JSON.stringify(extractSDO(), null, 2)], {
-  //     type: "application/json",
-  //   });
-  //
-  //   Object.assign(document.createElement("a"), {
-  //     href: URL.createObjectURL(blob),
-  //     download: "alg-to-feature.json",
-  //   }).click();
-  // });
+  const button = Object.assign(document.createElement("button"), {
+    id: "extract-button",
+    textContent: "Extract!",
+  });
+  document.body.append(button);
+
+  button.addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(extractInlineSteps(), null, 2)], {
+      type: "application/json",
+    });
+
+    Object.assign(document.createElement("a"), {
+      href: URL.createObjectURL(blob),
+      download: "inline-step.json",
+    }).click();
+  });
 }
 
 export async function request(msgTyp: MessageType, request: object = {}) {

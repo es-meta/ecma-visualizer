@@ -1,25 +1,23 @@
 import Visualizer, { EmptyVisualizer } from "./Visualizer/Visualizer.tsx";
 import { ReactNode, useEffect, useState } from "react";
-import IndexedDb from "./util/indexed-db.ts";
+import IndexedDb, { Table } from "./util/indexed-db.ts";
 import { Frown, LoaderPinwheel } from "lucide-react";
 
-const logo = chrome.runtime.getURL("images/logo.jpeg");
-
 const tables: Table[] = [
-  "ecId-to-func",
-  "func-to-ecId",
-  "node-to-progId",
+  "nodeId-to-test262",
+  "step-to-nodeId",
+  "nodeId-to-progId",
   "progId-to-prog",
-  "step-to-node",
-  "alg-to-feature",
+  "func-to-ecId",
+  "ecId-to-func",
+  "funcId-to-func",
+  "func-to-funcId",
+  "funcId-to-featureHtml",
+  "ecId-to-algo-name",
+  "testId-to-test262",
 ];
-export type Table =
-  | "ecId-to-func"
-  | "func-to-ecId"
-  | "node-to-progId"
-  | "progId-to-prog"
-  | "step-to-node"
-  | "alg-to-feature";
+
+const logo = chrome.runtime.getURL("images/logo.jpeg");
 
 const App = () => {
   const [loading, setLoading] = useState(true);

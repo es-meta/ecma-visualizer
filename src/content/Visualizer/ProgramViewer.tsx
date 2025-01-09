@@ -1,10 +1,9 @@
 import hljs from "highlight.js/lib/core";
 import javascript from "highlight.js/lib/languages/javascript";
+
 hljs.registerLanguage("javascript", javascript);
 
-const ProgramViewer = ({ program }: { program?: string }) => {
-  if (!program) return <div />;
-
+const ProgramViewer = ({ program }: { program: string }) => {
   const highlightedCode = hljs.highlight(program, {
     language: "javascript",
   }).value;
