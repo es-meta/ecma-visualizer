@@ -66,8 +66,6 @@ class IndexedDb {
       return null;
     }
 
-    console.log("---incomming---");
-    console.dir(val);
     return val;
   }
 

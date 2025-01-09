@@ -46,7 +46,7 @@ const App = () => {
   }, []);
 
   return (
-    <section className="overflow-hidden flex flex-col flex-auto divide-neutral-300 divide-y fixed w-dvw h-[400px] bottom-0 left-0 z-[999] bg-[#f5f5f5] shadow-[0_-2px_4px_rgba(0,0,0,0.1)]">
+    <section className="relative flex size-full flex-auto flex-col divide-y divide-neutral-300 overflow-scroll bg-[#f5f5f5] shadow-[-4px_0_4px_rgba(0,0,0,0.1)]">
       <VisualizerHeader />
       {loading && <Loading />}
       {idxDb ? (
@@ -62,10 +62,10 @@ const App = () => {
 
 const Loading = () => {
   return (
-    <div className="absolute z-[999] bg-black bg-opacity-35 w-full h-full top-0 left-0 flex-auto flex justify-center items-center">
+    <div className="absolute left-0 top-0 z-[999] flex h-full w-full flex-auto items-center justify-center bg-black bg-opacity-35">
       <div className="flex flex-row items-center gap-3">
-        <LoaderPinwheel className="animate-spin w-8 h-8" />
-        <div className="m-0 p-0 flex flex-col justify-start">
+        <LoaderPinwheel className="h-8 w-8 animate-spin" />
+        <div className="m-0 flex flex-col justify-start p-0">
           <p className="m-0 p-0 text-xl font-bold">Initializing</p>
           <p className="m-0 p-0 text-base">Please wait a second..</p>
         </div>
@@ -76,10 +76,10 @@ const Loading = () => {
 
 const Error = () => {
   return (
-    <div className="flex-auto flex justify-center items-center">
+    <div className="flex flex-auto items-center justify-center">
       <div className="flex flex-row items-center gap-3">
-        <Frown className="w-7 h-7" />
-        <div className="m-0 p-0 flex flex-col justify-start">
+        <Frown className="h-7 w-7" />
+        <div className="m-0 flex flex-col justify-start p-0">
           <p className="m-0 p-0 text-lg">Sorry something went wrong</p>
           <p className="m-0 p-0 text-sm">
             Help us improve ECMA Visualizer by reporting the issue
@@ -92,13 +92,13 @@ const Error = () => {
 
 const VisualizerHeader = () => {
   return (
-    <header className="bg-white text-sm py-2 px-4 flex flex-row items-center justify-between">
-      <div className="flex flex-row gap-2 items-center">
+    <header className="flex flex-row items-center justify-between bg-white px-4 py-2 text-sm">
+      <div className="flex flex-row items-center gap-2">
         <img src={logo} className="h-6 w-6" />
-        <div className="font-extrabold text-base">ESMeta</div>
-        <div className="font-normal text-base">ECMA Visualizer</div>
+        <div className="text-base font-extrabold">ESMeta</div>
+        <div className="text-base font-normal">ECMA Visualizer</div>
       </div>
-      <div className="flex flex-row gap-2 items-center">
+      <div className="flex flex-row items-center gap-2">
         <A href="https://github.com/es-meta/esmeta">
           <GitHubIcon />
           ESMeta
@@ -117,7 +117,7 @@ const A = ({ href, children }: { href: string; children: ReactNode }) => {
     <a
       href={href}
       target="_blank"
-      className="flex !text-black hover:text-black flex-row gap-1 items-center text-xs font-500 hover:bg-neutral-100 hover:no-underline rounded-lg active:scale-90 transition-all cursor-pointer p-2"
+      className="font-500 flex cursor-pointer flex-row items-center gap-1 rounded-lg p-2 text-xs !text-black transition-all hover:bg-neutral-100 hover:text-black hover:no-underline active:scale-90"
     >
       {children}
     </a>

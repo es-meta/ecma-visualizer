@@ -2,6 +2,57 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Overriding ECMA page css for visualizer layout */
+
+@media (max-width: 9999px) {
+  #menu.active {
+    position: fixed !important;
+    height: 100% !important;
+    left: 0 !important;
+    top: 0 !important;
+    right: 300px !important;
+  }
+
+  #menu.active {
+    display: flex !important;
+    opacity: 1 !important;
+    z-index: 2 !important;
+  }
+
+  #menu {
+    display: none !important;
+    padding-top: 3em !important;
+    width: 450px !important;
+  }
+
+  #spec-container {
+    flex-basis: 60% !important;
+    overflow: scroll !important;
+  }
+}
+
+#menu-spacer {
+  display: none !important;
+}
+
+#menu-toggle {
+  visibility: visible !important;
+}
+
+body {
+  display: flex;
+  flex-direction: row;
+}
+
+#root {
+  position: sticky;
+  top: 0;
+  right: 0;
+  height: 100dvh;
+  flex-grow: 1;
+  flex-basis: 40%;
+}
+
 body.active li {
   cursor: pointer;
 }
