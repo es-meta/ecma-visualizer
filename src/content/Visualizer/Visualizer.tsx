@@ -28,6 +28,7 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
     selectedIter,
     selectedCallPath,
     defaultProgram,
+    defaultIter,
     defaultTest262Set,
   } = useVisualizer(db);
 
@@ -59,7 +60,7 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
             <Card enabled={programViewerCondition}>
               <CardHeader title="Program" icon={Code}>
                 <a
-                  href={`${WEB_DEBUGGER_URL}?prog=${encodeURIComponent(selectedProgram ?? "")}&iter=${encodeURIComponent(selectedIter ?? "")}`}
+                  href={`${WEB_DEBUGGER_URL}?prog=${encodeURIComponent(defaultFlag ? (defaultProgram ?? "") : (selectedProgram ?? ""))}&iter=${encodeURIComponent(defaultFlag ? (defaultIter ?? "") : (selectedIter ?? ""))}`}
                   target="_blank"
                   className="flex cursor-pointer flex-row items-center gap-1 text-sm text-blue-600 hover:scale-95"
                 >

@@ -41,6 +41,7 @@ function useVisualizer(db: IndexedDb) {
 
   const [state, setState] = useState<State>("Waiting");
   const [defaultProgram, setDefaultProgram] = useState<string | null>(null);
+  const [defaultIter, setDefaultIter] = useState<number | null>(null);
   const [defaultTest262Set, setDefaultTest262Set] = useState<string[] | null>(
     null,
   );
@@ -121,21 +122,26 @@ function useVisualizer(db: IndexedDb) {
       debug("[cps collected]");
       debug(cps);
 
-      const allProgIds = cps.flatMap((cp) =>
-        Object.keys(cp).flatMap((key) => cp[key][0]),
+      const allProgIdNIter = cps.flatMap((cp) =>
+        Object.keys(cp).map((key) => cp[key]),
       );
-      const allProgPromise = allProgIds.map((id) =>
-        progIdToProg(id.toString()),
+      const allProgPromise = allProgIdNIter.map((id) =>
+        progIdToProg(id[0].toString()),
       );
       const allProgs = (await Promise.all(allProgPromise)).filter(
         (prog) => prog !== null,
       );
       if (allProgs.length === 0) return false;
       let minimalProg: string = allProgs[0];
-      allProgs.forEach((prog) => {
-        if (minimalProg.length > prog.length) minimalProg = prog;
+      let minimalIter: number = allProgIdNIter[0][1];
+      allProgs.forEach((prog, idx) => {
+        if (minimalProg.length > prog.length) {
+          minimalProg = prog;
+          minimalIter = allProgIdNIter[idx][1];
+        }
       });
       setDefaultProgram(minimalProg);
+      setDefaultIter(minimalIter);
 
       const featureHtmlPromises = allFeatures.map((feature) =>
         convertFuncIdToAlgoOrSyntax(feature),
@@ -408,6 +414,7 @@ function useVisualizer(db: IndexedDb) {
     selectedIter,
     selectedTest262Set,
     defaultProgram,
+    defaultIter,
     defaultTest262Set,
   };
 }
