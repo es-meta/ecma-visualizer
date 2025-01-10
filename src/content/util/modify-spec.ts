@@ -30,7 +30,7 @@ function modifySpec() {
       e.preventDefault();
       e.stopPropagation();
 
-      const target = e.target as HTMLElement;
+      const target = e.currentTarget as HTMLElement;
       if (!target.matches(".step")) return;
 
       if ($selectedEl) $selectedEl.classList.remove("selected");
@@ -39,11 +39,9 @@ function modifySpec() {
         target.classList.add("selected");
         $selectedEl = target;
       } else if (target.matches(".inlinebranch")) {
-        console.log(target);
         target.classList.add("selected");
         $selectedEl = target;
       } else if (target.matches("li")) {
-        console.log(target);
         target.classList.add("selected");
         $selectedEl = target;
       }
@@ -84,8 +82,11 @@ function highlightStep($li: HTMLLIElement, id: string) {
     if (wrapQuestionMarks(node, `${id}?${abruptCnt}`)) abruptCnt++;
   });
 
-  wrapIfElseSections($li, id);
-  wrapIfOtherwiseSections($li, id);
+  ["else", "otherwise"].forEach((pattern) =>
+    wrapIfElseSections($li, id, pattern),
+  );
+  wrapInlineIf($li, id);
+  // wrapIfOtherwiseSections($li, id);
 }
 
 function wrapQuestionMarks(node: ChildNode, id: string) {
@@ -127,64 +128,53 @@ const IGNORE_ALGO_PARENT_IDS = [
   "sec-data-races",
 ];
 
-function wrapIfElseSections(liElement: HTMLLIElement, base: string) {
-  const replaced = getTextContentWithoutOL(liElement).replace(/\s+/g, "");
-  if (replaced && !/.*if.*else.*/i.test(replaced)) {
-    return;
-  }
+function wrapInlineIf(liElement: HTMLLIElement, base: string) {
+  const pureLineText = getTextContentWithoutOL(liElement);
+  if (/then$/.test(pureLineText)) return;
+  if (!/if\b/i.test(pureLineText)) return;
 
-  console.log(replaced, "!!!!!!!!");
   const html = liElement.innerHTML;
 
-  const ifMatch = html.match(/\bif\b/i);
-  if (!ifMatch) return;
-  const ifIndex = ifMatch.index;
-  if (!ifIndex) return;
+  // const ifIndex = html.match(/\bif\b/i)?.index;
+  const commaIndex = html.match(",")?.index;
+  if (commaIndex === undefined) return;
 
-  const elseMatch = html.match(/\belse\b/i);
-  if (!elseMatch) return;
-  const elseIndex = elseMatch.index;
-  if (!elseIndex) return;
+  const beforeIf = html.substring(0, commaIndex);
+  const ifToElse = html.substring(commaIndex + 2);
 
-  const beforeIf = html.substring(0, ifIndex);
-  const ifToElse = html.substring(ifIndex, elseIndex);
-  const elseToEnd = html.substring(elseIndex);
-
-  // 새로운 HTML 구성
   const newHtml =
-    beforeIf +
-    `<span class="step inlinebranch then" visId="${base}then">${ifToElse}</span>` +
-    `<span class="step inlinebranch else" visId="${base}else">${elseToEnd}</span>`;
+    `<span class="step inlinebranch if" visId="${base}">${beforeIf}</span>` +
+    ", " +
+    `<span class="step inlinebranch then" visId="${base}then">${ifToElse}</span>`;
 
   liElement.innerHTML = newHtml;
   liElement.classList.remove("step");
 }
 
-function wrapIfOtherwiseSections(liElement: HTMLLIElement, base: string) {
+function wrapIfElseSections(
+  liElement: HTMLLIElement,
+  base: string,
+  pattern: string,
+) {
   const replaced = getTextContentWithoutOL(liElement).replace(/\s+/g, "");
-  if (replaced && !/.*if.*otherwise.*/i.test(replaced)) {
-    return;
-  }
+  const regex = new RegExp(`.*if.*${pattern}.*`, "i");
+  if (!regex.test(replaced)) return;
 
   const html = liElement.innerHTML;
+  const regex2 = new RegExp(`\\b${pattern}\\b`, "i");
 
-  const ifMatch = html.match(/\bif\b/i);
-  if (!ifMatch) return;
-  const ifIndex = ifMatch.index;
-  if (!ifIndex) return;
+  // const ifIndex = html.match(/\bif\b/i)?.index;
+  const commaIndex = html.match(",")?.index;
+  const elseIndex = html.match(regex2)?.index;
+  if (commaIndex === undefined || elseIndex === undefined) return;
 
-  const elseMatch = html.match(/\botherwise\b/i);
-  if (!elseMatch) return;
-  const elseIndex = elseMatch.index;
-  if (!elseIndex) return;
-
-  const beforeIf = html.substring(0, ifIndex);
-  const ifToElse = html.substring(ifIndex, elseIndex);
+  const beforeIf = html.substring(0, commaIndex);
+  const ifToElse = html.substring(commaIndex + 2, elseIndex);
   const elseToEnd = html.substring(elseIndex);
 
-  // 새로운 HTML 구성
   const newHtml =
-    beforeIf +
+    `<span class="step inlinebranch if" visId="${base}">${beforeIf}</span>` +
+    ", " +
     `<span class="step inlinebranch then" visId="${base}then">${ifToElse}</span>` +
     `<span class="step inlinebranch else" visId="${base}else">${elseToEnd}</span>`;
 

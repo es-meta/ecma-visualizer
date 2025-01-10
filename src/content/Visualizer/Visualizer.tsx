@@ -67,9 +67,14 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
           </TabPanel>
           <TabPanel className="flex size-full flex-1">
             <Card enabled={test262ViewerCondition}>
-              <CardHeader title="Test262" icon={FlaskConical} />
-              <section className="grow-1 shrink-1 basis-auto overflow-scroll">
-                {/*<Test262Viewer />*/}
+              <CardHeader title="Test262" icon={FlaskConical}>
+                {test262ViewerCondition && (
+                  <p className="m-0 flex cursor-pointer flex-row items-center gap-1 text-sm text-blue-600 hover:scale-95">
+                    {selectedTest262Set.length} tests
+                  </p>
+                )}
+              </CardHeader>
+              <section className="grow-1 shrink-1 max-h-[500px] basis-auto overflow-scroll">
                 {test262ViewerCondition && (
                   <Test262Viewer selectedTest262Set={selectedTest262Set} />
                 )}

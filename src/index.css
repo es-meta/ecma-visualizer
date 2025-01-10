@@ -89,6 +89,16 @@ body.active .selected:hover {
   background-color: red;
 }
 
+/*.inlinebranch.if {*/
+/*  background-color: red;*/
+/*}*/
+/*.inlinebranch.then {*/
+/*  background-color: orange;*/
+/*}*/
+/*.inlinebranch.else {*/
+/*  background-color: yellow;*/
+/*}*/
+
 /*
   Manually added style due to tailwind preflight disable
  */

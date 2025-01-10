@@ -68,10 +68,10 @@ function useVisualizer(db: IndexedDb) {
     debug(`ecId : ${ecId} / step : ${step} selected`);
 
     // 1. ecId to funcs
-    const funcs = await db.getValue("ecId-to-func", ecId);
+    const funcs = await ecIdToFunc(ecId);
     if (funcs === null) return false;
 
-    const funcIdsPromise = funcs.map((func) => convertFuncFuncId(func));
+    const funcIdsPromise = funcs.map((func) => funcToFuncId(func));
     const funcIds = (await Promise.all(funcIdsPromise)).filter(
       (fid) => fid !== null,
     );
@@ -81,7 +81,7 @@ function useVisualizer(db: IndexedDb) {
 
     // 2. funcs to stepToNodeIds
     const stepToNodeIdsPromise = funcIds.map((fid) =>
-      db.getValue("step-to-nodeId", fid.toString()),
+      stepToNodeId(fid.toString()),
     );
     const stepToNodeIds = await Promise.all(stepToNodeIdsPromise);
     debug("[step to nodeIds in funcs]");
@@ -102,7 +102,7 @@ function useVisualizer(db: IndexedDb) {
     // ToDO Eliminate Redundant Codes
     if (tab === "PROGRAM") {
       const fncsPromise = nodeIds.map((nodeId) =>
-        db.getValue("nodeId-to-progId", nodeId.toString()),
+        nodeIdToProgId(nodeId?.toString()),
       );
 
       const fncs = (await Promise.all(fncsPromise)).filter(
@@ -135,7 +135,7 @@ function useVisualizer(db: IndexedDb) {
       setSelectedFNCIdx(0);
     } else {
       const fncsPromise = nodeIds.map((nodeId) =>
-        db.getValue("nodeId-to-test262", nodeId.toString()),
+        nodeIdToTest262(nodeId.toString()),
       );
 
       const fncs = (await Promise.all(fncsPromise)).filter(
@@ -204,7 +204,7 @@ function useVisualizer(db: IndexedDb) {
         return false;
 
       const [progId, iter] = cToProgIds[selectedFNCIdx][selectedCallPath];
-      const program = await db.getValue("progId-to-prog", progId.toString());
+      const program = await progIdToProg(progId.toString());
       debug("program");
       debug(program);
 
@@ -224,7 +224,7 @@ function useVisualizer(db: IndexedDb) {
       debug(`decoded`);
       debug(test262Ids);
       const test262NamePromise = test262Ids.map((test262Id) =>
-        db.getValue("testId-to-test262", test262Id),
+        testIdToTest262(test262Id),
       );
       const test262Names = (await Promise.all(test262NamePromise)).filter(
         (test262Name) => test262Name !== null,
@@ -289,35 +289,50 @@ function useVisualizer(db: IndexedDb) {
   }
 
   /** Visualizer Used Functions **/
+  async function stepToNodeId(step: string) {
+    return await db.getValue("step-to-nodeId", step);
+  }
+  async function nodeIdToProgId(nodeId: string) {
+    return await db.getValue("nodeId-to-progId", nodeId);
+  }
+  async function nodeIdToTest262(nodeId: string) {
+    return await db.getValue("nodeId-to-test262", nodeId);
+  }
+  async function progIdToProg(progId: string) {
+    return await db.getValue("progId-to-prog", progId);
+  }
 
-  // async function convertEcIdFunc(ecId: string) {
-  //   return await db.getValue("ecId-to-func", ecId);
-  // }
+  async function funcIdToFunc(funcId: string) {
+    return await db.getValue("funcId-to-func", funcId);
+  }
 
-  // async function convertFuncEcId(func: string) {
-  //   return await db.getValue("func-to-ecId", func);
-  // }
-
-  async function convertFuncFuncId(func: string) {
+  async function funcToEcId(func: string) {
+    return await db.getValue("func-to-ecId", func);
+  }
+  async function ecIdToFunc(ecId: string) {
+    return await db.getValue("ecId-to-func", ecId);
+  }
+  async function funcToFuncId(func: string) {
     return await db.getValue("func-to-funcId", func);
   }
-
-  async function convertFuncIdFunc(funcId: string) {
-    return await db.getValue("funcId-to-func", funcId.toString());
+  async function ecIdToAlgoName(ecId: string) {
+    return await db.getValue("ecId-to-algo-name", ecId);
   }
-
-  async function convertFuncIdFeature(funcId: string) {
+  async function funcIdToFeatureHtml(funcId: string) {
     return await db.getValue("funcId-to-featureHtml", funcId);
+  }
+  async function testIdToTest262(testId: string) {
+    return await db.getValue("testId-to-test262", testId);
   }
 
   async function convertFuncIdToAlgoOrSyntax(funcId: string) {
-    const isSdo = await convertFuncIdFeature(funcId);
+    const isSdo = await funcIdToFeatureHtml(funcId);
     if (isSdo !== null) return isSdo;
-    const func = await convertFuncIdFunc(funcId);
+    const func = await funcIdToFunc(funcId);
     if (func === null) return null;
-    const ecId = await db.getValue("func-to-ecId", func);
+    const ecId = await funcToEcId(func);
     if (ecId === null) return null;
-    return await db.getValue("ecId-to-algo-name", ecId);
+    return await ecIdToAlgoName(ecId);
   }
 
   const changeFeature = (idx: number) => {
