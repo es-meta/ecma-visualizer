@@ -13,7 +13,7 @@ function modifySpec() {
     );
 
     $emuAlgSiblings.forEach(($emuAlg, idx) => {
-      const id = $emuClause.id.toLowerCase() + `[${idx}]`;
+      const id = $emuClause.id + `[${idx}]`;
       $emuAlg.setAttribute("visId", id);
       const $lis = $emuAlg.querySelectorAll(
         ":scope > ol > li",
@@ -78,9 +78,10 @@ function highlightStep($li: HTMLLIElement, id: string) {
   $li.setAttribute("visId", id);
   let abruptCnt = 1;
 
-  $li.childNodes.forEach((node) => {
+  for (let i = $li.childNodes.length - 1; i >= 0; i--) {
+    const node = $li.childNodes[i];
     if (wrapQuestionMarks(node, `${id}?${abruptCnt}`)) abruptCnt++;
-  });
+  }
 
   ["else", "otherwise"].forEach((pattern) =>
     wrapIfElseSections($li, id, pattern),

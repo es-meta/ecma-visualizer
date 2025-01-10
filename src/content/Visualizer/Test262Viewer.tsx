@@ -1,5 +1,6 @@
 import { DownloadIcon } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
+import clsx from "clsx";
 
 const rawUrl = (test262: string) =>
   `https://raw.githubusercontent.com/tc39/test262/3a7a72aef5009eb22117231d40f9a5a66a9a595a/test/${test262}`;
@@ -15,14 +16,19 @@ const fileName = (test262: string) => {
 // const BATCH_SIZE = 5;
 
 const Test262Viewer = ({
+  defaultFlag,
+  setDefaultFlag,
   selectedTest262Set,
+  defaultTest262Set,
 }: {
+  defaultFlag: boolean;
+  setDefaultFlag: React.Dispatch<React.SetStateAction<boolean>>;
   selectedTest262Set: string[];
+  defaultTest262Set: string[];
 }) => {
   // const [selectedIdx, setSelectedIdx] = useState<number>(0);
   // const [test262, setTest262] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  // const [batchLoading, setBatchLoading] = useState(false);
 
   const downloadFile = async (
     filePath: string,
@@ -74,9 +80,15 @@ const Test262Viewer = ({
 
   return (
     <div className="m-0 flex flex-col gap-1 overflow-scroll p-3">
+      <button
+        className={clsx({ "bg-blue-600": defaultFlag })}
+        onClick={() => setDefaultFlag((prev) => !prev)}
+      >
+        default
+      </button>
       {/*<button onClick={() => downloadAll()}>Download All</button>*/}
       {loading && <div>Downloading..</div>}
-      {selectedTest262Set.map((test262) => (
+      {(defaultFlag ? defaultTest262Set : selectedTest262Set).map((test262) => (
         <div className="flex flex-row text-sm">
           <a href={url(test262)} target="_blank">
             {test262}

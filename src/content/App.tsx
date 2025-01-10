@@ -1,4 +1,4 @@
-import Visualizer, { EmptyVisualizer } from "./Visualizer/Visualizer.tsx";
+import Visualizer from "./Visualizer/Visualizer.tsx";
 import { ReactNode, useEffect, useState } from "react";
 import IndexedDb, { Table } from "./util/indexed-db.ts";
 import { Frown, LoaderPinwheel } from "lucide-react";
@@ -49,18 +49,13 @@ const App = () => {
     <section className="relative flex size-full flex-auto flex-col divide-y divide-neutral-300 overflow-scroll bg-[#f5f5f5] shadow-[-4px_0_4px_rgba(0,0,0,0.1)]">
       <VisualizerHeader />
       {loading && <Loading />}
-      {idxDb ? (
-        <Visualizer db={idxDb} />
-      ) : error ? (
-        <Error />
-      ) : (
-        <EmptyVisualizer />
-      )}
+      {idxDb && <Visualizer db={idxDb} />}
+      {error && <Error />}
     </section>
   );
 };
 
-const Loading = () => {
+export const Loading = () => {
   return (
     <div className="absolute left-0 top-0 z-[999] flex h-full w-full flex-auto items-center justify-center bg-black bg-opacity-35">
       <div className="flex flex-row items-center gap-3">

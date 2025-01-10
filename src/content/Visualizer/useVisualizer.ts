@@ -3,8 +3,6 @@ import { CToProgId, CToTestId } from "../../types/maps.ts";
 import IndexedDb from "../util/indexed-db.ts";
 import { decode } from "../util/decode.ts";
 
-type Tab = "PROGRAM" | "TEST262";
-
 type SelectedStep = {
   ecId: string | null;
   step: string | null;
@@ -18,7 +16,8 @@ type State =
   | "ProgramUpdated";
 
 function useVisualizer(db: IndexedDb) {
-  const [tab, setTab] = useState<Tab>("PROGRAM");
+  const [tab, setTab] = useState<number>(0);
+  const [globalLoading, setGlobalLoading] = useState<boolean>(false);
 
   const [selectedStep, setSelectedStep] = useState<SelectedStep>({
     ecId: null,
@@ -41,13 +40,12 @@ function useVisualizer(db: IndexedDb) {
   const [selectedIter, setSelectedIter] = useState<number | null>(null);
 
   const [state, setState] = useState<State>("Waiting");
+  const [defaultProgram, setDefaultProgram] = useState<string | null>(null);
+  const [defaultTest262Set, setDefaultTest262Set] = useState<string[] | null>(
+    null,
+  );
 
   /** State Control **/
-
-  function toggleTab() {
-    setTab(tab === "PROGRAM" ? "TEST262" : "PROGRAM");
-  }
-
   useEffect(() => {
     const handleChange = (e: CustomEvent<SelectedStep>) => {
       if (!(state === "Waiting" || state === "ProgramUpdated")) return;
@@ -100,7 +98,7 @@ function useVisualizer(db: IndexedDb) {
 
     // 4. FnCs
     // ToDO Eliminate Redundant Codes
-    if (tab === "PROGRAM") {
+    if (tab === 0) {
       const fncsPromise = nodeIds.map((nodeId) =>
         nodeIdToProgId(nodeId?.toString()),
       );
@@ -120,6 +118,24 @@ function useVisualizer(db: IndexedDb) {
         });
         return keys;
       });
+      debug("[cps collected]");
+      debug(cps);
+
+      const allProgIds = cps.flatMap((cp) =>
+        Object.keys(cp).flatMap((key) => cp[key][0]),
+      );
+      const allProgPromise = allProgIds.map((id) =>
+        progIdToProg(id.toString()),
+      );
+      const allProgs = (await Promise.all(allProgPromise)).filter(
+        (prog) => prog !== null,
+      );
+      if (allProgs.length === 0) return false;
+      let minimalProg: string = allProgs[0];
+      allProgs.forEach((prog) => {
+        if (minimalProg.length > prog.length) minimalProg = prog;
+      });
+      setDefaultProgram(minimalProg);
 
       const featureHtmlPromises = allFeatures.map((feature) =>
         convertFuncIdToAlgoOrSyntax(feature),
@@ -127,8 +143,6 @@ function useVisualizer(db: IndexedDb) {
       const featureHtmls = (await Promise.all(featureHtmlPromises)).filter(
         (fnc) => fnc !== null,
       );
-      debug("[featureHtmls]");
-      debug(featureHtmls);
 
       setCurrentFeatureList(featureHtmls);
       setCToProgIds(cps);
@@ -154,6 +168,21 @@ function useVisualizer(db: IndexedDb) {
         return keys;
       });
 
+      const allTestEncodings = cps.flatMap((cp) =>
+        Object.keys(cp).flatMap((key) => cp[key]),
+      );
+      const allTestIdSets: Set<string> = new Set();
+      allTestEncodings.forEach((encoding) => {
+        decode(encoding).forEach((id) => allTestIdSets.add(id));
+      });
+      const allTestPromise = Array.from(allTestIdSets).map((testId) =>
+        testIdToTest262(testId),
+      );
+      const allTestName = (await Promise.all(allTestPromise)).filter(
+        (prog) => prog !== null,
+      );
+      setDefaultTest262Set(allTestName);
+
       const featureHtmlPromises = allFeatures.map((feature) =>
         convertFuncIdToAlgoOrSyntax(feature),
       );
@@ -171,11 +200,13 @@ function useVisualizer(db: IndexedDb) {
   }
 
   function handleFeatureUpdate(): boolean {
-    if (tab === "PROGRAM") {
+    if (tab === 0) {
       if (cToProgIds === null || selectedFNCIdx === null) return false;
       const cpToProgId = cToProgIds[selectedFNCIdx];
       const cps = Object.keys(cpToProgId);
       if (cps.length === 0) return false;
+      debug("[cToProgIds]");
+      debug(cpToProgId);
 
       setCallPaths(cps);
       setSelectedCallPath(cps[0]);
@@ -195,7 +226,7 @@ function useVisualizer(db: IndexedDb) {
   }
 
   async function handleCallPathUpdate(): Promise<boolean> {
-    if (tab === "PROGRAM") {
+    if (tab === 0) {
       if (
         cToProgIds === null ||
         selectedFNCIdx === null ||
@@ -240,11 +271,17 @@ function useVisualizer(db: IndexedDb) {
   useEffect(() => {
     switch (state) {
       case "Waiting":
-        debug("--- Waiting ---");
+        if (globalLoading) setGlobalLoading(false);
+        debug(
+          "----------------------------------- Waiting -----------------------------------",
+        );
         clearAll();
         break;
       case "StepUpdated":
-        debug("--- StepUpdated ---");
+        if (!globalLoading) setGlobalLoading(true);
+        debug(
+          "----------------------------------- StepUpdated -----------------------------------",
+        );
         debug(`StepUpdated with ${selectedStep.ecId} ${selectedStep.step}`);
         (async () => {
           if (await handleStepUpdate()) setState("FeatureUpdated");
@@ -252,19 +289,28 @@ function useVisualizer(db: IndexedDb) {
         })();
         break;
       case "FeatureUpdated":
-        debug("--- FeatureUpdated ---");
+        if (!globalLoading) setGlobalLoading(true);
+        debug(
+          "----------------------------------- FeatureUpdated -----------------------------------",
+        );
         if (handleFeatureUpdate()) setState("CallPathUpdated");
         else setState("Waiting");
         break;
       case "CallPathUpdated":
-        debug("--- CallPathUpdated ---");
+        if (!globalLoading) setGlobalLoading(true);
+        debug(
+          "----------------------------------- CallPathUpdated -----------------------------------",
+        );
         (async () => {
           if (await handleCallPathUpdate()) setState("ProgramUpdated");
           else setState("Waiting");
         })();
         break;
       case "ProgramUpdated":
-        debug("--- ProgramUpdated ---");
+        if (globalLoading) setGlobalLoading(false);
+        debug(
+          "----------------------------------- ProgramUpdated -----------------------------------",
+        );
         break;
       default:
         break;
@@ -276,7 +322,6 @@ function useVisualizer(db: IndexedDb) {
   }, [tab]);
 
   function clearAll() {
-    setSelectedStep({ ecId: null, step: null });
     setCToProgIds(null);
     setCurrentFeatureList(null);
     setCallPaths(null);
@@ -286,9 +331,11 @@ function useVisualizer(db: IndexedDb) {
     setSelectedIter(null);
     setCtoTestIds(null);
     setSelectedTest262(null);
+    setDefaultProgram(null);
+    // setDefaultTest262Set(null)
   }
 
-  /** Visualizer Used Functions **/
+  /** Map Converters **/
   async function stepToNodeId(step: string) {
     return await db.getValue("step-to-nodeId", step);
   }
@@ -301,11 +348,9 @@ function useVisualizer(db: IndexedDb) {
   async function progIdToProg(progId: string) {
     return await db.getValue("progId-to-prog", progId);
   }
-
   async function funcIdToFunc(funcId: string) {
     return await db.getValue("funcId-to-func", funcId);
   }
-
   async function funcToEcId(func: string) {
     return await db.getValue("func-to-ecId", func);
   }
@@ -335,6 +380,7 @@ function useVisualizer(db: IndexedDb) {
     return await ecIdToAlgoName(ecId);
   }
 
+  /* Visualizer used functions */
   const changeFeature = (idx: number) => {
     if (state !== "Waiting" && state !== "ProgramUpdated") return;
     setSelectedFNCIdx(idx);
@@ -348,8 +394,9 @@ function useVisualizer(db: IndexedDb) {
   };
 
   return {
+    globalLoading,
     tab,
-    toggleTab,
+    setTab,
     convertFuncIdToAlgoOrSyntax,
     changeFeature,
     changeCallPath,
@@ -360,6 +407,8 @@ function useVisualizer(db: IndexedDb) {
     selectedProgram,
     selectedIter,
     selectedTest262Set,
+    defaultProgram,
+    defaultTest262Set,
   };
 }
 
