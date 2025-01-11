@@ -1,5 +1,3 @@
-const TestLength = 28876;
-
 export function decodeBase64(b64: string): Uint8Array {
   const binString = atob(b64);
   const size = binString.length;
@@ -25,19 +23,11 @@ const uncompressRLE = (compressed: string): string => {
 
 export const decode = (encoded: string): string[] => {
   const base64 = encoded.startsWith("@") ? uncompressRLE(encoded) : encoded;
-  const paddingLength = (8 - (TestLength % 8)) % 8;
   const bytes = decodeBase64(base64);
-  const bits = bytes
-    .reduce((acc, byte) => {
-      const reversedBits = byte
-        .toString(2)
-        .padStart(8, "0")
-        .split("")
-        .reverse()
-        .join("");
-      return acc + reversedBits;
-    }, "")
-    .slice(paddingLength, paddingLength + TestLength);
+  const bits = bytes.reduce(
+    (acc, byte) => acc + byte.toString(2).padStart(8, "0"),
+    "",
+  );
   return bits
     .split("")
     .reverse()
