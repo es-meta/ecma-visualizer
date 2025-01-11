@@ -408,6 +408,7 @@ function useVisualizer(db: IndexedDb) {
   };
 
   return {
+    state,
     globalLoading,
     tab,
     setTab,

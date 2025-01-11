@@ -1,7 +1,7 @@
 import Visualizer from "./Visualizer/Visualizer.tsx";
 import { ReactNode, useEffect, useState } from "react";
 import IndexedDb, { Table } from "./util/indexed-db.ts";
-import { Frown, LoaderPinwheel } from "lucide-react";
+import { Frown, LoaderCircle } from "lucide-react";
 
 const tables: Table[] = [
   "nodeId-to-test262",
@@ -35,7 +35,6 @@ const App = () => {
         await Promise.all(promises);
 
         setIdxDb(db);
-        setLoading(false);
       } catch (e) {
         console.error(e);
         setError(true);
@@ -57,14 +56,8 @@ const App = () => {
 
 export const Loading = () => {
   return (
-    <div className="absolute left-0 top-0 z-[999] flex h-full w-full flex-auto items-center justify-center bg-black bg-opacity-35">
-      <div className="flex flex-row items-center gap-3">
-        <LoaderPinwheel className="h-8 w-8 animate-spin" />
-        <div className="m-0 flex flex-col justify-start p-0">
-          <p className="m-0 p-0 text-xl font-bold">Initializing</p>
-          <p className="m-0 p-0 text-base">Please wait a second..</p>
-        </div>
-      </div>
+    <div className="absolute left-0 top-0 z-[900] flex size-full items-center justify-center bg-[#ccc] bg-opacity-35">
+      <LoaderCircle className="h-10 w-10 animate-spin font-bold text-[#E79118]" />
     </div>
   );
 };
@@ -87,7 +80,7 @@ const Error = () => {
 
 const VisualizerHeader = () => {
   return (
-    <header className="flex flex-row items-center justify-between bg-white px-4 py-2 text-sm">
+    <header className="z-[999] flex flex-row items-center justify-between bg-white px-4 py-2 text-sm">
       <div className="flex flex-row items-center gap-2">
         <img src={logo} className="h-6 w-6" />
         <div className="text-base font-extrabold">ESMeta</div>
