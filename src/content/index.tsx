@@ -53,13 +53,13 @@ async function initState() {
   // document.body.append(button);
   //
   // button.addEventListener("click", () => {
-  //   const blob = new Blob([JSON.stringify(extractInlineSteps(), null, 2)], {
+  //   const blob = new Blob([JSON.stringify(extractSDO(), null, 2)], {
   //     type: "application/json",
   //   });
   //
   //   Object.assign(document.createElement("a"), {
   //     href: URL.createObjectURL(blob),
-  //     download: "inline-step.json",
+  //     download: "func-to-sdo.json",
   //   }).click();
   // });
 }

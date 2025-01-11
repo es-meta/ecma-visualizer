@@ -88,7 +88,7 @@ function useVisualizer(db: IndexedDb) {
 
     // 3. target nodeIds -> Same for both program and test262
     const nodeIds = stepToNodeIds
-      .map((stn) => {
+      .flatMap((stn) => {
         if (!stn) return null;
         return safeGet(stn, step);
       })
@@ -369,21 +369,29 @@ function useVisualizer(db: IndexedDb) {
   async function ecIdToAlgoName(ecId: string) {
     return await db.getValue("ecId-to-algo-name", ecId);
   }
-  async function funcIdToFeatureHtml(funcId: string) {
-    return await db.getValue("funcId-to-featureHtml", funcId);
+  async function funcToSdo(funcId: string) {
+    return await db.getValue("func-to-sdo", funcId);
   }
   async function testIdToTest262(testId: string) {
     return await db.getValue("testId-to-test262", testId);
   }
 
   async function convertFuncIdToAlgoOrSyntax(funcId: string) {
-    const isSdo = await funcIdToFeatureHtml(funcId);
-    if (isSdo !== null) return isSdo;
     const func = await funcIdToFunc(funcId);
     if (func === null) return null;
-    const ecId = await funcToEcId(func);
-    if (ecId === null) return null;
-    return await ecIdToAlgoName(ecId);
+
+    const regex = /\[\s*(\d+),\s*\d+\s*\]/;
+    const match = func.match(regex);
+
+    if (match) {
+      const idx = match[1];
+      const split = func.split("[");
+      return await funcToSdo(`${split[0]}[${idx}]`);
+    } else {
+      const ecId = await funcToEcId(func);
+      if (ecId === null) return null;
+      return await ecIdToAlgoName(ecId);
+    }
   }
 
   /* Visualizer used functions */

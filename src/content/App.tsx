@@ -12,7 +12,7 @@ const tables: Table[] = [
   "ecId-to-func",
   "funcId-to-func",
   "func-to-funcId",
-  "funcId-to-featureHtml",
+  "func-to-sdo",
   "ecId-to-algo-name",
   "testId-to-test262",
 ];

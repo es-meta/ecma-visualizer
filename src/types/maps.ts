@@ -1,11 +1,11 @@
-export type FuncIdToFeature = Record<string, string>;
+export type FuncToSdo = Record<string, string>;
 export type EcIdToFunc = Record<string, string[]>;
 export type FuncToEcId = Record<string, string>;
 export type FuncIdToFunc = Record<string, string>;
 export type FuncToFuncId = Record<string, number>;
 export type EcIdToAlgoName = Record<string, string>;
 
-export type StepToNodeId = Record<string, Record<string, number>>;
+export type StepToNodeId = Record<string, Record<string, number[]>>;
 export type NodeIdToProgId = Record<string, FnCToProgId>;
 export type NodeIdToTest262 = Record<string, FnCToTestId>;
 

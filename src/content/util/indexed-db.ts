@@ -2,10 +2,10 @@ import { IDBPDatabase, openDB } from "idb";
 import {
   EcIdToAlgoName,
   EcIdToFunc,
-  FuncIdToFeature,
   FuncIdToFunc,
   FuncToEcId,
   FuncToFuncId,
+  FuncToSdo,
   NodeIdToProgId,
   NodeIdToTest262,
   ProgIdToProg,
@@ -25,7 +25,7 @@ type TableTypes = {
   "funcId-to-func": FuncIdToFunc;
   "func-to-funcId": FuncToFuncId;
   "ecId-to-algo-name": EcIdToAlgoName;
-  "funcId-to-featureHtml": FuncIdToFeature;
+  "func-to-sdo": FuncToSdo;
   "testId-to-test262": TestIdToTest262;
 };
 

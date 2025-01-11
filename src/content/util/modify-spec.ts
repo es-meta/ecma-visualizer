@@ -76,11 +76,12 @@ function highlightStepsRecursively(
 function highlightStep($li: HTMLLIElement, id: string) {
   $li.classList.add("step");
   $li.setAttribute("visId", id);
-  let abruptCnt = 1;
+  // let abruptCnt = 1;
 
   for (let i = $li.childNodes.length - 1; i >= 0; i--) {
     const node = $li.childNodes[i];
-    if (wrapQuestionMarks(node, `${id}?${abruptCnt}`)) abruptCnt++;
+    wrapQuestionMarks(node, `${id}?`);
+    // if (wrapQuestionMarks(node, `${id}?${abruptCnt}`)) abruptCnt++;
   }
 
   ["else", "otherwise"].forEach((pattern) =>
