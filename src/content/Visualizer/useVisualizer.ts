@@ -19,6 +19,7 @@ type State =
 function useVisualizer(db: IndexedDb) {
   const [tab, setTab] = useState<number>(0);
   const [globalLoading, setGlobalLoading] = useState<boolean>(false);
+  const [callStack, setCallStack] = useState<number[]>([]);
 
   const [selectedStep, setSelectedStep] = useState<SelectedStep>({
     ecId: null,
@@ -49,6 +50,10 @@ function useVisualizer(db: IndexedDb) {
 
   /** State Control **/
   useEffect(() => {
+    const existingData = sessionStorage.getItem("callstack");
+    const dataArray = existingData ? JSON.parse(existingData) : [];
+    setCallStack(dataArray);
+
     const handleChange = (e: CustomEvent<SelectedStep>) => {
       if (!(state === "Waiting" || state === "ProgramUpdated")) return;
       const { ecId, step } = e.detail;
@@ -417,6 +422,7 @@ function useVisualizer(db: IndexedDb) {
   };
 
   return {
+    callStack,
     state,
     globalLoading,
     tab,

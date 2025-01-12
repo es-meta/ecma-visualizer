@@ -46,11 +46,7 @@ function modifySpec() {
         $selectedEl = target;
       }
 
-      (async () => {
-        modifying = true;
-        await modifyEcmaVisualizer();
-        modifying = false;
-      })();
+      modifyEcmaVisualizer();
     });
   });
 }
@@ -109,7 +105,7 @@ function wrapQuestionMarks(node: ChildNode, id: string) {
   }
 }
 
-async function modifyEcmaVisualizer() {
+function modifyEcmaVisualizer() {
   if (!$selectedEl) return;
 
   const chunks = $selectedEl.getAttribute("visId")!.split("/");

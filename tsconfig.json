@@ -1,4 +1,8 @@
 {
+  "compilerOptions": {
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
   "files": [],
   "references": [
     {

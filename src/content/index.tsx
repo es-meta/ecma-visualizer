@@ -3,6 +3,7 @@ import modifySpec from "./util/modify-spec.ts";
 import { MessageType } from "../types/message.ts";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
+import addCallstackLink from "./util/add-callstack-link.ts";
 
 const $body = document.querySelector("body")!;
 const $root = document.createElement("section");
@@ -12,6 +13,7 @@ initDom();
 function initDom() {
   createEcmaVisualizer();
   modifySpec();
+  addCallstackLink().then((_) => _);
   initState().then((_) => _);
 }
 
