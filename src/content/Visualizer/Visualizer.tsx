@@ -5,6 +5,8 @@ import {
   Code,
   FlaskConical,
   Layers,
+  Mouse,
+  OctagonX,
   Route,
 } from "lucide-react";
 import FeatureViewer from "./FeatureViewer.tsx";
@@ -28,7 +30,7 @@ import clsx from "clsx";
 
 const Visualizer = ({ db }: { db: IndexedDb }) => {
   const {
-    // state,
+    state,
     globalLoading,
     tab,
     setTab,
@@ -48,6 +50,7 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
   } = useVisualizer(db);
 
   const programViewerCondition =
+    state === "ProgramUpdated" &&
     defaultProgram !== null &&
     selectedProgram !== null &&
     defaultIter !== null &&
@@ -57,7 +60,9 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
   const callPathViewerCondition =
     callPaths !== null && selectedCallPath !== null;
   const test262ViewerCondition =
-    defaultTest262Set !== null && selectedTest262Set !== null;
+    state === "ProgramUpdated" &&
+    defaultTest262Set !== null &&
+    selectedTest262Set !== null;
 
   const [defaultFlag, setDefaultFlag] = useState<boolean>(true);
   const toggleDefault = () => setDefaultFlag(!defaultFlag);
@@ -72,26 +77,27 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
       >
         <TabList className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2 text-neutral-600">
           <div className="flex flex-row items-center gap-1">
-            <Tab className="data-[selected]:bg-es-500 m-0 line-clamp-1 flex cursor-pointer flex-row items-center justify-start gap-1 rounded-md bg-white px-1 py-[2px] text-sm font-semibold text-neutral-500 outline-0 transition-all hover:bg-neutral-200 active:scale-90 data-[selected]:text-white [&>svg]:size-4">
+            <Tab className="m-0 line-clamp-1 flex cursor-pointer flex-row items-center justify-start gap-1 rounded-md bg-white px-1 py-[2px] text-sm font-semibold text-neutral-500 outline-0 transition-all hover:bg-neutral-200 active:scale-90 data-[selected]:bg-es-500 data-[selected]:text-white [&>svg]:size-4">
               <Code />
               Program
             </Tab>
-            <Tab className="data-[selected]:bg-es-500 m-0 line-clamp-1 flex cursor-pointer flex-row items-center justify-start gap-1 rounded-md bg-white px-1 py-[2px] text-sm font-semibold text-neutral-500 outline-0 transition-all hover:bg-neutral-200 active:scale-90 data-[selected]:text-white [&>svg]:size-4">
+            <Tab className="m-0 line-clamp-1 flex cursor-pointer flex-row items-center justify-start gap-1 rounded-md bg-white px-1 py-[2px] text-sm font-semibold text-neutral-500 outline-0 transition-all hover:bg-neutral-200 active:scale-90 data-[selected]:bg-es-500 data-[selected]:text-white [&>svg]:size-4">
               <FlaskConical />
               Test262
             </Tab>
           </div>
           {tab === 1 && test262ViewerCondition && (
             <div className="m-0 p-0">
-              {defaultFlag
-                ? defaultTest262Set?.length
-                : selectedTest262Set?.length}{" "}
-              founded
+              {`${
+                defaultFlag
+                  ? defaultTest262Set?.length
+                  : selectedTest262Set?.length
+              } founded`}
             </div>
           )}
         </TabList>
         <TabPanels className="relative flex size-full flex-1 overflow-scroll">
-          <TabPanel className="flex w-full flex-1">
+          <TabPanel className="grow-1 shrink-1 flex w-full basis-auto">
             {/*<section className="grow-1 shrink-1 w-full basis-auto">*/}
             {programViewerCondition && (
               <ProgramViewer
@@ -99,6 +105,8 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
                 iter={defaultFlag ? defaultIter : selectedIter}
               />
             )}
+            {state === "Waiting" && <Click />}
+            {state === "NotFound" && <NotSupported />}
             {/*</section>*/}
           </TabPanel>
           <TabPanel className="flex size-full flex-1">
@@ -110,6 +118,8 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
                   }
                 />
               )}
+              {state === "Waiting" && <Click />}
+              {state === "NotFound" && <NotSupported />}
             </section>
           </TabPanel>
         </TabPanels>
@@ -239,6 +249,30 @@ export const EmptyVisualizer = () => {
         <CardHeader title="Test262" icon={FlaskConical} />
         <div></div>
       </Card>
+    </div>
+  );
+};
+
+export const Click = () => {
+  return (
+    <div className="absolute left-0 top-0 z-[900] flex size-full items-center justify-center bg-[#ccc] bg-opacity-35">
+      <div className="items-cener flex items-center justify-center gap-2">
+        <Mouse />
+        <p className="text-sm">
+          Start by pressing a step with Option (Alt) + Left Click
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export const NotSupported = () => {
+  return (
+    <div className="absolute left-0 top-0 z-[900] flex size-full items-center justify-center bg-[#ccc] bg-opacity-35">
+      <div className="items-cener flex items-center justify-center gap-2">
+        <OctagonX />
+        <p className="text-sm">Program not supported yet</p>
+      </div>
     </div>
   );
 };

@@ -13,7 +13,8 @@ type State =
   | "StepUpdated"
   | "FeatureUpdated"
   | "CallPathUpdated"
-  | "ProgramUpdated";
+  | "ProgramUpdated"
+  | "NotFound";
 
 function useVisualizer(db: IndexedDb) {
   const [tab, setTab] = useState<number>(0);
@@ -276,6 +277,10 @@ function useVisualizer(db: IndexedDb) {
 
   useEffect(() => {
     switch (state) {
+      case "NotFound":
+        if (globalLoading) setGlobalLoading(false);
+        clearAll();
+        break;
       case "Waiting":
         if (globalLoading) setGlobalLoading(false);
         debug(
@@ -289,9 +294,13 @@ function useVisualizer(db: IndexedDb) {
           "----------------------------------- StepUpdated -----------------------------------",
         );
         debug(`StepUpdated with ${selectedStep.ecId} ${selectedStep.step}`);
+        if (!selectedStep.ecId || !selectedStep.step) {
+          setState("Waiting");
+          return;
+        }
         (async () => {
           if (await handleStepUpdate()) setState("FeatureUpdated");
-          else setState("Waiting");
+          else setState("NotFound");
         })();
         break;
       case "FeatureUpdated":
@@ -300,7 +309,7 @@ function useVisualizer(db: IndexedDb) {
           "----------------------------------- FeatureUpdated -----------------------------------",
         );
         if (handleFeatureUpdate()) setState("CallPathUpdated");
-        else setState("Waiting");
+        else setState("NotFound");
         break;
       case "CallPathUpdated":
         if (!globalLoading) setGlobalLoading(true);
@@ -309,7 +318,7 @@ function useVisualizer(db: IndexedDb) {
         );
         (async () => {
           if (await handleCallPathUpdate()) setState("ProgramUpdated");
-          else setState("Waiting");
+          else setState("NotFound");
         })();
         break;
       case "ProgramUpdated":
