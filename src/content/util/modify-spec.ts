@@ -2,7 +2,6 @@ import { numToStep } from "./convert-id.ts";
 import { MessageType } from "../../types/message.ts";
 
 let $selectedEl: HTMLElement | null = null;
-let modifying = false;
 
 function modifySpec() {
   document.querySelectorAll("emu-clause").forEach(($emuClause) => {
@@ -26,7 +25,6 @@ function modifySpec() {
     const $step = step as HTMLElement;
     $step.addEventListener("click", (e: MouseEvent) => {
       if (!e.altKey) return;
-      if (modifying) return;
       e.preventDefault();
       e.stopPropagation();
 
@@ -72,19 +70,17 @@ function highlightStepsRecursively(
 function highlightStep($li: HTMLLIElement, id: string) {
   $li.classList.add("step");
   $li.setAttribute("visId", id);
-  // let abruptCnt = 1;
+  let abruptCnt = 1;
 
   for (let i = $li.childNodes.length - 1; i >= 0; i--) {
     const node = $li.childNodes[i];
-    wrapQuestionMarks(node, `${id}?`);
-    // if (wrapQuestionMarks(node, `${id}?${abruptCnt}`)) abruptCnt++;
+    if (wrapQuestionMarks(node, `${id}?${abruptCnt}`)) abruptCnt++;
   }
 
   ["else", "otherwise"].forEach((pattern) =>
     wrapIfElseSections($li, id, pattern),
   );
   wrapInlineIf($li, id);
-  // wrapIfOtherwiseSections($li, id);
 }
 
 function wrapQuestionMarks(node: ChildNode, id: string) {

@@ -1,9 +1,8 @@
 import { DownloadIcon } from "lucide-react";
-import React, { useState } from "react";
-import { Loading } from "@/content/App.tsx";
+import React from "react";
 import { Virtualizer } from "@tanstack/react-virtual";
 
-const rawUrl = (test262: string) =>
+export const rawUrl = (test262: string) =>
   `https://raw.githubusercontent.com/tc39/test262/3a7a72aef5009eb22117231d40f9a5a66a9a595a/test/${test262}`;
 
 const url = (test262: string) =>
@@ -21,15 +20,9 @@ const Test262Viewer = ({
   test262Set: string[];
   rowVirtualizer: Virtualizer<Element, Element>;
 }) => {
-  const [loading, setLoading] = useState(false);
   const parentRef = React.useRef(null);
 
-  const downloadFile = async (
-    filePath: string,
-    fileName: string,
-    withOutLoading: boolean = false,
-  ) => {
-    if (!withOutLoading) setLoading(true);
+  const downloadFile = async (filePath: string, fileName: string) => {
     try {
       const response = await fetch(filePath);
       const text = await response.text();
@@ -48,8 +41,6 @@ const Test262Viewer = ({
       window.URL.revokeObjectURL(downloadUrl);
     } catch (e) {
       console.error(`failed to download ${fileName} ${filePath}`, e);
-    } finally {
-      if (!withOutLoading) setLoading(false);
     }
   };
 
@@ -61,7 +52,6 @@ const Test262Viewer = ({
         position: "relative",
       }}
     >
-      {loading && <Loading />}
       {rowVirtualizer.getVirtualItems().map((vi) => {
         const test262 = test262Set[vi.index];
         return (
