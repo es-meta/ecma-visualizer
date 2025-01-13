@@ -1,9 +1,11 @@
-import hljs from "highlight.js/lib/core";
-import javascript from "highlight.js/lib/languages/javascript";
 import { Play } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import "codemirror/lib/codemirror.css";
+import "codemirror/mode/javascript/javascript";
+import { Controlled } from "react-codemirror2/.ts";
 
 const WEB_DEBUGGER_URL = "http://localhost:3000";
-hljs.registerLanguage("javascript", javascript);
 
 const ProgramViewer = ({
   program,
@@ -12,22 +14,33 @@ const ProgramViewer = ({
   program: string;
   iter: number;
 }) => {
-  const highlightedCode = hljs.highlight(program, {
-    language: "javascript",
-  }).value;
+  const [code, setCode] = useState("");
+
+  useEffect(() => {
+    setCode(program);
+  }, [program]);
+
+  const url =
+    program === code
+      ? `${WEB_DEBUGGER_URL}?prog=${encodeURIComponent(program)}&iter=${encodeURIComponent(iter)}`
+      : `${WEB_DEBUGGER_URL}?prog=${encodeURIComponent(code)}`;
 
   return (
-    <div className="m-0 w-full p-3">
-      <pre className="m-0 w-full overflow-scroll">
-        <code
-          className="hljs language-javascript whitespace-pre-wrap text-base"
-          dangerouslySetInnerHTML={{
-            __html: highlightedCode,
-          }}
-        />
-      </pre>
+    <div className="m-0 size-full">
+      <Controlled
+        className="min-h-full text-sm"
+        value={code}
+        options={{
+          lineNumbers: true,
+          // matchBrackets: true,
+          mode: "javascript",
+        }}
+        onBeforeChange={(editor, data, value) => {
+          setCode(value);
+        }}
+      />
       <a
-        href={`${WEB_DEBUGGER_URL}?prog=${encodeURIComponent(program)}&iter=${encodeURIComponent(iter)}`}
+        href={url}
         target="_blank"
         className="absolute bottom-3 right-3 flex cursor-pointer flex-row items-center gap-1 bg-transparent text-sm text-blue-600 hover:text-blue-800"
       >

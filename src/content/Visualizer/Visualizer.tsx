@@ -47,9 +47,10 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
       {/* Minimal Program */}
       <ResizablePanel>
         <ResizablePanelGroup
-          className="flex min-h-0 flex-1 flex-row"
+          className="relative flex min-h-0 flex-1 flex-row overflow-hidden"
           direction="horizontal"
         >
+          {(progState === "Waiting" || test262State === "Waiting") && <Click />}
           <ResizablePanel className="relative flex min-h-0 w-full flex-col divide-y divide-neutral-300 overflow-hidden rounded-tl-xl border border-neutral-300 bg-white">
             <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
               <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
@@ -91,7 +92,8 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
       <ResizableHandle withHandle />
 
       {/* CallPath */}
-      <ResizablePanel className="flex min-h-0 w-full flex-1 flex-col divide-y divide-neutral-300 overflow-hidden rounded-b-xl border border-neutral-300 bg-white">
+      <ResizablePanel className="relative flex min-h-0 w-full flex-1 flex-col divide-y divide-neutral-300 overflow-hidden rounded-b-xl border border-neutral-300 bg-white">
+        {callStack.length === 0 && <Click2 />}
         <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
           <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
             <Layers />
@@ -101,8 +103,7 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
             delete all
           </button>
         </div>
-        <section className="relative w-full flex-auto basis-auto overflow-scroll">
-          {callStack.length === 0 && <Click2 />}
+        <section className="w-full flex-auto basis-auto overflow-scroll">
           {callStack.length !== 0 && (
             <CallStackViewer
               callStack={callStack}
