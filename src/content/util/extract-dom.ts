@@ -102,9 +102,16 @@ export function extractSDO() {
     Array.from($emuProduction.getElementsByTagName("emu-rhs")).forEach(
       ($emuRhs, idx) =>
         (json[`${name}[${idx}]`] =
-          $lhs[0].outerHTML + $geq[0].outerHTML + $emuRhs.outerHTML),
+          removeEmuParams($lhs[0].outerHTML) +
+          $geq[0].outerHTML +
+          removeEmuParams($emuRhs.outerHTML)),
     );
   });
 
   return json;
+}
+
+function removeEmuParams(htmlString: string) {
+  const regex = /<emu-params[\s\S]*?<\/emu-params>/gi;
+  return htmlString.replace(regex, "");
 }

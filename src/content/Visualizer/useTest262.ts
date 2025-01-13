@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
-import { CToProgId } from "../../types/maps.ts";
+import { CToTestId } from "../../types/maps.ts";
 import IndexedDb from "../util/indexed-db.ts";
+import {
+  bitwiseOrStrings,
+  convertToIndex,
+  getBitString,
+} from "../util/decode.ts";
 
 type SelectedStep = {
   ecId: string | null;
@@ -14,24 +19,26 @@ type State =
   | "ProgramUpdated"
   | "NotFound";
 
-function useVisualizer(db: IndexedDb, callStack: number[]) {
+function useTest262(db: IndexedDb, callStack: number[]) {
   const [globalLoading, setGlobalLoading] = useState<boolean>(false);
+
   const [selectedStep, setSelectedStep] = useState<SelectedStep>({
     ecId: null,
     step: null,
   });
 
-  const [allCallPaths, setAllCallPaths] = useState<CToProgId | null>(null);
-  const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
-  const [selectedIter, setSelectedIter] = useState<number | null>(null);
+  const [allTestIds, setAllTestIds] = useState<CToTestId | null>(null);
+
+  const [selectedTest262Set, setSelectedTest262] = useState<string[] | null>(
+    null,
+  );
 
   const [state, setState] = useState<State>("Waiting");
 
   /** State Control **/
   useEffect(() => {
     const handleChange = (e: CustomEvent<SelectedStep>) => {
-      if (state === "FNCUpdated" || state === "StepUpdated") return;
-
+      if (!(state === "Waiting" || state === "ProgramUpdated")) return;
       const { ecId, step } = e.detail;
       setSelectedStep({ ecId, step });
       setState("StepUpdated");
@@ -84,54 +91,55 @@ function useVisualizer(db: IndexedDb, callStack: number[]) {
     debug(nodeIds);
 
     // 4. FnCs
-
+    // ToDO Eliminate Redundant Codes
     const fncsPromise = nodeIds.map((nodeId) =>
-      nodeIdToProgId(nodeId?.toString()),
+      nodeIdToTest262(nodeId?.toString()),
     );
 
     const fncs = (await Promise.all(fncsPromise)).filter((fnc) => fnc !== null);
     if (fncs.length === 0) return false;
 
-    const allCtoProgIds: CToProgId = {};
+    const allCToTestIds: CToTestId = {};
     fncs.forEach((fnc) =>
       Object.keys(fnc).forEach((key) => {
         Object.keys(fnc[key]).forEach((innerKey) => {
-          allCtoProgIds[innerKey] = fnc[key][innerKey];
+          allCToTestIds[innerKey] = fnc[key][innerKey];
         });
       }),
     );
-    debug("[allCtoProgIds]");
-    debug(allCtoProgIds);
+    debug("[allCToTestIds]");
+    debug(allCToTestIds);
 
-    setAllCallPaths(allCtoProgIds);
+    setAllTestIds(allCToTestIds);
 
     return true;
   }
 
   async function handleFnCUpdate(): Promise<boolean> {
     debug(`Current Call Stack : ${callStackToString()}`);
-    if (allCallPaths === null) return false;
+    if (allTestIds === null) return false;
     const callPathString = callStackToString();
 
-    let minProg = "";
-    let minIter = -1;
-    for (const callPathKey of Object.keys(allCallPaths)) {
+    let accBitString: string = "";
+    for (const callPathKey of Object.keys(allTestIds)) {
       if (callPathKey.startsWith(callPathString)) {
-        const [progId, iter] = allCallPaths[callPathKey];
-        const minProgram = await progIdToProg(progId.toString());
+        const encoded = allTestIds[callPathKey];
+        const bitString = getBitString(encoded);
 
-        if (minProgram !== null) {
-          if (minProg === "" || minProg.length > minProgram.length) {
-            minProg = minProgram;
-            minIter = iter;
-          }
-        }
+        if (accBitString === "") accBitString = bitString;
+        else accBitString = bitwiseOrStrings(accBitString, bitString);
       }
     }
+    const test262Ids = convertToIndex(accBitString);
+    const test262NamesPromise = test262Ids.map((test262Id) =>
+      testIdToTest262(test262Id),
+    );
+    const test262Names = (await Promise.all(test262NamesPromise)).filter(
+      (test262Name) => test262Name !== null,
+    );
+    if (test262Names.length === 0) return false;
+    setSelectedTest262(test262Names);
 
-    if (minIter === -1) return false;
-    setSelectedProgram(minProg);
-    setSelectedIter(minIter);
     return true;
   }
 
@@ -175,26 +183,16 @@ function useVisualizer(db: IndexedDb, callStack: number[]) {
   }, [callStack]);
 
   function clearAll() {
-    setAllCallPaths(null);
-    setSelectedProgram(null);
-    setSelectedIter(null);
+    setAllTestIds(null);
+    setSelectedTest262(null);
   }
 
   /** Map Converters **/
   async function stepToNodeId(step: string) {
     return await db.getValue("step-to-nodeId", step);
   }
-  async function nodeIdToProgId(nodeId: string) {
-    return await db.getValue("nodeId-to-progId", nodeId);
-  }
-  async function progIdToProg(progId: string) {
-    return await db.getValue("progId-to-prog", progId);
-  }
-  async function funcIdToFunc(funcId: string) {
-    return await db.getValue("funcId-to-func", funcId);
-  }
-  async function funcToEcId(func: string) {
-    return await db.getValue("func-to-ecId", func);
+  async function nodeIdToTest262(nodeId: string) {
+    return await db.getValue("nodeId-to-test262", nodeId);
   }
   async function ecIdToFunc(ecId: string) {
     return await db.getValue("ecId-to-func", ecId);
@@ -202,53 +200,19 @@ function useVisualizer(db: IndexedDb, callStack: number[]) {
   async function funcToFuncId(func: string) {
     return await db.getValue("func-to-funcId", func);
   }
-  async function ecIdToAlgoName(ecId: string) {
-    return await db.getValue("ecId-to-algo-name", ecId);
-  }
-  async function funcToSdo(funcId: string) {
-    return await db.getValue("func-to-sdo", funcId);
-  }
-  async function callIdToFuncId(callId: string) {
-    return await db.getValue("callId-to-funcId", callId);
-  }
 
-  async function convertCallIdToAlgoOrSyntax(
-    callId: string,
-  ): Promise<[string, string] | [null, null]> {
-    const funcAndStep = await callIdToFuncId(callId);
-    if (funcAndStep === null) return [null, null];
-    const [funcId, step] = funcAndStep.split("/");
-    const func = await funcIdToFunc(funcId);
-    if (func === null) return [null, null];
-
-    const regex = /\[\s*(\d+),\s*\d+\s*\]/;
-    const match = func.match(regex);
-
-    if (match) {
-      const idx = match[1];
-      const split = func.split("[");
-      const sdo = await funcToSdo(`${split[0]}[${idx}]`);
-      if (sdo === null) return [null, null];
-      return [sdo, step];
-    } else {
-      const ecId = await funcToEcId(func);
-      if (ecId === null) return [null, null];
-      const alg = await ecIdToAlgoName(ecId);
-      if (alg === null) return [null, null];
-      return [alg, step];
-    }
+  async function testIdToTest262(testId: string) {
+    return await db.getValue("testId-to-test262", testId);
   }
 
   return {
     state,
     globalLoading,
-    convertCallIdToAlgoOrSyntax,
-    selectedProgram,
-    selectedIter,
+    selectedTest262Set,
   };
 }
 
-export default useVisualizer;
+export default useTest262;
 
 /** Helper Functions **/
 
