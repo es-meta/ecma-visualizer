@@ -4,14 +4,26 @@ function useCallStack() {
   const [callStack, setCallStack] = useState<number[]>([]);
   const key = "CALLSTACK";
 
-  function updateCallStack() {
+  function getCallStack() {
     const existingData = sessionStorage.getItem(key);
-    const dataArray = existingData ? JSON.parse(existingData) : [];
-    setCallStack(dataArray);
+    return existingData ? JSON.parse(existingData) : [];
+  }
+
+  function updateCallStack() {
+    const stack = getCallStack();
+    setCallStack(stack);
   }
 
   function saveCallStack() {
     sessionStorage.setItem(key, JSON.stringify(callStack));
+  }
+
+  function popStack() {
+    deleteStack(0);
+  }
+
+  function flushStack() {
+    setCallStack([]);
   }
 
   function deleteStack(idx: number) {
@@ -40,7 +52,8 @@ function useCallStack() {
 
   return {
     callStack,
-    deleteStack,
+    popStack,
+    flushStack,
   };
 }
 

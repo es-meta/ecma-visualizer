@@ -20,7 +20,7 @@ function useVisualizer(db: IndexedDb) {
   const [tab, setTab] = useState<number>(0);
   const [globalLoading, setGlobalLoading] = useState<boolean>(false);
 
-  const { callStack, deleteStack } = useCallStack();
+  const { callStack, popStack, flushStack } = useCallStack();
 
   const [selectedStep, setSelectedStep] = useState<SelectedStep>({
     ecId: null,
@@ -147,14 +147,32 @@ function useVisualizer(db: IndexedDb) {
     if (tab === 0) {
       if (allCallPaths === null) return false;
       const callPathString = callStackToString();
-      console.log(callPathString);
-      if (!allCallPaths[callPathString]) return false;
-      const [progId, iter] = allCallPaths[callPathString];
 
-      const program = await progIdToProg(progId.toString());
+      let minProg = "";
+      let minIter = -1;
+      for (const callPathKey of Object.keys(allCallPaths)) {
+        console.log(
+          callPathKey,
+          callPathString,
+          callPathKey.startsWith(callPathString),
+        );
 
-      setSelectedProgram(program);
-      setSelectedIter(iter);
+        if (callPathKey.startsWith(callPathString)) {
+          const [progId, iter] = allCallPaths[callPathKey];
+          const minProgram = await progIdToProg(progId.toString());
+
+          if (minProgram !== null) {
+            if (minProg === "" || minProg.length > minProgram.length) {
+              minProg = minProgram;
+              minIter = iter;
+            }
+          }
+        }
+      }
+
+      if (minIter === -1) return false;
+      setSelectedProgram(minProg);
+      setSelectedIter(minIter);
     } else {
       if (allTestIds === null) return false;
       const callPathString = callStackToString();
@@ -174,6 +192,7 @@ function useVisualizer(db: IndexedDb) {
   }
 
   useEffect(() => {
+    debug(`[State] : ${state}`);
     switch (state) {
       case "NotFound":
         if (globalLoading) setGlobalLoading(false);
@@ -181,20 +200,14 @@ function useVisualizer(db: IndexedDb) {
         break;
       case "Waiting":
         if (globalLoading) setGlobalLoading(false);
-        debug(
-          "----------------------------------- Waiting -----------------------------------",
-        );
         clearAll();
         break;
       case "StepUpdated":
         if (!globalLoading) setGlobalLoading(true);
-        debug(
-          "----------------------------------- StepUpdated -----------------------------------",
-        );
         debug(`StepUpdated with ${selectedStep.ecId} ${selectedStep.step}`);
         if (!selectedStep.ecId || !selectedStep.step) {
           setState("Waiting");
-          return;
+          break;
         }
         (async () => {
           if (await handleStepUpdate()) setState("FNCUpdated");
@@ -203,9 +216,6 @@ function useVisualizer(db: IndexedDb) {
         break;
       case "FNCUpdated":
         if (!globalLoading) setGlobalLoading(true);
-        debug(
-          "----------------------------------- FeatureUpdated -----------------------------------",
-        );
         (async () => {
           if (await handleFnCUpdate()) setState("ProgramUpdated");
           else setState("NotFound");
@@ -213,9 +223,6 @@ function useVisualizer(db: IndexedDb) {
         break;
       case "ProgramUpdated":
         if (globalLoading) setGlobalLoading(false);
-        debug(
-          "----------------------------------- ProgramUpdated -----------------------------------",
-        );
         break;
       default:
         break;
@@ -223,8 +230,9 @@ function useVisualizer(db: IndexedDb) {
   }, [state]);
 
   useEffect(() => {
-    setState("StepUpdated");
-  }, [tab]);
+    if (!selectedStep.ecId || !selectedStep.step) setState("Waiting");
+    else setState("StepUpdated");
+  }, [tab, callStack]);
 
   function clearAll() {
     setAllCallPaths(null);
@@ -301,7 +309,9 @@ function useVisualizer(db: IndexedDb) {
 
   return {
     callStack,
-    deleteStack,
+    popStack,
+    flushStack,
+
     state,
     globalLoading,
     tab,

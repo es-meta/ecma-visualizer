@@ -17,10 +17,10 @@ const ProgramViewer = ({
   }).value;
 
   return (
-    <div className="m-0 h-fit w-full p-3">
-      <pre className="m-0">
+    <div className="m-0 w-full p-3">
+      <pre className="m-0 w-full overflow-scroll">
         <code
-          className="hljs language-javascript text-base"
+          className="hljs language-javascript whitespace-pre-wrap text-base"
           dangerouslySetInnerHTML={{
             __html: highlightedCode,
           }}

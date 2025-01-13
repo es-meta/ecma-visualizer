@@ -28,17 +28,41 @@ async function addCallstackLink() {
       e.preventDefault();
 
       const existingData = sessionStorage.getItem(key);
-      const dataArray = existingData ? JSON.parse(existingData) : [];
-      console.log(dataArray);
-      dataArray.unshift(callId);
-      sessionStorage.setItem(key, JSON.stringify(dataArray));
+      const stack = existingData ? JSON.parse(existingData) : [];
 
-      if (window.location.href.split("#")[0] === $a.href.split("#")[0]) {
-        window.dispatchEvent(new CustomEvent("callstack updated"));
+      if (checkCycle(callId, stack)) {
+        stack.unshift(callId);
+        sessionStorage.setItem(key, JSON.stringify(stack));
+
+        if (window.location.href.split("#")[0] === $a.href.split("#")[0]) {
+          window.dispatchEvent(new CustomEvent("callstack updated"));
+        }
+        window.location.href = $a.href;
       }
-      window.location.href = $a.href;
     });
   });
+}
+
+function checkCycle(id: number, callStack: number[]): boolean {
+  const tmpStack = [id, ...callStack];
+  const lastIdx = tmpStack.length;
+
+  for (let i = 1; i <= tmpStack.length / 2; i++) {
+    const idx = lastIdx - i;
+    const idx2 = lastIdx - i * 2;
+    const arr1 = tmpStack.slice(idx);
+    const arr2 = tmpStack.slice(idx2, idx);
+    if (isArrayEqual(arr1, arr2)) return false;
+  }
+
+  return true;
+}
+
+function isArrayEqual(arr1: number[], arr2: number[]): boolean {
+  return (
+    arr1.length === arr2.length &&
+    arr1.every((value, index) => value === arr2[index])
+  );
 }
 
 export default addCallstackLink;

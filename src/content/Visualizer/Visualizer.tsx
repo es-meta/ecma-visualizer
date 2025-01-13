@@ -1,4 +1,4 @@
-import { Code, FlaskConical, Mouse, OctagonX } from "lucide-react";
+import { Code, FlaskConical, Layers, Mouse, OctagonX } from "lucide-react";
 import IndexedDb from "../util/indexed-db.ts";
 import ProgramViewer from "./ProgramViewer.tsx";
 import useVisualizer from "./useVisualizer.ts";
@@ -10,16 +10,18 @@ import CallStackViewer from "./CallStackViewer.tsx";
 
 const Visualizer = ({ db }: { db: IndexedDb }) => {
   const {
+    callStack,
+    popStack,
+    flushStack,
+
     state,
     globalLoading,
     tab,
-    callStack,
-    deleteStack,
-    convertCallIdToAlgoOrSyntax,
     setTab,
+    convertCallIdToAlgoOrSyntax,
     selectedProgram,
-    selectedTest262Set,
     selectedIter,
+    selectedTest262Set,
   } = useVisualizer(db);
 
   const programViewerCondition =
@@ -30,10 +32,10 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
     state === "ProgramUpdated" && selectedTest262Set !== null;
 
   return (
-    <div className="flex size-full min-h-0 flex-auto flex-col justify-start gap-3 overflow-x-scroll p-3">
+    <div className="flex size-full h-full flex-auto flex-col justify-start gap-3 overflow-x-scroll p-3">
       {globalLoading && <Loading />}
       <TabGroup
-        className="relative flex min-h-[300px] w-full flex-1 flex-col divide-y divide-neutral-300 overflow-hidden rounded-xl border border-neutral-300 bg-white"
+        className="relative flex h-[300px] min-h-0 w-full flex-col divide-y divide-neutral-300 overflow-hidden rounded-xl border border-neutral-300 bg-white"
         selectedIndex={tab}
         onChange={setTab}
       >
@@ -54,18 +56,16 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
             </div>
           )}
         </TabList>
-        <TabPanels className="relative flex size-full flex-1 overflow-scroll">
-          <TabPanel className="grow-1 shrink-1 flex w-full basis-auto">
-            {/*<section className="grow-1 shrink-1 w-full basis-auto">*/}
+        <TabPanels className="relative flex min-h-0 flex-auto flex-col">
+          <TabPanel className="flex w-full flex-auto basis-auto overflow-scroll">
             {programViewerCondition && (
               <ProgramViewer program={selectedProgram} iter={selectedIter} />
             )}
             {state === "Waiting" && <Click />}
             {state === "NotFound" && <NotSupported />}
-            {/*</section>*/}
           </TabPanel>
-          <TabPanel className="flex size-full flex-1">
-            <section className="grow-1 shrink-1 max-h-[500px] basis-auto overflow-scroll">
+          <TabPanel className="flex size-full flex-1 overflow-scroll">
+            <section className="grow-1 shrink-1 max-h-[500px] basis-auto">
               {test262ViewerCondition && (
                 <Test262Viewer test262Set={selectedTest262Set} />
               )}
@@ -75,55 +75,30 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
           </TabPanel>
         </TabPanels>
       </TabGroup>
-      <section className="flex-1">
-        <CallStackViewer
-          callStack={callStack}
-          convertCallIdToAlgoOrSyntax={convertCallIdToAlgoOrSyntax}
-          deleteStack={deleteStack}
-        />
+      <section className="flex h-[350px] min-h-0 w-full flex-col divide-y divide-neutral-300 overflow-hidden rounded-xl border border-neutral-300 bg-white">
+        <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
+          <div className="flex flex-row items-center gap-1 text-sm text-neutral-600 [&>svg]:size-4">
+            <Layers />
+            CallPath
+          </div>
+          <button className="cursor-pointer" onClick={flushStack}>
+            delete all
+          </button>
+        </div>
+        <section className="relative w-full flex-auto basis-auto overflow-scroll">
+          {callStack.length === 0 && <Click2 />}
+          {callStack.length !== 0 && (
+            <CallStackViewer
+              callStack={callStack}
+              convertCallIdToAlgoOrSyntax={convertCallIdToAlgoOrSyntax}
+              popStack={popStack}
+            />
+          )}
+        </section>
       </section>
     </div>
   );
 };
-
-// const Card = ({
-//   children,
-//   enabled,
-// }: {
-//   children: ReactNode;
-//   enabled: boolean;
-// }) => {
-//   return (
-//     <div className="relative flex min-h-0 min-w-[300px] flex-1 flex-col divide-y divide-neutral-300 overflow-hidden rounded-xl border border-neutral-300 bg-white">
-//       {children}
-//       {!enabled && (
-//         <div className="absolute left-0 top-0 flex size-full items-center justify-center bg-neutral-200 opacity-70">
-//           <p>Disabled</p>
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-//
-// const CardHeader = ({
-//   title,
-//   icon: Icon,
-//   children,
-// }: {
-//   title: string;
-//   icon: ElementType;
-//   children?: ReactNode;
-// }) => {
-//   return (
-//     <header className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between px-3">
-//       <h3 className="font-500 m-0 line-clamp-1 flex flex-row items-center justify-start gap-1 pb-2 pt-2.5 text-sm text-neutral-600">
-//         <Icon size={16} />
-//         {title}
-//       </h3>
-//       {children}
-//     </header>
-//   );
-// };
 
 export const Click = () => {
   return (
@@ -133,6 +108,17 @@ export const Click = () => {
         <p className="text-sm">
           Start by pressing a step with Option (Alt) + Left Click
         </p>
+      </div>
+    </div>
+  );
+};
+
+export const Click2 = () => {
+  return (
+    <div className="absolute left-0 top-0 z-[900] flex size-full items-center justify-center bg-[#ccc] bg-opacity-35">
+      <div className="items-cener flex items-center justify-center gap-2">
+        <Mouse />
+        <p className="text-sm">Start by clicking a function</p>
       </div>
     </div>
   );

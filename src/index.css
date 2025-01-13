@@ -26,7 +26,7 @@
   }
 
   #spec-container {
-    flex-basis: 60% !important;
+    flex-basis: auto !important;
     overflow: scroll !important;
   }
 }
@@ -92,7 +92,6 @@ body.active .selected:hover {
   top: 0;
   right: 0;
   display: block;
-  width: 800px;
   height: 100dvh;
 }
 

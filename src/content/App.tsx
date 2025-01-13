@@ -46,7 +46,7 @@ const App = () => {
   }, []);
 
   return (
-    <section className="relative flex size-full flex-auto flex-col divide-y divide-neutral-300 overflow-scroll bg-[#f5f5f5] shadow-[-4px_0_4px_rgba(0,0,0,0.1)]">
+    <section className="relative flex h-full w-[600px] flex-auto flex-col divide-y divide-neutral-300 overflow-scroll bg-[#f5f5f5] shadow-[-4px_0_4px_rgba(0,0,0,0.1)]">
       <VisualizerHeader />
       {loading && <Loading />}
       {idxDb && <Visualizer db={idxDb} />}
