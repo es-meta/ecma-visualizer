@@ -21,17 +21,41 @@ const uncompressRLE = (compressed: string): string => {
     .join("");
 };
 
-export const decode = (encoded: string): string[] => {
+export function getBitString(encoded: string): string {
   const base64 = encoded.startsWith("@") ? uncompressRLE(encoded) : encoded;
   const bytes = decodeBase64(base64);
-  const bits = bytes.reduce(
+  return bytes.reduce(
     (acc, byte) => acc + byte.toString(2).padStart(8, "0"),
     "",
   );
-  return bits
+}
+
+export function convertToIndex(bitString: string): string[] {
+  return bitString
     .split("")
     .reverse()
     .map((bit, index) => (bit === "1" ? index : -1))
     .filter((pos) => pos !== -1)
     .map((id) => id.toString());
+}
+
+export const decode = (encoded: string): string[] => {
+  const bits = getBitString(encoded);
+  return convertToIndex(bits);
 };
+
+export function bitwiseOrStrings(
+  bitString1: string,
+  bitString2: string,
+): string {
+  const maxLength = Math.max(bitString1.length, bitString2.length);
+  const padded1 = bitString1.padStart(maxLength, "0");
+  const padded2 = bitString2.padStart(maxLength, "0");
+
+  let result = "";
+  for (let i = 0; i < maxLength; i++) {
+    result += padded1[i] === "1" || padded2[i] === "1" ? "1" : "0";
+  }
+
+  return result;
+}

@@ -77,7 +77,7 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
       </TabGroup>
       <section className="flex h-[350px] min-h-0 w-full flex-col divide-y divide-neutral-300 overflow-hidden rounded-xl border border-neutral-300 bg-white">
         <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
-          <div className="flex flex-row items-center gap-1 text-sm text-neutral-600 [&>svg]:size-4">
+          <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
             <Layers />
             CallPath
           </div>

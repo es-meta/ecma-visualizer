@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { CToProgId, CToTestId } from "../../types/maps.ts";
 import IndexedDb from "../util/indexed-db.ts";
-import { decode } from "../util/decode.ts";
+import {
+  bitwiseOrStrings,
+  convertToIndex,
+  getBitString,
+} from "../util/decode.ts";
 import useCallStack from "./useCallStack.tsx";
 
 type SelectedStep = {
@@ -54,7 +58,7 @@ function useVisualizer(db: IndexedDb) {
   }, []);
 
   function callStackToString() {
-    return callStack.length === 0 ? "ncp" : callStack.join("<");
+    return callStack.length === 0 ? "" : callStack.join("<");
   }
 
   async function handleStepUpdate(): Promise<boolean> {
@@ -144,6 +148,7 @@ function useVisualizer(db: IndexedDb) {
   }
 
   async function handleFnCUpdate(): Promise<boolean> {
+    debug(`Current Call Stack : ${callStackToString()}`);
     if (tab === 0) {
       if (allCallPaths === null) return false;
       const callPathString = callStackToString();
@@ -151,12 +156,6 @@ function useVisualizer(db: IndexedDb) {
       let minProg = "";
       let minIter = -1;
       for (const callPathKey of Object.keys(allCallPaths)) {
-        console.log(
-          callPathKey,
-          callPathString,
-          callPathKey.startsWith(callPathString),
-        );
-
         if (callPathKey.startsWith(callPathString)) {
           const [progId, iter] = allCallPaths[callPathKey];
           const minProgram = await progIdToProg(progId.toString());
@@ -176,9 +175,18 @@ function useVisualizer(db: IndexedDb) {
     } else {
       if (allTestIds === null) return false;
       const callPathString = callStackToString();
-      const encodedString = allTestIds[callPathString];
-      if (!encodedString) return false;
-      const test262Ids = decode(encodedString);
+
+      let accBitString: string = "";
+      for (const callPathKey of Object.keys(allTestIds)) {
+        if (callPathKey.startsWith(callPathString)) {
+          const encoded = allTestIds[callPathKey];
+          const bitString = getBitString(encoded);
+
+          if (accBitString === "") accBitString = bitString;
+          else accBitString = bitwiseOrStrings(accBitString, bitString);
+        }
+      }
+      const test262Ids = convertToIndex(accBitString);
       const test262NamesPromise = test262Ids.map((test262Id) =>
         testIdToTest262(test262Id),
       );

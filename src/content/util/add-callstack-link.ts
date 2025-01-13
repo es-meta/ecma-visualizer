@@ -28,34 +28,47 @@ async function addCallstackLink() {
       e.preventDefault();
 
       const existingData = sessionStorage.getItem(key);
+      const existingData2 = sessionStorage.getItem("ECID");
       const stack = existingData ? JSON.parse(existingData) : [];
+      const ecId = existingData2 ? JSON.parse(existingData2) : [];
+      const c = callerAndStep.split("/");
+      const caller = c[0];
 
-      if (checkCycle(callId, stack)) {
-        stack.unshift(callId);
-        sessionStorage.setItem(key, JSON.stringify(stack));
+      const [newCallStack, newEcId] = checkStack(callId, stack, ecId, caller);
 
-        if (window.location.href.split("#")[0] === $a.href.split("#")[0]) {
-          window.dispatchEvent(new CustomEvent("callstack updated"));
-        }
-        window.location.href = $a.href;
+      newCallStack.unshift(callId);
+      newEcId.unshift(callee[1] + "[0]");
+      sessionStorage.setItem(key, JSON.stringify(newCallStack));
+      sessionStorage.setItem("ECID", JSON.stringify(newEcId));
+
+      if (window.location.href.split("#")[0] === $a.href.split("#")[0]) {
+        window.dispatchEvent(new CustomEvent("callstack updated"));
       }
+      window.location.href = $a.href;
     });
   });
 }
 
-function checkCycle(id: number, callStack: number[]): boolean {
-  const tmpStack = [id, ...callStack];
-  const lastIdx = tmpStack.length;
-
-  for (let i = 1; i <= tmpStack.length / 2; i++) {
-    const idx = lastIdx - i;
-    const idx2 = lastIdx - i * 2;
-    const arr1 = tmpStack.slice(idx);
-    const arr2 = tmpStack.slice(idx2, idx);
-    if (isArrayEqual(arr1, arr2)) return false;
+function checkStack(
+  callId: number,
+  callStack: number[],
+  ecId: string[],
+  callEc: string,
+): [number[], string[]] {
+  if (callStack.length > 0) {
+    const lastEcId = ecId[0];
+    if (lastEcId !== callEc) return [[], []];
   }
 
-  return true;
+  const idSet = new Set(callStack);
+  if (idSet.has(callId)) {
+    while (callStack.length > 0) {
+      const head = callStack.shift()!;
+      ecId.shift();
+      if (head === callId) break;
+    }
+  }
+  return [callStack, ecId];
 }
 
 function isArrayEqual(arr1: number[], arr2: number[]): boolean {
