@@ -20,22 +20,23 @@ async function addCallstackLink() {
     const callId: number = data[callerAndStep + "/" + callee[1] + "[0]"];
     if (callId === undefined) return;
 
+    const key = "CALLSTACK";
+
     $a.setAttribute("call", callId.toString());
     $a.classList.add("callstep");
     $a.addEventListener("click", (e) => {
       e.preventDefault();
 
-      const existingData = sessionStorage.getItem("callstack");
+      const existingData = sessionStorage.getItem(key);
       const dataArray = existingData ? JSON.parse(existingData) : [];
-      dataArray.push(callId);
-      sessionStorage.setItem("callstack", JSON.stringify(dataArray));
+      console.log(dataArray);
+      dataArray.unshift(callId);
+      sessionStorage.setItem(key, JSON.stringify(dataArray));
 
       if (window.location.href.split("#")[0] === $a.href.split("#")[0]) {
-        window.location.href = $a.href;
-        window.location.reload();
-      } else {
-        window.location.href = $a.href;
+        window.dispatchEvent(new CustomEvent("callstack updated"));
       }
+      window.location.href = $a.href;
     });
   });
 }

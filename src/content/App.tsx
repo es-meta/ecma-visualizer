@@ -15,6 +15,7 @@ const tables: Table[] = [
   "func-to-sdo",
   "ecId-to-algo-name",
   "testId-to-test262",
+  "callId-to-funcId",
 ];
 
 const logo = chrome.runtime.getURL("images/logo.jpeg");

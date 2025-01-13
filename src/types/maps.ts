@@ -16,6 +16,7 @@ export type CToTestId = Record<string, string>;
 
 export type ProgIdToProg = Record<string, string>;
 export type TestIdToTest262 = Record<string, string>;
+export type CallIdToFuncId = Record<string, string>;
 
 export function isRecStrStr(obj: unknown): obj is Record<string, string> {
   if (typeof obj !== "object" || obj === null) return false;

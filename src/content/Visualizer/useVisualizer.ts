@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { CToProgId, CToTestId } from "../../types/maps.ts";
 import IndexedDb from "../util/indexed-db.ts";
 import { decode } from "../util/decode.ts";
+import useCallStack from "./useCallStack.tsx";
 
 type SelectedStep = {
   ecId: string | null;
@@ -11,30 +12,24 @@ type SelectedStep = {
 type State =
   | "Waiting"
   | "StepUpdated"
-  | "FeatureUpdated"
-  | "CallPathUpdated"
+  | "FNCUpdated"
   | "ProgramUpdated"
   | "NotFound";
 
 function useVisualizer(db: IndexedDb) {
   const [tab, setTab] = useState<number>(0);
   const [globalLoading, setGlobalLoading] = useState<boolean>(false);
-  const [callStack, setCallStack] = useState<number[]>([]);
+
+  const { callStack, deleteStack } = useCallStack();
 
   const [selectedStep, setSelectedStep] = useState<SelectedStep>({
     ecId: null,
     step: null,
   });
 
-  const [cToProgIds, setCToProgIds] = useState<CToProgId[] | null>(null);
-  const [cToTestIds, setCtoTestIds] = useState<CToTestId[] | null>(null);
-  const [currentFeatureList, setCurrentFeatureList] = useState<string[] | null>(
-    null,
-  );
-  const [callPaths, setCallPaths] = useState<string[] | null>(null);
+  const [allCallPaths, setAllCallPaths] = useState<CToProgId | null>(null);
+  const [allTestIds, setAllTestIds] = useState<CToTestId | null>(null);
 
-  const [selectedFNCIdx, setSelectedFNCIdx] = useState<number | null>(null);
-  const [selectedCallPath, setSelectedCallPath] = useState<string | null>(null);
   const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
   const [selectedTest262Set, setSelectedTest262] = useState<string[] | null>(
     null,
@@ -42,18 +37,9 @@ function useVisualizer(db: IndexedDb) {
   const [selectedIter, setSelectedIter] = useState<number | null>(null);
 
   const [state, setState] = useState<State>("Waiting");
-  const [defaultProgram, setDefaultProgram] = useState<string | null>(null);
-  const [defaultIter, setDefaultIter] = useState<number | null>(null);
-  const [defaultTest262Set, setDefaultTest262Set] = useState<string[] | null>(
-    null,
-  );
 
   /** State Control **/
   useEffect(() => {
-    const existingData = sessionStorage.getItem("callstack");
-    const dataArray = existingData ? JSON.parse(existingData) : [];
-    setCallStack(dataArray);
-
     const handleChange = (e: CustomEvent<SelectedStep>) => {
       if (!(state === "Waiting" || state === "ProgramUpdated")) return;
       const { ecId, step } = e.detail;
@@ -66,6 +52,10 @@ function useVisualizer(db: IndexedDb) {
       window.removeEventListener("custom", handleChange as EventListener);
     };
   }, []);
+
+  function callStackToString() {
+    return callStack.length === 0 ? "ncp" : callStack.join("<");
+  }
 
   async function handleStepUpdate(): Promise<boolean> {
     const { ecId, step } = selectedStep;
@@ -114,169 +104,72 @@ function useVisualizer(db: IndexedDb) {
         (fnc) => fnc !== null,
       );
       if (fncs.length === 0) return false;
-      debug("[fncs from targetNodeIDs]");
-      debug(fncs);
 
-      const cps: CToProgId[] = [];
-      const allFeatures = fncs.flatMap((fnc) => {
-        const keys = Object.keys(fnc);
-        keys.forEach((key) => {
-          cps.push(fnc[key]);
-        });
-        return keys;
-      });
-      debug("[cps collected]");
-      debug(cps);
+      const allCtoProgIds: CToProgId = {};
+      fncs.forEach((fnc) =>
+        Object.keys(fnc).forEach((key) => {
+          Object.keys(fnc[key]).forEach((innerKey) => {
+            allCtoProgIds[innerKey] = fnc[key][innerKey];
+          });
+        }),
+      );
+      debug("[allCtoProgIds]");
+      debug(allCtoProgIds);
 
-      const allProgIdNIter = cps.flatMap((cp) =>
-        Object.keys(cp).map((key) => cp[key]),
-      );
-      const allProgPromise = allProgIdNIter.map((id) =>
-        progIdToProg(id[0].toString()),
-      );
-      const allProgs = (await Promise.all(allProgPromise)).filter(
-        (prog) => prog !== null,
-      );
-      if (allProgs.length === 0) return false;
-      let minimalProg: string = allProgs[0];
-      let minimalIter: number = allProgIdNIter[0][1];
-      allProgs.forEach((prog, idx) => {
-        if (minimalProg.length > prog.length) {
-          minimalProg = prog;
-          minimalIter = allProgIdNIter[idx][1];
-        }
-      });
-      setDefaultProgram(minimalProg);
-      setDefaultIter(minimalIter);
-
-      const featureHtmlPromises = allFeatures.map((feature) =>
-        convertFuncIdToAlgoOrSyntax(feature),
-      );
-      const featureHtmls = (await Promise.all(featureHtmlPromises)).filter(
-        (fnc) => fnc !== null,
-      );
-
-      setCurrentFeatureList(featureHtmls);
-      setCToProgIds(cps);
-      setSelectedFNCIdx(0);
+      setAllCallPaths(allCtoProgIds);
     } else {
       const fncsPromise = nodeIds.map((nodeId) =>
-        nodeIdToTest262(nodeId.toString()),
+        nodeIdToTest262(nodeId?.toString()),
       );
 
       const fncs = (await Promise.all(fncsPromise)).filter(
         (fnc) => fnc !== null,
       );
       if (fncs.length === 0) return false;
-      debug("[fncs from targetNodeIDs for Test]");
-      debug(fncs);
 
-      const cps: CToTestId[] = [];
-      const allFeatures = fncs.flatMap((fnc) => {
-        const keys = Object.keys(fnc);
-        keys.forEach((key) => {
-          cps.push(fnc[key]);
-        });
-        return keys;
-      });
+      const allCToTestIds: CToTestId = {};
+      fncs.forEach((fnc) =>
+        Object.keys(fnc).forEach((key) => {
+          Object.keys(fnc[key]).forEach((innerKey) => {
+            allCToTestIds[innerKey] = fnc[key][innerKey];
+          });
+        }),
+      );
+      debug("[allCToTestIds]");
+      debug(allCToTestIds);
 
-      const allTestEncodings = cps.flatMap((cp) =>
-        Object.keys(cp).flatMap((key) => cp[key]),
-      );
-      const allTestIdSets: Set<string> = new Set();
-      allTestEncodings.forEach((encoding) => {
-        decode(encoding).forEach((id) => allTestIdSets.add(id));
-      });
-      const allTestPromise = Array.from(allTestIdSets).map((testId) =>
-        testIdToTest262(testId),
-      );
-      const allTestName = (await Promise.all(allTestPromise)).filter(
-        (prog) => prog !== null,
-      );
-      setDefaultTest262Set(allTestName);
-
-      const featureHtmlPromises = allFeatures.map((feature) =>
-        convertFuncIdToAlgoOrSyntax(feature),
-      );
-      const featureHtmls = (await Promise.all(featureHtmlPromises)).filter(
-        (fnc) => fnc !== null,
-      );
-      debug("[featureHtmls]");
-      debug(featureHtmls);
-
-      setCurrentFeatureList(featureHtmls);
-      setCtoTestIds(cps);
-      setSelectedFNCIdx(0);
+      setAllTestIds(allCToTestIds);
     }
     return true;
   }
 
-  function handleFeatureUpdate(): boolean {
+  async function handleFnCUpdate(): Promise<boolean> {
     if (tab === 0) {
-      if (cToProgIds === null || selectedFNCIdx === null) return false;
-      const cpToProgId = cToProgIds[selectedFNCIdx];
-      const cps = Object.keys(cpToProgId);
-      if (cps.length === 0) return false;
-      debug("[cToProgIds]");
-      debug(cpToProgId);
+      if (allCallPaths === null) return false;
+      const callPathString = callStackToString();
+      console.log(callPathString);
+      if (!allCallPaths[callPathString]) return false;
+      const [progId, iter] = allCallPaths[callPathString];
 
-      setCallPaths(cps);
-      setSelectedCallPath(cps[0]);
-    } else {
-      if (cToTestIds === null || selectedFNCIdx === null) return false;
-      const cpToTestId = cToTestIds[selectedFNCIdx];
-      const cps = Object.keys(cpToTestId);
-      debug("cps");
-      debug(cps);
-
-      if (cps.length === 0) return false;
-
-      setCallPaths(cps);
-      setSelectedCallPath(cps[0]);
-    }
-    return true;
-  }
-
-  async function handleCallPathUpdate(): Promise<boolean> {
-    if (tab === 0) {
-      if (
-        cToProgIds === null ||
-        selectedFNCIdx === null ||
-        selectedCallPath === null
-      )
-        return false;
-
-      const [progId, iter] = cToProgIds[selectedFNCIdx][selectedCallPath];
       const program = await progIdToProg(progId.toString());
-      debug("program");
-      debug(program);
 
       setSelectedProgram(program);
       setSelectedIter(iter);
     } else {
-      if (
-        cToTestIds === null ||
-        selectedFNCIdx === null ||
-        selectedCallPath === null
-      )
-        return false;
-
-      const encodedString = cToTestIds[selectedFNCIdx][selectedCallPath];
-      debug(`encoded!! ${encodedString}`);
+      if (allTestIds === null) return false;
+      const callPathString = callStackToString();
+      const encodedString = allTestIds[callPathString];
+      if (!encodedString) return false;
       const test262Ids = decode(encodedString);
-      debug(`decoded`);
-      debug(test262Ids);
-      const test262NamePromise = test262Ids.map((test262Id) =>
+      const test262NamesPromise = test262Ids.map((test262Id) =>
         testIdToTest262(test262Id),
       );
-      const test262Names = (await Promise.all(test262NamePromise)).filter(
+      const test262Names = (await Promise.all(test262NamesPromise)).filter(
         (test262Name) => test262Name !== null,
       );
       if (test262Names.length === 0) return false;
-
       setSelectedTest262(test262Names);
     }
-
     return true;
   }
 
@@ -304,25 +197,17 @@ function useVisualizer(db: IndexedDb) {
           return;
         }
         (async () => {
-          if (await handleStepUpdate()) setState("FeatureUpdated");
+          if (await handleStepUpdate()) setState("FNCUpdated");
           else setState("NotFound");
         })();
         break;
-      case "FeatureUpdated":
+      case "FNCUpdated":
         if (!globalLoading) setGlobalLoading(true);
         debug(
           "----------------------------------- FeatureUpdated -----------------------------------",
         );
-        if (handleFeatureUpdate()) setState("CallPathUpdated");
-        else setState("NotFound");
-        break;
-      case "CallPathUpdated":
-        if (!globalLoading) setGlobalLoading(true);
-        debug(
-          "----------------------------------- CallPathUpdated -----------------------------------",
-        );
         (async () => {
-          if (await handleCallPathUpdate()) setState("ProgramUpdated");
+          if (await handleFnCUpdate()) setState("ProgramUpdated");
           else setState("NotFound");
         })();
         break;
@@ -342,17 +227,11 @@ function useVisualizer(db: IndexedDb) {
   }, [tab]);
 
   function clearAll() {
-    setCToProgIds(null);
-    setCurrentFeatureList(null);
-    setCallPaths(null);
-    setSelectedFNCIdx(null);
-    setSelectedCallPath(null);
+    setAllCallPaths(null);
+    setAllTestIds(null);
     setSelectedProgram(null);
     setSelectedIter(null);
-    setCtoTestIds(null);
     setSelectedTest262(null);
-    setDefaultProgram(null);
-    // setDefaultTest262Set(null)
   }
 
   /** Map Converters **/
@@ -389,10 +268,18 @@ function useVisualizer(db: IndexedDb) {
   async function testIdToTest262(testId: string) {
     return await db.getValue("testId-to-test262", testId);
   }
+  async function callIdToFuncId(callId: string) {
+    return await db.getValue("callId-to-funcId", callId);
+  }
 
-  async function convertFuncIdToAlgoOrSyntax(funcId: string) {
+  async function convertCallIdToAlgoOrSyntax(
+    callId: string,
+  ): Promise<[string, string] | [null, null]> {
+    const funcAndStep = await callIdToFuncId(callId);
+    if (funcAndStep === null) return [null, null];
+    const [funcId, step] = funcAndStep.split("/");
     const func = await funcIdToFunc(funcId);
-    if (func === null) return null;
+    if (func === null) return [null, null];
 
     const regex = /\[\s*(\d+),\s*\d+\s*\]/;
     const match = func.match(regex);
@@ -400,46 +287,29 @@ function useVisualizer(db: IndexedDb) {
     if (match) {
       const idx = match[1];
       const split = func.split("[");
-      return await funcToSdo(`${split[0]}[${idx}]`);
+      const sdo = await funcToSdo(`${split[0]}[${idx}]`);
+      if (sdo === null) return [null, null];
+      return [sdo, step];
     } else {
       const ecId = await funcToEcId(func);
-      if (ecId === null) return null;
-      return await ecIdToAlgoName(ecId);
+      if (ecId === null) return [null, null];
+      const alg = await ecIdToAlgoName(ecId);
+      if (alg === null) return [null, null];
+      return [alg, step];
     }
   }
 
-  /* Visualizer used functions */
-  const changeFeature = (idx: number) => {
-    if (state !== "Waiting" && state !== "ProgramUpdated") return;
-    setSelectedFNCIdx(idx);
-    setState("FeatureUpdated");
-  };
-
-  const changeCallPath = (cp: string) => {
-    if (state !== "Waiting" && state !== "ProgramUpdated") return;
-    setSelectedCallPath(cp);
-    setState("CallPathUpdated");
-  };
-
   return {
     callStack,
+    deleteStack,
     state,
     globalLoading,
     tab,
     setTab,
-    convertFuncIdToAlgoOrSyntax,
-    changeFeature,
-    changeCallPath,
-    currentFeatureList,
-    callPaths,
-    selectedFNCIdx,
-    selectedCallPath,
+    convertCallIdToAlgoOrSyntax,
     selectedProgram,
     selectedIter,
     selectedTest262Set,
-    defaultProgram,
-    defaultIter,
-    defaultTest262Set,
   };
 }
 

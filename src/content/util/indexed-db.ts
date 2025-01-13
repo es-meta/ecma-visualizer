@@ -1,5 +1,6 @@
 import { IDBPDatabase, openDB } from "idb";
 import {
+  CallIdToFuncId,
   EcIdToAlgoName,
   EcIdToFunc,
   FuncIdToFunc,
@@ -27,6 +28,7 @@ type TableTypes = {
   "ecId-to-algo-name": EcIdToAlgoName;
   "func-to-sdo": FuncToSdo;
   "testId-to-test262": TestIdToTest262;
+  "callId-to-funcId": CallIdToFuncId;
 };
 
 class IndexedDb {
