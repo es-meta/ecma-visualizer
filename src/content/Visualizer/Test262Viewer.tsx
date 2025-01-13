@@ -1,5 +1,7 @@
 import { DownloadIcon } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
+import { Loading } from "@/content/App.tsx";
+import { TD, TH, TR } from "@/content/Visualizer/CallStackViewer.tsx";
 
 const rawUrl = (test262: string) =>
   `https://raw.githubusercontent.com/tc39/test262/3a7a72aef5009eb22117231d40f9a5a66a9a595a/test/${test262}`;
@@ -48,42 +50,60 @@ const Test262Viewer = ({ test262Set }: { test262Set: string[] }) => {
     }
   };
 
-  // async function downloadAll() {
-  // const zip = new JSZip();
-  // selectedTest262Set.map(async (test262: string) => {});
-
-  // setBatchLoading(true);
-  // for (let i = 0; i < selectedTest262Set.length; i += 1) {
-  //   // const batch = selectedTest262Set.slice(i, i + BATCH_SIZE);
-  //   // const batchPromises = batch.map((test262) =>
-  //   //   downloadFile(rawUrl(test262), fileName(test262), true),
-  //   // );
-  //   // await Promise.all(batchPromises);
-  // }
-  // // const downloadPromise = selectedTest262Set.map((test262) =>
-  // //   downloadFile(rawUrl(test262), fileName(test262), true),
-  // // );
-  // // await Promise.all(downloadPromise);
-  // setBatchLoading(false);
-  // }
-
   return (
-    <div className="m-0 flex flex-col gap-1 overflow-scroll p-3">
-      {/*<button onClick={() => downloadAll()}>Download All</button>*/}
-      {loading && <div>Downloading..</div>}
-      {test262Set.map((test262) => (
-        <div className="flex flex-row text-sm">
-          <a href={url(test262)} target="_blank">
-            {test262}
-          </a>
-          <button
-            onClick={() => downloadFile(rawUrl(test262), fileName(test262))}
-          >
-            <DownloadIcon className="h-4 w-4" />
-          </button>
-        </div>
-      ))}
-    </div>
+    <table className="w-full border-collapse">
+      {loading && <Loading />}
+      <thead className="sticky left-0 top-0 z-[500] w-full bg-white">
+        <tr>
+          <TH>name</TH>
+          <th className="text-center" />
+        </tr>
+      </thead>
+      <tbody>
+        {test262Set.map((test262) => (
+          <TR>
+            <TD>
+              <a href={url(test262)} target="_blank">
+                {test262}
+              </a>
+            </TD>
+            <td className="px-1 text-center">
+              <button
+                className="inline cursor-pointer"
+                onClick={() => downloadFile(rawUrl(test262), fileName(test262))}
+              >
+                <DownloadIcon className="h-4 w-4" />
+              </button>
+            </td>
+          </TR>
+        ))}
+        {/*{algorithms &&*/}
+        {/*  algorithms.map((algoNstep, idx) => {*/}
+        {/*    const [algos, step] = algoNstep;*/}
+
+        {/*    return (*/}
+        {/*      <TR>*/}
+        {/*        <TD className="px-2 text-sm">{idx}</TD>*/}
+        {/*        <TD>*/}
+        {/*          <Algorithm algorithm={algos} />*/}
+        {/*        </TD>*/}
+        {/*        <TD className="px-2">{step}</TD>*/}
+        {/*        <td className="px-2 text-center">*/}
+        {/*          {idx === 0 && (*/}
+        {/*            <Trash2*/}
+        {/*              size={15}*/}
+        {/*              className="inline cursor-pointer text-neutral-300 hover:text-neutral-500"*/}
+        {/*              onClick={popStack}*/}
+        {/*            >*/}
+        {/*              x*/}
+        {/*            </Trash2>*/}
+        {/*          )}*/}
+        {/*        </td>*/}
+        {/*      </TR>*/}
+        {/*    );*/}
+        {/*  })}*/}
+      </tbody>
+    </table>
   );
 };
 

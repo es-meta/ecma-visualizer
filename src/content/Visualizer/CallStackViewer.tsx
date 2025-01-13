@@ -73,7 +73,7 @@ const CallStackViewer = ({
   );
 };
 
-const TR = ({
+export const TR = ({
   className,
   children,
 }: {
@@ -89,7 +89,7 @@ const TR = ({
   );
 };
 
-const TD = ({
+export const TD = ({
   className,
   children,
 }: {
@@ -108,7 +108,7 @@ const TD = ({
   );
 };
 
-const TH = ({
+export const TH = ({
   className,
   children,
 }: {

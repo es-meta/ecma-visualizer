@@ -125,3 +125,9 @@ body.active .selected:hover {
   border-width: 0;
   border-style: solid;
 }
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+  }
+}

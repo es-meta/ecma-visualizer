@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "noUnusedLocals": false,
-    "noUnusedParameters": false
+    "noUnusedParameters": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "files": [],
   "references": [
@@ -11,5 +15,6 @@
     {
       "path": "./tsconfig.node.json"
     }
-  ]
+  ],
+
 }

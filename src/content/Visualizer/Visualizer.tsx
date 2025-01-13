@@ -7,6 +7,11 @@ import ProgramViewer from "./ProgramViewer.tsx";
 import Test262Viewer from "./Test262Viewer.tsx";
 import useCallStack from "./useCallStack.tsx";
 import useTest262 from "./useTest262.ts";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable.tsx";
 
 const Visualizer = ({ db }: { db: IndexedDb }) => {
   const { callStack, popStack, flushStack } = useCallStack();
@@ -33,50 +38,60 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
     test262State === "ProgramUpdated" && selectedTest262Set !== null;
 
   return (
-    <div className="flex min-h-0 w-full flex-auto flex-col items-stretch justify-start gap-3 overflow-x-scroll p-3">
+    <ResizablePanelGroup
+      direction="vertical"
+      className="flex min-h-0 w-full flex-auto flex-col items-stretch justify-start p-3"
+    >
       {(progLoading || test262Loading) && <Loading />}
 
       {/* Minimal Program */}
-      <section className="flex min-h-0 flex-1 flex-row gap-3">
-        <section className="relative flex min-h-0 w-full flex-col divide-y divide-neutral-300 overflow-hidden rounded-xl border border-neutral-300 bg-white">
-          <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
-            <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
-              <Code />
-              Program
+      <ResizablePanel>
+        <ResizablePanelGroup
+          className="flex min-h-0 flex-1 flex-row"
+          direction="horizontal"
+        >
+          <ResizablePanel className="relative flex min-h-0 w-full flex-col divide-y divide-neutral-300 overflow-hidden rounded-tl-xl border border-neutral-300 bg-white">
+            <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
+              <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
+                <Code />
+                Program
+              </div>
             </div>
-          </div>
-          <div className="relative w-full flex-auto basis-auto overflow-scroll">
-            {programViewerCondition && (
-              <ProgramViewer program={selectedProgram} iter={selectedIter} />
-            )}
-            {progState === "Waiting" && <Click />}
-            {progState === "NotFound" && <NotSupported />}
-          </div>
-        </section>
+            <div className="relative w-full flex-auto basis-auto overflow-scroll">
+              {programViewerCondition && (
+                <ProgramViewer program={selectedProgram} iter={selectedIter} />
+              )}
+              {progState === "NotFound" && <NotSupported />}
+            </div>
+          </ResizablePanel>
 
-        {/* Test262 */}
-        <section className="relative flex w-full flex-col divide-y divide-neutral-300 overflow-hidden rounded-xl border border-neutral-300 bg-white">
-          <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
-            <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
-              <FlaskConical />
-              Test262
+          <ResizableHandle withHandle />
+
+          {/* Test262 */}
+          <ResizablePanel className="relative flex w-full flex-col divide-y divide-neutral-300 overflow-hidden rounded-tr-xl border border-neutral-300 bg-white">
+            <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
+              <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
+                <FlaskConical />
+                Test262
+              </div>
+              {test262ViewerCondition && (
+                <div className="text-sm font-medium">{`${selectedTest262Set.length} found`}</div>
+              )}
             </div>
-            {test262ViewerCondition && (
-              <div className="text-sm font-medium">{`${selectedTest262Set.length} found`}</div>
-            )}
-          </div>
-          <div className="relative w-full flex-auto basis-auto overflow-scroll">
-            {test262ViewerCondition && (
-              <Test262Viewer test262Set={selectedTest262Set} />
-            )}
-            {test262State === "Waiting" && <Click />}
-            {test262State === "NotFound" && <NotSupported />}
-          </div>
-        </section>
-      </section>
+            <div className="relative w-full flex-auto basis-auto overflow-scroll">
+              {test262ViewerCondition && (
+                <Test262Viewer test262Set={selectedTest262Set} />
+              )}
+              {test262State === "NotFound" && <NotSupported />}
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </ResizablePanel>
+
+      <ResizableHandle withHandle />
 
       {/* CallPath */}
-      <section className="flex min-h-0 w-full flex-1 flex-col divide-y divide-neutral-300 overflow-hidden rounded-xl border border-neutral-300 bg-white">
+      <ResizablePanel className="flex min-h-0 w-full flex-1 flex-col divide-y divide-neutral-300 overflow-hidden rounded-b-xl border border-neutral-300 bg-white">
         <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
           <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
             <Layers />
@@ -96,8 +111,8 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
             />
           )}
         </section>
-      </section>
-    </div>
+      </ResizablePanel>
+    </ResizablePanelGroup>
   );
 };
 
