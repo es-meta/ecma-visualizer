@@ -2,6 +2,7 @@ import Visualizer, { EmptyVisualizer } from "./Visualizer/Visualizer.tsx";
 import { ReactNode, useEffect, useState } from "react";
 import IndexedDb, { Table } from "./util/indexed-db.ts";
 import { Frown, LoaderCircle } from "lucide-react";
+import { Field, Label, Select } from "@headlessui/react";
 
 const tables: Table[] = [
   "nodeId-to-test262",
@@ -25,6 +26,8 @@ const App = () => {
   const [error, setError] = useState(false);
   const [idxDb, setIdxDb] = useState<IndexedDb | null>(null);
 
+  const [width, setWidth] = useState<number>(700);
+
   useEffect(() => {
     (async () => {
       try {
@@ -46,8 +49,11 @@ const App = () => {
   }, []);
 
   return (
-    <section className="relative flex h-full w-[800px] flex-col divide-y divide-neutral-300 bg-[#f5f5f5] shadow-[-4px_0_4px_rgba(0,0,0,0.1)]">
-      <VisualizerHeader />
+    <section
+      className="relative flex h-full flex-col divide-y divide-neutral-300 bg-[#f5f5f5] shadow-[-4px_0_4px_rgba(0,0,0,0.1)]"
+      style={{ width: width }}
+    >
+      <VisualizerHeader width={width} setWidth={setWidth} />
       {loading && <Loading />}
       {idxDb ? <Visualizer db={idxDb} /> : <EmptyVisualizer />}
       {error && <Error />}
@@ -57,7 +63,7 @@ const App = () => {
 
 export const Loading = () => {
   return (
-    <div className="absolute left-0 top-0 z-[900] flex size-full items-center justify-center bg-[#ccc] bg-opacity-35">
+    <div className="absolute left-0 top-0 z-[900] flex size-full items-center justify-center">
       <LoaderCircle className="h-10 w-10 animate-spin font-bold text-[#E79118]" />
     </div>
   );
@@ -79,7 +85,13 @@ const Error = () => {
   );
 };
 
-const VisualizerHeader = () => {
+const VisualizerHeader = ({
+  width,
+  setWidth,
+}: {
+  width: number;
+  setWidth: React.Dispatch<React.SetStateAction<number>>;
+}) => {
   return (
     <header className="z-[999] flex flex-row items-center justify-between bg-white px-4 py-2 text-sm">
       <div className="flex flex-row items-center gap-2">
@@ -88,6 +100,19 @@ const VisualizerHeader = () => {
         <div className="text-base font-normal">ECMA Visualizer</div>
       </div>
       <div className="flex flex-row items-center gap-2">
+        <Field className="flex flex-row items-center gap-2">
+          <Label>Width</Label>
+          <Select
+            name="width"
+            value={width}
+            onChange={(e) => setWidth(Number(e.target.value))}
+          >
+            <option value={700}>700px</option>
+            <option value={900}>900px</option>
+            <option value={1100}>1100px</option>
+            <option value={1300}>1300px</option>
+          </Select>
+        </Field>
         <A href="https://github.com/es-meta/esmeta">
           <GitHubIcon />
           ESMeta

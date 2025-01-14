@@ -41,9 +41,9 @@ async function addCallstackLink() {
       sessionStorage.setItem(key, JSON.stringify(newCallStack));
       sessionStorage.setItem("ECID", JSON.stringify(newEcId));
 
-      if (window.location.href.split("#")[0] === $a.href.split("#")[0]) {
-        window.dispatchEvent(new CustomEvent("callstack updated"));
-      }
+      // if (window.location.href.split("#")[0] === $a.href.split("#")[0]) {
+      //   window.dispatchEvent(new CustomEvent("callstack updated"));
+      // }
       window.location.href = $a.href;
     });
   });

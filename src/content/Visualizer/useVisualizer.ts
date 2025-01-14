@@ -130,7 +130,9 @@ function useVisualizer(db: IndexedDb, callStack: number[]) {
     }
 
     if (minIter === -1) return false;
-    setSelectedProgram(minProg);
+    setSelectedProgram(minProg.trim());
+
+    if (selectedStep.step?.includes("?")) minIter += 1;
     setSelectedIter(minIter);
     return true;
   }

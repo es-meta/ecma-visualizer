@@ -10,6 +10,14 @@ const $root = document.createElement("section");
 $body.classList.add("active");
 initDom();
 
+window.addEventListener("popstate", (e) => {
+  window.dispatchEvent(new CustomEvent("callstack updated"));
+});
+
+window.addEventListener("pageshow", (e) => {
+  window.dispatchEvent(new CustomEvent("callstack updated"));
+});
+
 function initDom() {
   createEcmaVisualizer();
   modifySpec();
