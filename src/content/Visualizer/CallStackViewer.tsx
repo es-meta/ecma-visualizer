@@ -140,7 +140,7 @@ const Algorithm = ({ algorithm }: { algorithm: string }) => {
   else
     return (
       <h1
-        className="pointer-events-none m-0 p-0 text-sm"
+        className="pointer-events-none m-0 p-0 text-xs"
         dangerouslySetInnerHTML={{ __html: algorithm }}
       />
     );

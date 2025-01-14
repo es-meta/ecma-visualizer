@@ -1,14 +1,4 @@
-import {
-  Code,
-  Eraser,
-  FlaskConical,
-  FolderDown,
-  Layers,
-  LoaderCircle,
-  Mouse,
-  OctagonX,
-  Play,
-} from "lucide-react";
+import { Code, Eraser, FlaskConical, FolderDown, Layers, LoaderCircle, Mouse, OctagonX, Play } from "lucide-react";
 import IndexedDb from "../util/indexed-db.ts";
 import useVisualizer from "./useVisualizer.ts";
 import { Loading } from "../App.tsx";
@@ -17,11 +7,7 @@ import ProgramViewer from "./ProgramViewer.tsx";
 import Test262Viewer from "./Test262Viewer.tsx";
 import useCallStack from "./useCallStack.tsx";
 import useTest262 from "./useTest262.ts";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable.tsx";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable.tsx";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef, useState } from "react";
 import { handleDownload } from "@/content/util/download-file.ts";
@@ -119,7 +105,7 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
               target="_blank"
               className="flex cursor-pointer flex-row items-center gap-1 bg-transparent text-sm text-blue-600 hover:text-blue-800"
             >
-              Run on Web Debugger
+              Run on Double Debugger
               <Play size={12} />
             </a>
           )}
