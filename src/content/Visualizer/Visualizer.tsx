@@ -108,7 +108,7 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
         {progState === "NotFound" && <NotSupported />}
         {progState === "Waiting" && <Click />}
         <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
-          <div className="flex flex-row items-center justify-between text-sm font-semibold text-neutral-500 [&>svg]:size-4">
+          <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
             <Code />
             Program
           </div>
