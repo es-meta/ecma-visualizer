@@ -107,6 +107,7 @@ const VisualizerHeader = ({
             value={width}
             onChange={(e) => setWidth(Number(e.target.value))}
           >
+            <option value={500}>500px</option>
             <option value={700}>700px</option>
             <option value={900}>900px</option>
             <option value={1100}>1100px</option>
