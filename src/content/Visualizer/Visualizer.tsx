@@ -7,6 +7,7 @@ import {
   LoaderCircle,
   Mouse,
   OctagonX,
+  Play,
 } from "lucide-react";
 import IndexedDb from "../util/indexed-db.ts";
 import useVisualizer from "./useVisualizer.ts";
@@ -22,8 +23,10 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable.tsx";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { handleDownload } from "@/content/util/download-file.ts";
+
+const WEB_DEBUGGER_URL = "http://localhost:3000";
 
 const Visualizer = ({ db }: { db: IndexedDb }) => {
   const { callStack, popStack, flushStack } = useCallStack();
@@ -81,6 +84,17 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
     })();
   };
 
+  const [code, setCode] = useState<string>("");
+
+  useEffect(() => {
+    if (selectedProgram !== null) setCode(selectedProgram);
+  }, [selectedProgram]);
+
+  const url =
+    selectedProgram === code
+      ? `${WEB_DEBUGGER_URL}?prog=${encodeURIComponent(selectedProgram)}&iter=${encodeURIComponent(selectedIter ?? "")}`
+      : `${WEB_DEBUGGER_URL}?prog=${encodeURIComponent(code)}`;
+
   return (
     <ResizablePanelGroup
       direction="vertical"
@@ -94,14 +108,25 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
         {progState === "NotFound" && <NotSupported />}
         {progState === "Waiting" && <Click />}
         <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
-          <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
+          <div className="flex flex-row items-center justify-between text-sm font-semibold text-neutral-500 [&>svg]:size-4">
             <Code />
             Program
           </div>
+
+          {programViewerCondition && (
+            <a
+              href={url}
+              target="_blank"
+              className="flex cursor-pointer flex-row items-center gap-1 bg-transparent text-sm text-blue-600 hover:text-blue-800"
+            >
+              Run on Web Debugger
+              <Play size={12} />
+            </a>
+          )}
         </div>
         <div className="relative w-full flex-auto basis-auto overflow-scroll">
           {programViewerCondition && (
-            <ProgramViewer program={selectedProgram} iter={selectedIter} />
+            <ProgramViewer code={code} iter={selectedIter} setCode={setCode} />
           )}
         </div>
       </ResizablePanel>
