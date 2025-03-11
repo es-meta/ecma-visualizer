@@ -44,6 +44,23 @@ body {
   flex-direction: row;
 }
 
+.visStep {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+.visQM{
+  background-color: rgba(255, 0, 0, 0.6);
+}
+.visIf{
+  background-color: rgba(0, 255, 0, 0.6);
+}
+.visThen{
+  background-color: rgba(0,0, 255, 0.6);
+}
+.visElse{
+  background-color: rgba(255, 255, 0, 0.6);
+}
+
+
 @media (max-width: 1000px) {
   body {
     flex-direction: column !important;

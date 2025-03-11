@@ -1,5 +1,6 @@
 import "../index.css";
-import modifySpec from "./util/modify-spec.ts";
+// import modifySpec from "./util/modify-spec.ts";
+import transformSpec from "./util/transform-spec.ts";
 import { MessageType } from "../types/message.ts";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
@@ -19,8 +20,9 @@ window.addEventListener("pageshow", (e) => {
 });
 
 function initDom() {
-  createEcmaVisualizer();
-  modifySpec();
+  // createEcmaVisualizer();
+  // modifySpec();
+  transformSpec()
   addCallstackLink().then((_) => _);
   initState().then((_) => _);
 }

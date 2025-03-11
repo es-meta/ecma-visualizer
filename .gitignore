@@ -23,5 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 
+<<<<<<< Updated upstream
 /public/resources/*
 /src/compare/*
+=======
+/src/compare/*
+/public/resources/*
+>>>>>>> Stashed changes

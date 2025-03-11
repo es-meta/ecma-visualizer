@@ -1,15 +1,36 @@
-export function numToStep(step: number, depth: number) {
-  switch (depth % 3) {
-    case 0:
-      return step.toString();
-    case 1:
-      return AlphabetNumeral(step);
-    case 2:
-      return RomanNumeral(step);
-    default:
-      return "";
-  }
+function toStepString(stepInNumArr : number[]) : string {
+  return stepInNumArr.map((num, idx) => {
+    switch (idx % 3) {
+      case 0:
+        return num.toString();
+      case 1:
+        return AlphabetNumeral(num);
+      case 2:
+        return RomanNumeral(num);
+      default:
+        return "";
+    }
+  }).join(".")
 }
+
+function fromStepString(step: string): number[] {
+  const split = step.split(".");
+
+  return split.map((sp, idx) => {
+    switch (idx % 3) {
+      case 0:
+        return parseInt(sp) as number;
+      case 1:
+        return sp.charAt(0).charCodeAt(0) - "a".charCodeAt(0) + 1;
+      case 2:
+        return RomanToNumber(sp);
+      default:
+        return 1;
+    }
+  });
+}
+
+export {toStepString, fromStepString}
 
 function AlphabetNumeral(num: number) {
   const baseCharCode = "a".charCodeAt(0);
@@ -42,23 +63,6 @@ function RomanNumeral(num: number) {
   }
 
   return result;
-}
-
-export function stepToNum(step: string): number[] {
-  const split = step.split(".");
-
-  return split.map((sp, idx) => {
-    switch (idx % 3) {
-      case 0:
-        return parseInt(sp) as number;
-      case 1:
-        return sp.charAt(0).charCodeAt(0) - "a".charCodeAt(0) + 1;
-      case 2:
-        return RomanToNumber(sp);
-      default:
-        return 1;
-    }
-  });
 }
 
 function RomanToNumber(roman: string): number {
