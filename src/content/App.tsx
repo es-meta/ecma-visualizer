@@ -28,37 +28,52 @@ const App = () => {
 
   const [width, setWidth] = useState<number>(700);
 
+  const [str, setStr] = useState<string>("Hello World")
+
   useEffect(() => {
-    (async () => {
-      try {
-        const db = new IndexedDb("myDb");
-        await db.createObjectStore(tables);
-        const promises = tables.map((table) =>
-          db.saveJson(table, `resources/${table}.json`),
-        );
-        await Promise.all(promises);
+      const handleChange = (e: CustomEvent<string>) => {
+        setStr(e.detail);
+      };
+  
+      window.addEventListener("custom", handleChange as EventListener);
+      return () => {
+        window.removeEventListener("custom", handleChange as EventListener);
+      };
+    }, []);
 
-        setIdxDb(db);
-      } catch (e) {
-        console.error(e);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+  return <h1 className="w-96 text-sm">{str}</h1>
 
-  return (
-    <section
-      className="relative flex h-full flex-col divide-y divide-neutral-300 bg-[#f5f5f5] shadow-[-4px_0_4px_rgba(0,0,0,0.1)]"
-      style={{ width: width }}
-    >
-      <VisualizerHeader width={width} setWidth={setWidth} />
-      {loading && <Loading />}
-      {idxDb ? <Visualizer db={idxDb} /> : <EmptyVisualizer />}
-      {error && <Error />}
-    </section>
-  );
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       const db = new IndexedDb("myDb");
+  //       await db.createObjectStore(tables);
+  //       const promises = tables.map((table) =>
+  //         db.saveJson(table, `resources/${table}.json`),
+  //       );
+  //       await Promise.all(promises);
+
+  //       setIdxDb(db);
+  //     } catch (e) {
+  //       console.error(e);
+  //       setError(true);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   })();
+  // }, []);
+
+  // return (
+  //   <section
+  //     className="relative flex h-full flex-col divide-y divide-neutral-300 bg-[#f5f5f5] shadow-[-4px_0_4px_rgba(0,0,0,0.1)]"
+  //     style={{ width: width }}
+  //   >
+  //     <VisualizerHeader width={width} setWidth={setWidth} />
+  //     {loading && <Loading />}
+  //     {idxDb ? <Visualizer db={idxDb} /> : <EmptyVisualizer />}
+  //     {error && <Error />}
+  //   </section>
+  // );
 };
 
 export const Loading = () => {

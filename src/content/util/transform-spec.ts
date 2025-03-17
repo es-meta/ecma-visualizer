@@ -1,15 +1,21 @@
+import { visualizerDebug } from '@/lib/utils'
 import { toStepString } from './convert-id'
+
 
 /*
     Follow algorithm extract logic of ESMeta
 */
 
 const VISID = "visId"
+
 const VISSTEP = "visStep"
+const VISSDOSTEP = "visSDOStep"
 const VISQM = "visQM"
 const VISIF = "visIf"
 const VISTHEN = "visThen"
 const VISELSE = "visElse"
+
+const $selectedStep = null
 
 function transformSpec() {
     document.querySelectorAll<HTMLElement>("emu-alg:not([example])").forEach(($emuAlg) => {
@@ -20,50 +26,104 @@ function transformSpec() {
         if(!$parent || IGNORE_ALGO_PARENT_IDS.has($parent.id)) return
         if($parent.tagName.toLowerCase() !== "emu-clause") return
 
+
         const algType = $parent.getAttribute("type")
         if(!algType) return
+
+        visualizerDebug(algType !== "sdo" && ($parent.querySelectorAll(":scope > emu-alg:not([example])").length > 1), `<emu-clause id="${$parent.id}"/> has multiple <emu-alg>`)
+        
         switch(algType) {
-            case "sdo" : transformGrammar(); break;
+            case "sdo" : 
+                transformSDOAlgorithm($emuAlg, $parent.id);
+
+                const $emuGrammar = $emuAlg.previousElementSibling as HTMLElement
+                /* [TODO] : handle DEFAULT SDO */
+                visualizerDebug(!$emuGrammar || ($emuGrammar.tagName.toLowerCase() !== "emu-grammar"), `<emu-clause id="${$parent.id}"/> has a uncomplete pair of <emu-grammar> and <emu-alg>`)
+                transformGrammar($emuGrammar)
+                break;
             default : 
-                $emuAlg.setAttribute(VISID, $parent.id)
                 transformAlgorithm($emuAlg, $parent.id)
         }
     })
+
+    document.addEventListener("click", (e: MouseEvent) => {
+        if(!e.altKey || !(e.target instanceof HTMLElement)) return;
+    
+        const $clickedStep = isClickable(e.target)
+        if(!$clickedStep) return
+        e.preventDefault()
+        
+        const visId = $clickedStep.getAttribute(VISID)
+        
+        if($clickedStep.classList.contains(VISSTEP))
+            window.dispatchEvent(new CustomEvent("custom", { detail: visId }));
+        else if ($clickedStep.classList.contains(VISSDOSTEP)) 
+            window.dispatchEvent(new CustomEvent("custom", { detail: "SDO" + visId }));
+    })
+}
+
+function transformGrammar($emuGrammar : HTMLElement) {
+    $emuGrammar.querySelectorAll<HTMLElement>("emu-production").forEach($emuProduction => {
+        transformProduction($emuProduction)
+    })
+}
+
+function transformProduction($emuProduction : HTMLElement) {
+    $emuProduction.querySelectorAll<HTMLElement>("emu-rhs").forEach($emuRhs => {
+        transformRHS($emuRhs)
+    })
+}
+
+function transformRHS($emuRhs : HTMLElement) {
+
+}
+
+function isClickable($target : HTMLElement) : HTMLElement | null {
+    if([VISSTEP, VISSDOSTEP].some((cn) => $target.classList.contains(cn))) return $target
+    const $parent = $target.parentElement
+    if([VISSTEP, VISSDOSTEP].some((cn) => $parent?.classList.contains(cn))) return $parent;
+    return null
 }
 
 function transformAlgorithm($emuAlg : HTMLElement, visId: string) {
+    $emuAlg.setAttribute(VISID, visId)
     transformStepRec($emuAlg, [], visId)
 }
 
-function transformStepRec($parent : HTMLElement, stepInNumArr : number[], idBase : string) {
+function transformSDOAlgorithm($emuAlg : HTMLElement, visId: string) {
+    $emuAlg.setAttribute(VISID, visId)
+    transformStepRec($emuAlg, [], visId, true)
+}
+
+function transformStepRec($parent : HTMLElement, stepInNumArr : number[], idBase : string, sdo : boolean = false) {
     const $lis = $parent.querySelectorAll<HTMLLIElement>(":scope > ol > li")
     
     $lis.forEach(($li, idx) =>
-        transformStepRec($li, stepInNumArr.concat(idx+1), idBase)
+        transformStepRec($li, stepInNumArr.concat(idx+1), idBase, sdo)
     )
 
     if(stepInNumArr.length !== 0 && $parent instanceof HTMLLIElement) 
-        transformStep($parent, `${idBase}|${toStepString(stepInNumArr)}`)
+        transformStep($parent, `${idBase}|${toStepString(stepInNumArr)}`, sdo)
 }
 
-function transformStep($li: HTMLLIElement, visId: string) {
-    $li.classList.add(VISSTEP)
+function transformStep($li: HTMLLIElement, visId: string, sdo : boolean) {
+    $li.classList.add(sdo ? VISSDOSTEP : VISSTEP)
     $li.setAttribute(VISID, visId)
 
-    $li.childNodes.forEach((node) => transformQuestionMark(node, `${visId}|?`))
+    $li.childNodes.forEach((node) => transformQuestionMark(node, `${visId}|?`, sdo))
 
     const patterns : string[] = ["else", "otherwise"]
-    patterns.forEach((pattern) => transformInlineIfElse($li, visId, pattern))
-    transformInlineIf($li, visId)
+    patterns.forEach((pattern) => transformInlineIfElse($li, visId, pattern, sdo))
+    transformInlineIf($li, visId, sdo)
 }
 
-// TODO : handle multiple question marks in one step
-function transformQuestionMark(node: ChildNode, visId : string){
+/* [TODO] : handle multiple question marks in one step */
+function transformQuestionMark(node: ChildNode, visId : string, sdo: boolean){
     if (node.nodeType !== Node.TEXT_NODE || !node.nodeValue) return;
 
     const modifiedText = node.nodeValue.replace(
         /\?/g,
-        `<span class="${VISSTEP} ${VISQM}" visId="${visId}">?</span>`,
+        `<span class="${sdo ? VISSDOSTEP : VISSTEP} ${VISQM}" visId="${visId}">?</span>`,
       );
     
     if (modifiedText !== node.nodeValue) {
@@ -72,7 +132,7 @@ function transformQuestionMark(node: ChildNode, visId : string){
     }
 }
 
-function transformInlineIfElse($li: HTMLLIElement, visId: string, pattern: string){
+function transformInlineIfElse($li: HTMLLIElement, visId: string, pattern: string, sdo: boolean){
     const textContent = getChildTextContent($li)
     const regex = new RegExp(`.*if.*${pattern}.*`, "i");
     if (!regex.test(textContent)) return;
@@ -89,23 +149,23 @@ function transformInlineIfElse($li: HTMLLIElement, visId: string, pattern: strin
     const elseToEnd = html.substring(elseIndex);
 
     const newHtml =
-        `<span class="${VISSTEP} ${VISIF}" visId="${visId}|if">${beforeIf}</span>` +
+        `<span class="${sdo ? VISSDOSTEP : VISSTEP} ${VISIF}" visId="${visId}|if">${beforeIf}</span>` +
         ", " +
-        `<span class="${VISSTEP} ${VISTHEN}" visId="${visId}|then">${ifToElse}</span>` +
-        `<span class="${VISSTEP} ${VISELSE}" visId="${visId}|else">${elseToEnd}</span>`;
+        `<span class="${sdo ? VISSDOSTEP : VISSTEP} ${VISTHEN}" visId="${visId}|then">${ifToElse}</span>` +
+        `<span class="${sdo ? VISSDOSTEP : VISSTEP} ${VISELSE}" visId="${visId}|else">${elseToEnd}</span>`;
 
     $li.innerHTML = newHtml;
     $li.classList.remove(VISSTEP);
 }
 
-function transformInlineIf($li: HTMLLIElement, visId: string) {
+function transformInlineIf($li: HTMLLIElement, visId: string, sdo: boolean) {
     const textContent = getChildTextContent($li)
     if (/then$/.test(textContent)) return;
     if (!/if\b/i.test(textContent)) return;
   
     const html = $li.innerHTML;
   
-    // const ifIndex = html.match(/\bif\b/i)?.index;
+    /* [TODO] : handle wrong comma indexes (e.g. WhileLoopEvaluation step e) */
     const commaIndex = html.match(",")?.index;
     if (commaIndex === undefined) return;
   
@@ -113,16 +173,12 @@ function transformInlineIf($li: HTMLLIElement, visId: string) {
     const ifToElse = html.substring(commaIndex + 2);
   
     const newHtml =
-      `<span class="${VISSTEP} ${VISIF}" visId="${visId}|if">${beforeIf}</span>` +
+      `<span class="${sdo ? VISSDOSTEP : VISSTEP} ${VISIF}" visId="${visId}|if">${beforeIf}</span>` +
       ", " +
-      `<span class="${VISSTEP} ${VISTHEN}" visId="${visId}|then">${ifToElse}</span>`;
+      `<span class="${sdo ? VISSDOSTEP : VISSTEP} ${VISTHEN}" visId="${visId}|then">${ifToElse}</span>`;
   
     $li.innerHTML = newHtml;
     $li.classList.remove(VISSTEP);
-  }
-
-function transformGrammar() {
-    // ToDo
 }
 
 function getChildTextContent($element : HTMLElement) {

@@ -1,10 +1,10 @@
 import "../index.css";
-// import modifySpec from "./util/modify-spec.ts";
 import transformSpec from "./util/transform-spec.ts";
 import { MessageType } from "../types/message.ts";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import addCallstackLink from "./util/add-callstack-link.ts";
+import { visualizerDebug } from "@/lib/utils.ts";
 
 const $body = document.querySelector("body")!;
 const $root = document.createElement("section");
@@ -20,10 +20,10 @@ window.addEventListener("pageshow", (e) => {
 });
 
 function initDom() {
-  // createEcmaVisualizer();
-  // modifySpec();
+  visualizerDebug(true, "visualizer debugging running ...")
   transformSpec()
-  addCallstackLink().then((_) => _);
+  createEcmaVisualizer();
+  // addCallstackLink().then((_) => _);
   initState().then((_) => _);
 }
 
