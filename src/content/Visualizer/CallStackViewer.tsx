@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Loading } from "../App.tsx";
 import clsx from "clsx";
 import { Trash2 } from "lucide-react";
 
@@ -33,7 +32,7 @@ const CallStackViewer = ({
 
   return (
     <table className="w-full border-collapse">
-      {loading && <Loading />}
+      {/* {loading && <Loading />} */}
       <thead className="sticky left-0 top-0 z-[500] w-full bg-white">
         <tr>
           <TH>#</TH>

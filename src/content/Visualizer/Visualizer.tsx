@@ -1,128 +1,59 @@
-import { Code, Eraser, FlaskConical, FolderDown, Layers, LoaderCircle, Mouse, OctagonX, Play } from "lucide-react";
-import IndexedDb from "../util/indexed-db.ts";
-import useVisualizer from "./useVisualizer.ts";
-import { Loading } from "../App.tsx";
-import CallStackViewer from "./CallStackViewer.tsx";
+import { Code, Mouse, OctagonX } from "lucide-react";
 import ProgramViewer from "./ProgramViewer.tsx";
-import Test262Viewer from "./Test262Viewer.tsx";
 import useCallStack from "./useCallStack.tsx";
-import useTest262 from "./useTest262.ts";
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable.tsx";
-import { useVirtualizer } from "@tanstack/react-virtual";
-import { useEffect, useRef, useState } from "react";
-import { handleDownload } from "@/content/util/download-file.ts";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable.tsx";
+import { useEffect, useState } from "react";
+import PlayButton from "../components/PlayButton.tsx";
 
 const WEB_DEBUGGER_URL = "http://localhost:3000";
 
-const Visualizer = ({ db }: { db: IndexedDb }) => {
+export type Selection = {
+  secId: string;
+  step: string;
+};
+
+const Visualizer = () => {
   const { callStack, popStack, flushStack } = useCallStack();
-  const {
-    state: progState,
-    globalLoading: progLoading,
 
-    convertCallIdToAlgoOrSyntax,
-    selectedProgram,
-    selectedIter,
-  } = useVisualizer(db, callStack);
-
-  const {
-    state: test262State,
-    globalLoading: test262Loading,
-    selectedTest262Set,
-  } = useTest262(db, callStack);
-
-  const programViewerCondition =
-    progState === "ProgramUpdated" &&
-    selectedProgram !== null &&
-    selectedIter !== null;
-  const test262ViewerCondition =
-    test262State === "ProgramUpdated" && selectedTest262Set !== null;
-
-  const parentRef = useRef(null);
-  const rowVirtualizer = useVirtualizer({
-    count: selectedTest262Set ? selectedTest262Set.length : 0,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 30,
-  });
-
-  const [downloading, setDownloading] = useState(false);
-
-  const downloadAll = () => {
-    if (selectedTest262Set === null) return;
-
-    setDownloading(true);
-    if (downloading) {
-      console.log("Download is already in progress.");
-      return;
-    }
-
-    console.log("Download started");
-
-    (async () => {
-      try {
-        await handleDownload(selectedTest262Set); // 다운로드 작업 실행
-      } catch (error) {
-        console.error("Download failed:", error);
-      } finally {
-        setDownloading(false);
-        console.log("Download completed");
-      }
-    })();
-  };
-
-  const [code, setCode] = useState<string>("");
-
+  const [selection, setSelection] = useState<Selection | null>(null);
   useEffect(() => {
-    if (selectedProgram !== null) setCode(selectedProgram);
-  }, [selectedProgram]);
+    const handleChange = (e: CustomEvent<Selection>) => {
+      setSelection(e.detail);
+    };
 
-  const url =
-    selectedProgram === code
-      ? `${WEB_DEBUGGER_URL}?prog=${encodeURIComponent(selectedProgram)}&iter=${encodeURIComponent(selectedIter ?? "")}`
-      : `${WEB_DEBUGGER_URL}?prog=${encodeURIComponent(code)}`;
+    window.addEventListener("custom", handleChange as EventListener);
+    return () => {
+      window.removeEventListener("custom", handleChange as EventListener);
+    };
+  }, []);
 
   return (
     <ResizablePanelGroup
       direction="vertical"
       className="flex min-h-0 w-full flex-auto flex-col items-stretch justify-start p-3"
     >
-      {(progLoading || test262Loading) && <Loading />}
-
       {/* Minimal Program */}
-
       <ResizablePanel className="relative flex min-h-0 w-full flex-col divide-y divide-neutral-300 overflow-hidden rounded-t-xl border border-neutral-300 bg-white">
-        {progState === "NotFound" && <NotSupported />}
-        {progState === "Waiting" && <Click />}
         <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
           <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
             <Code />
             Program
           </div>
-
-          {programViewerCondition && (
-            <a
-              href={url}
-              target="_blank"
-              className="flex cursor-pointer flex-row items-center gap-1 bg-transparent text-sm text-blue-600 hover:text-blue-800"
-            >
-              Run on Double Debugger
-              <Play size={12} />
-            </a>
-          )}
+          <PlayButton href="#" />
         </div>
         <div className="relative w-full flex-auto basis-auto overflow-scroll">
-          {programViewerCondition && (
-            <ProgramViewer code={code} iter={selectedIter} setCode={setCode} />
-          )}
+          <ProgramViewer selection={selection} />
         </div>
       </ResizablePanel>
 
       <ResizableHandle withHandle />
 
       {/* Test262 */}
-      <ResizablePanel className="relative flex w-full flex-col divide-y divide-neutral-300 overflow-hidden border border-neutral-300 bg-white">
-        {test262State === "NotFound" && <NotSupported />}
-        {test262State === "Waiting" && <Click />}
+      {/* <ResizablePanel className="relative flex w-full flex-col divide-y divide-neutral-300 overflow-hidden border border-neutral-300 bg-white">
         <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
           <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
             <FlaskConical />
@@ -161,7 +92,7 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
       <ResizableHandle withHandle />
 
       {/* CallPath */}
-      <ResizablePanel className="relative flex min-h-0 w-full flex-1 flex-col divide-y divide-neutral-300 overflow-hidden rounded-b-xl border border-neutral-300 bg-white">
+      {/* <ResizablePanel className="relative flex min-h-0 w-full flex-1 flex-col divide-y divide-neutral-300 overflow-hidden rounded-b-xl border border-neutral-300 bg-white">
         {callStack.length === 0 && <Click2 />}
         <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
           <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
@@ -187,7 +118,7 @@ const Visualizer = ({ db }: { db: IndexedDb }) => {
             />
           )}
         </section>
-      </ResizablePanel>
+      </ResizablePanel> */}
     </ResizablePanelGroup>
   );
 };
@@ -224,53 +155,6 @@ export const NotSupported = () => {
         <p className="text-sm">Program not supported yet</p>
       </div>
     </div>
-  );
-};
-
-export const EmptyVisualizer = () => {
-  return (
-    <ResizablePanelGroup
-      direction="vertical"
-      className="flex min-h-0 w-full flex-auto flex-col items-stretch justify-start p-3"
-    >
-      {/* Minimal Program */}
-
-      <ResizablePanel className="relative flex min-h-0 w-full flex-col divide-y divide-neutral-300 overflow-hidden rounded-t-xl border border-neutral-300 bg-white">
-        <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
-          <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
-            <Code />
-            Program
-          </div>
-        </div>
-        <div className="relative w-full flex-auto basis-auto overflow-scroll"></div>
-      </ResizablePanel>
-
-      <ResizableHandle withHandle />
-
-      {/* Test262 */}
-      <ResizablePanel className="relative flex w-full flex-col divide-y divide-neutral-300 overflow-hidden border border-neutral-300 bg-white">
-        <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
-          <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
-            <FlaskConical />
-            Test262
-          </div>
-        </div>
-        <div className="relative min-h-0 w-full flex-auto basis-auto overflow-scroll"></div>
-      </ResizablePanel>
-
-      <ResizableHandle withHandle />
-
-      {/* CallPath */}
-      <ResizablePanel className="relative flex min-h-0 w-full flex-1 flex-col divide-y divide-neutral-300 overflow-hidden rounded-b-xl border border-neutral-300 bg-white">
-        <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
-          <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
-            <Layers />
-            CallPath
-          </div>
-        </div>
-        <section className="w-full flex-auto basis-auto overflow-scroll" />
-      </ResizablePanel>
-    </ResizablePanelGroup>
   );
 };
 
