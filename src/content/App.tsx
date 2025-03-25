@@ -1,4 +1,4 @@
-import Visualizer from "./Visualizer/Visualizer.tsx";
+import Visualizer from "./visualizer/Visualizer.tsx";
 import { ReactNode, useState } from "react";
 import { Table } from "./util/indexed-db.ts";
 import { Field, Label, Select } from "@headlessui/react";

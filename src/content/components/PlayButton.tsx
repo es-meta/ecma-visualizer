@@ -1,6 +1,6 @@
 import { Play } from "lucide-react";
 
-const PlayButton = ({ href }: { href: string }) => {
+export const PlayButton = ({ href }: { href: string }) => {
   return (
     <a
       href={href}
@@ -12,5 +12,3 @@ const PlayButton = ({ href }: { href: string }) => {
     </a>
   );
 };
-
-export default PlayButton;

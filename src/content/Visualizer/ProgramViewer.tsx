@@ -2,9 +2,8 @@ import "codemirror/lib/codemirror.css";
 import "codemirror/mode/javascript/javascript";
 import { Controlled } from "react-codemirror2/.ts";
 import { useEffect, useState } from "react";
-import { Selection } from "./Visualizer";
-import Loading from "../components/Loading";
-import Error from "../components/Error";
+import { Selection } from "@/types/message";
+import { Loading, Error } from "../components";
 import { fetchNodeIdToScript, fetchStepToNodeId } from "../util/api";
 
 const ProgramViewer = ({ selection }: { selection: Selection | null }) => {

@@ -1,6 +1,6 @@
 import { Frown } from "lucide-react";
 
-const Error = () => {
+export const Error = () => {
   return (
     <div className="flex flex-auto items-center justify-center">
       <div className="flex flex-row items-center gap-3">
@@ -15,5 +15,3 @@ const Error = () => {
     </div>
   );
 };
-
-export default Error;

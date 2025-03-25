@@ -1,35 +1,20 @@
 import { Code, Mouse, OctagonX } from "lucide-react";
 import ProgramViewer from "./ProgramViewer.tsx";
-import useCallStack from "./useCallStack.tsx";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "@/components/ui/resizable.tsx";
-import { useEffect, useState } from "react";
-import PlayButton from "../components/PlayButton.tsx";
+} from "@/content/components/resizable.tsx";
+import { PlayButton } from "../components/PlayButton.tsx";
+
+import useSelection from "./hooks/useSelection.ts";
+import useCallStack from "./hooks/useCallStack.ts";
 
 const WEB_DEBUGGER_URL = "http://localhost:3000";
 
-export type Selection = {
-  secId: string;
-  step: string;
-};
-
 const Visualizer = () => {
   const { callStack, popStack, flushStack } = useCallStack();
-
-  const [selection, setSelection] = useState<Selection | null>(null);
-  useEffect(() => {
-    const handleChange = (e: CustomEvent<Selection>) => {
-      setSelection(e.detail);
-    };
-
-    window.addEventListener("custom", handleChange as EventListener);
-    return () => {
-      window.removeEventListener("custom", handleChange as EventListener);
-    };
-  }, []);
+  const { selection } = useSelection();
 
   return (
     <ResizablePanelGroup

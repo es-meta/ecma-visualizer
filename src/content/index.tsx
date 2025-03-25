@@ -20,8 +20,8 @@ window.addEventListener("pageshow", (e) => {
 });
 
 function initDom() {
-  visualizerDebug(true, "visualizer debugging running ...")
-  transformSpec()
+  visualizerDebug(true, "---- Visualizer debugging running ----");
+  transformSpec();
   createEcmaVisualizer();
   // addCallstackLink().then((_) => _);
   initState().then((_) => _);
