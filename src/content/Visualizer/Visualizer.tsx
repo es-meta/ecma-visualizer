@@ -1,10 +1,12 @@
 import { Code, Mouse, OctagonX } from "lucide-react";
 import ProgramViewer from "./ProgramViewer.tsx";
+import CallStackViewer from "./CallStackViewer.tsx";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/content/components/resizable.tsx";
+import { Layers, Eraser } from "lucide-react";
 import { PlayButton } from "../components/PlayButton.tsx";
 
 import useSelection from "./hooks/useSelection.ts";
@@ -13,7 +15,7 @@ import useCallStack from "./hooks/useCallStack.ts";
 const WEB_DEBUGGER_URL = "http://localhost:3000";
 
 const Visualizer = () => {
-  const { callStack, popStack, flushStack } = useCallStack();
+  const { callStack } = useCallStack();
   const { selection } = useSelection();
 
   return (
@@ -77,17 +79,16 @@ const Visualizer = () => {
       <ResizableHandle withHandle />
 
       {/* CallPath */}
-      {/* <ResizablePanel className="relative flex min-h-0 w-full flex-1 flex-col divide-y divide-neutral-300 overflow-hidden rounded-b-xl border border-neutral-300 bg-white">
-        {callStack.length === 0 && <Click2 />}
+      <ResizablePanel className="relative flex min-h-0 w-full flex-1 flex-col divide-y divide-neutral-300 overflow-hidden rounded-b-xl border border-neutral-300 bg-white">
         <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
           <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
             <Layers />
             CallPath
           </div>
-          {callStack.length > 0 && (
+          {callStack.size() > 0 && (
             <button
               className="flex cursor-pointer flex-row items-center justify-center gap-1 rounded-md text-sm hover:bg-blue-600 hover:text-white [&>svg]:size-4"
-              onClick={flushStack}
+              onClick={() => callStack.flush()}
             >
               <Eraser />
               Clear
@@ -95,15 +96,9 @@ const Visualizer = () => {
           )}
         </div>
         <section className="w-full flex-auto basis-auto overflow-scroll">
-          {callStack.length !== 0 && (
-            <CallStackViewer
-              callStack={callStack}
-              convertCallIdToAlgoOrSyntax={convertCallIdToAlgoOrSyntax}
-              popStack={popStack}
-            />
-          )}
+          <CallStackViewer callStack={callStack} />
         </section>
-      </ResizablePanel> */}
+      </ResizablePanel>
     </ResizablePanelGroup>
   );
 };

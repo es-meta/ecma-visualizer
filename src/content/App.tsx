@@ -34,9 +34,7 @@ const App = () => {
       style={{ width: width }}
     >
       <VisualizerHeader width={width} setWidth={setWidth} />
-      {/* {loading && <Loading />} */}
       <Visualizer />
-      {/* {error && <Error />} */}
     </section>
   );
 };

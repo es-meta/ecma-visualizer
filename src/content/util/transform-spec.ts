@@ -1,5 +1,9 @@
 import { visualizerDebug } from "@/lib/utils";
 import { toStepString } from "./convert-id";
+import {
+  alertCallStackUpdate,
+  getCallStackFromStorage,
+} from "@/types/call-stack";
 
 /*
     Follow algorithm extract logic of ESMeta
@@ -7,14 +11,14 @@ import { toStepString } from "./convert-id";
 
 const VISID = "visId";
 
+// calsses
 const VISSTEP = "visStep";
 const VISSDOSTEP = "visSDOStep";
 const VISQM = "visQM";
 const VISIF = "visIf";
 const VISTHEN = "visThen";
 const VISELSE = "visElse";
-
-const $selectedStep = null;
+const VISCALL = "visCall";
 
 function ignoreManually(secId: string, $emuAlg: HTMLElement) {
   if (
@@ -58,75 +62,103 @@ function transformSpec() {
       switch (algType) {
         case "sdo":
           transformSDOAlgorithm($emuAlg, $parent.id);
-
           const $emuGrammar = $emuAlg.previousElementSibling as HTMLElement;
           /* [TODO] : handle DEFAULT SDO (e.g sec-static-semantics-contains / sec-static-semantics-allprivateidentifiersvalid / sec-static-semantics-containsarguments) */
           visualizerDebug(
             !$emuGrammar || $emuGrammar.tagName.toLowerCase() !== "emu-grammar",
             `<emu-clause id="${$parent.id}"/> has a uncomplete pair of <emu-grammar> and <emu-alg>`,
           );
-          transformGrammar($emuGrammar);
+
+          /* [TODO] : 이거 왜 해놓은거지..? */
+          // transformGrammar($emuGrammar);
           break;
         default:
           transformAlgorithm($emuAlg, $parent.id);
       }
+
+      transformCallLink($emuAlg);
     });
 
   document.addEventListener("click", (e: MouseEvent) => {
-    if (!e.altKey || !(e.target instanceof HTMLElement)) return;
-
-    const $clickedStep = isClickable(e.target);
-    if (!$clickedStep) return;
-    e.preventDefault();
-
-    const visId = $clickedStep.getAttribute(VISID) ?? "";
-    if (!visId) console.error("A step must have a visId");
-
-    if ($clickedStep.classList.contains(VISSTEP)) {
-      const [secId, step] = visId.split("|");
-      window.dispatchEvent(
-        new CustomEvent("custom", { detail: { secId, step } }),
-      );
-    } else if ($clickedStep.classList.contains(VISSDOSTEP))
-      window.dispatchEvent(
-        new CustomEvent("custom", { detail: "SDO" + visId }),
-      );
+    if (stepClickEvent(e)) e.preventDefault();
+    stepCallEvent(e);
   });
+}
+
+function stepClickEvent(e: MouseEvent): boolean {
+  if (!e.altKey || !(e.target instanceof HTMLElement)) return false;
+
+  const $clickedStep = e.target.closest(`.${VISSTEP}, .${VISSDOSTEP}`);
+  if (!$clickedStep) return false;
+
+  const visId = $clickedStep.getAttribute(VISID) ?? "";
+  if (!visId) console.error("A step must have a visId");
+
+  if ($clickedStep.classList.contains(VISSTEP)) {
+    const [secId, step] = visId.split("|");
+    window.dispatchEvent(
+      new CustomEvent("custom", { detail: { secId, step } }),
+    );
+  } else if ($clickedStep.classList.contains(VISSDOSTEP)) {
+    window.dispatchEvent(new CustomEvent("custom", { detail: "SDO" + visId }));
+  }
+
+  return true;
+}
+
+function stepCallEvent(e: MouseEvent): boolean {
+  const $clickedA = e.target;
+
+  if (
+    !($clickedA instanceof HTMLElement) ||
+    !$clickedA.classList.contains(VISCALL)
+  )
+    return false;
+
+  const visId = $clickedA.getAttribute(VISID) ?? "";
+  if (!visId) console.error("A step must have a visId");
+
+  const [callerAndStep, calleeId] = visId.split("->");
+  const [callerId, step] = callerAndStep.split("|");
+
+  const callstack = getCallStackFromStorage();
+  callstack.push({ callerId, step, calleeId });
+  alertCallStackUpdate();
+
+  return true;
 }
 
 function transformCallLink($emuAlg: HTMLElement) {
-  // const $links = $emuAlg
-  //   .querySelectorAll<HTMLAnchorElement>("a")
-  //   .forEach(($a) => {
-  //     const $li = $a.closest("li");
-  //     if (!$li || !$li.getAttribute(VISID)) return;
-  //   });
-}
+  $emuAlg.querySelectorAll("a").forEach(($a) => {
+    const href = $a.getAttribute("href");
+    if (!href || !href.includes("#sec-")) return;
 
-function transformGrammar($emuGrammar: HTMLElement) {
-  $emuGrammar
-    .querySelectorAll<HTMLElement>("emu-production")
-    .forEach(($emuProduction) => {
-      transformProduction($emuProduction);
-    });
-}
+    const $li = $a.closest("li");
+    const callerIdAndStep = $li?.getAttribute(VISID);
+    if (!callerIdAndStep) return;
 
-function transformProduction($emuProduction: HTMLElement) {
-  $emuProduction.querySelectorAll<HTMLElement>("emu-rhs").forEach(($emuRhs) => {
-    transformRHS($emuRhs);
+    const [_, calleeId] = href.split("#");
+
+    $a.classList.add(VISCALL);
+    $a.setAttribute(VISID, `${callerIdAndStep}->${calleeId}`);
   });
 }
 
-function transformRHS($emuRhs: HTMLElement) {}
+// function transformGrammar($emuGrammar: HTMLElement) {
+//   $emuGrammar
+//     .querySelectorAll<HTMLElement>("emu-production")
+//     .forEach(($emuProduction) => {
+//       transformProduction($emuProduction);
+//     });
+// }
 
-function isClickable($target: HTMLElement): HTMLElement | null {
-  if ([VISSTEP, VISSDOSTEP].some((cn) => $target.classList.contains(cn)))
-    return $target;
-  const $parent = $target.parentElement;
-  if ([VISSTEP, VISSDOSTEP].some((cn) => $parent?.classList.contains(cn)))
-    return $parent;
-  return null;
-}
+// function transformProduction($emuProduction: HTMLElement) {
+//   $emuProduction.querySelectorAll<HTMLElement>("emu-rhs").forEach(($emuRhs) => {
+//     transformRHS($emuRhs);
+//   });
+// }
+
+// function transformRHS($emuRhs: HTMLElement) {}
 
 function transformAlgorithm($emuAlg: HTMLElement, visId: string) {
   $emuAlg.setAttribute(VISID, visId);

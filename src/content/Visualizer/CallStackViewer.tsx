@@ -1,72 +1,44 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import clsx from "clsx";
 import { Trash2 } from "lucide-react";
+import { CallStack } from "@/types/call-stack";
 
-const CallStackViewer = ({
-  callStack,
-  convertCallIdToAlgoOrSyntax,
-  popStack,
-}: {
-  callStack: number[];
-  convertCallIdToAlgoOrSyntax: (
-    callId: string,
-  ) => Promise<[string, string] | [null, null]>;
-  popStack: () => void;
-}) => {
-  const [loading, setLoading] = useState(true);
-  const [algorithms, setAlgorithms] = useState<string[][] | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      const promises = callStack.map((cs) =>
-        convertCallIdToAlgoOrSyntax(cs.toString()),
-      );
-      const algs = (await Promise.all(promises)).map((algNStep) => {
-        const [alg, step] = algNStep;
-        return alg === null ? ["not found", "-1"] : [alg, step];
-      });
-      setAlgorithms(algs);
-      setLoading(false);
-    })();
-  }, [callStack]);
-
+const CallStackViewer = ({ callStack }: { callStack: CallStack }) => {
   return (
     <table className="w-full border-collapse">
-      {/* {loading && <Loading />} */}
       <thead className="sticky left-0 top-0 z-[500] w-full bg-white">
         <tr>
           <TH>#</TH>
           <TH>name</TH>
           <TH>step</TH>
+          <TH>callee</TH>
           <th className="text-center" />
         </tr>
       </thead>
       <tbody>
-        {algorithms &&
-          algorithms.map((algoNstep, idx) => {
-            const [algos, step] = algoNstep;
+        {callStack.nodes.reverse().map((node, idx) => {
+          const { callerId, step, calleeId } = node;
 
-            return (
-              <TR>
-                <TD className="px-2 text-sm">{idx}</TD>
-                <TD>
-                  <Algorithm algorithm={algos} />
-                </TD>
-                <TD className="px-2">{step}</TD>
-                <td className="px-2 text-center">
-                  {idx === 0 && (
-                    <Trash2
-                      size={15}
-                      className="inline cursor-pointer text-neutral-300 hover:text-neutral-500"
-                      onClick={popStack}
-                    >
-                      x
-                    </Trash2>
-                  )}
-                </td>
-              </TR>
-            );
-          })}
+          return (
+            <TR>
+              <TD className="px-2 text-sm">{idx}</TD>
+              <TD>{callerId}</TD>
+              <TD className="px-2">{step}</TD>
+              <TD className="px-2">{calleeId}</TD>
+              <td className="px-2 text-center">
+                {idx === 0 && (
+                  <Trash2
+                    size={15}
+                    className="inline cursor-pointer text-neutral-300 hover:text-neutral-500"
+                    onClick={() => callStack.pop()}
+                  >
+                    x
+                  </Trash2>
+                )}
+              </td>
+            </TR>
+          );
+        })}
       </tbody>
     </table>
   );
