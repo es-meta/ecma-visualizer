@@ -8,10 +8,6 @@ import {
 
 const ECMA_20204_URL: string = "https://tc39.es/ecma262/2024/";
 
-/*
-  Todo: Caching?
- */
-
 chrome.runtime.onInstalled.addListener(() => {
   (async () => {
     await setExtensionState({
@@ -23,6 +19,15 @@ chrome.runtime.onInstalled.addListener(() => {
       if (!tab.id || !tab.url) return;
       await enableChromeButton(tab.id, tab.url);
     }
+
+    chrome.storage.local.set({
+      secIdToFuncName: await fetch(
+        chrome.runtime.getURL("resources/secIdToFuncName.json"),
+      ).then((res) => res.json()),
+      secIdToFuncId: await fetch(
+        chrome.runtime.getURL("resources/secIdToFuncId.json"),
+      ).then((res) => res.json()),
+    });
   })();
 });
 

@@ -15,7 +15,7 @@ import useCallStack from "./hooks/useCallStack.ts";
 const WEB_DEBUGGER_URL = "http://localhost:3000";
 
 const Visualizer = () => {
-  const { callStack } = useCallStack();
+  const { callStack, convertedCallStack } = useCallStack();
   const { selection } = useSelection();
 
   return (
@@ -96,7 +96,10 @@ const Visualizer = () => {
           )}
         </div>
         <section className="w-full flex-auto basis-auto overflow-scroll">
-          <CallStackViewer callStack={callStack} />
+          <CallStackViewer
+            callStack={callStack}
+            convertedCallStack={convertedCallStack}
+          />
         </section>
       </ResizablePanel>
     </ResizablePanelGroup>

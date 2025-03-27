@@ -1,9 +1,15 @@
 import React from "react";
 import clsx from "clsx";
 import { Trash2 } from "lucide-react";
-import { CallStack } from "@/types/call-stack";
+import { CallStack, ConvertedNode } from "@/types/call-stack";
 
-const CallStackViewer = ({ callStack }: { callStack: CallStack }) => {
+const CallStackViewer = ({
+  callStack,
+  convertedCallStack,
+}: {
+  callStack: CallStack;
+  convertedCallStack: ConvertedNode[];
+}) => {
   return (
     <table className="w-full border-collapse">
       <thead className="sticky left-0 top-0 z-[500] w-full bg-white">
@@ -11,20 +17,18 @@ const CallStackViewer = ({ callStack }: { callStack: CallStack }) => {
           <TH>#</TH>
           <TH>name</TH>
           <TH>step</TH>
-          <TH>callee</TH>
           <th className="text-center" />
         </tr>
       </thead>
       <tbody>
-        {callStack.nodes.reverse().map((node, idx) => {
-          const { callerId, step, calleeId } = node;
+        {convertedCallStack.reverse().map((node, idx) => {
+          const { callerName, step } = node;
 
           return (
             <TR>
               <TD className="px-2 text-sm">{idx}</TD>
-              <TD>{callerId}</TD>
+              <TD>{callerName}</TD>
               <TD className="px-2">{step}</TD>
-              <TD className="px-2">{calleeId}</TD>
               <td className="px-2 text-center">
                 {idx === 0 && (
                   <Trash2

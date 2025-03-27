@@ -20,10 +20,15 @@ async function _fetch<T>(url: string): Promise<T> {
 }
 
 async function fetchFuncIdfromSecId(secId: string): Promise<string> {
-  const secIdToFuncId = await _fetch<SecIdToFuncId>(
-    `${BASE_URL}/secIdToFuncId.json`,
+  const nameMap = await chrome.storage.local.get();
+  return nameMap["secIdToFuncId"][secId];
+}
+
+async function fetchFuncNameFromSecId(secId: string): Promise<string> {
+  const secIdToFuncName = await _fetch<SecIdToFuncName>(
+    `${BASE_URL}/secIdToFuncName.json`,
   );
-  return secIdToFuncId[secId];
+  return secIdToFuncName[secId];
 }
 
 async function fetchStepToNodeId(
@@ -56,4 +61,9 @@ async function fetchNodeIdToScript(nodeId: number): Promise<string[]> {
   );
 }
 
-export { fetchFuncIdfromSecId, fetchStepToNodeId, fetchNodeIdToScript };
+export {
+  fetchFuncIdfromSecId,
+  fetchFuncNameFromSecId,
+  fetchStepToNodeId,
+  fetchNodeIdToScript,
+};

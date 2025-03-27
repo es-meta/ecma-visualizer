@@ -1,15 +1,21 @@
 import {
   ALERT_CALLSTACK_UPDATE_KEY,
   CallStack,
+  ConvertedNode,
   getCallStackFromStorage,
 } from "@/types/call-stack";
 import { useEffect, useState } from "react";
 
 function useCallStack() {
   const [callStack, setCallStack] = useState<CallStack>(new CallStack(null));
+  const [convertedCallStack, setConvertedCallStack] = useState<ConvertedNode[]>(
+    [],
+  );
 
-  function updateCallStack() {
-    setCallStack(getCallStackFromStorage());
+  async function updateCallStack() {
+    const cs = getCallStackFromStorage();
+    setCallStack(cs);
+    setConvertedCallStack(await cs.convert());
   }
 
   useEffect(() => {
@@ -31,7 +37,7 @@ function useCallStack() {
     };
   }, []);
 
-  return { callStack };
+  return { callStack, convertedCallStack };
 }
 
 export default useCallStack;

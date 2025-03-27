@@ -4,15 +4,27 @@ type Node = {
   calleeId: string;
 };
 
+export type ConvertedNode = {
+  callerName: string;
+  step: string;
+};
+
 export class CallStack {
-  nodes: Node[];
+  nodes: Node[] = [];
 
   constructor(jsonString: string | null) {
-    this.nodes = jsonString ? JSON.parse(jsonString) : [];
+    if (jsonString) {
+      const obj = JSON.parse(jsonString);
+      this.nodes = obj.nodes;
+    } else {
+      this.nodes = [];
+    }
   }
 
   push(node: Node) {
-    /* [ToDo] : add push logics */
+    /* [ToDo] : add recursive logics */
+    if (this.peek()?.calleeId !== node.callerId) this.flush();
+
     this.nodes.push(node);
     saveAndAlert(this);
   }
@@ -33,11 +45,26 @@ export class CallStack {
   }
 
   stringify(): string {
-    return JSON.stringify(this.nodes);
+    return JSON.stringify(this);
   }
 
   size() {
     return this.nodes.length;
+  }
+
+  isEmpty(): boolean {
+    return this.size() == 0;
+  }
+
+  async convert(): Promise<ConvertedNode[]> {
+    const nameMap = await chrome.storage.local.get();
+
+    return this.nodes.map((n) => {
+      return {
+        callerName: nameMap["secIdToFuncName"][n.callerId],
+        step: n.step,
+      };
+    });
   }
 }
 
