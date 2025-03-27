@@ -16,7 +16,7 @@ const WEB_DEBUGGER_URL = "http://localhost:3000";
 
 const Visualizer = () => {
   const { callStack, convertedCallStack } = useCallStack();
-  const { selection } = useSelection();
+  const { selection, sdoWaiting } = useSelection();
 
   return (
     <ResizablePanelGroup
@@ -33,7 +33,7 @@ const Visualizer = () => {
           <PlayButton href="#" />
         </div>
         <div className="relative w-full flex-auto basis-auto overflow-scroll">
-          <ProgramViewer selection={selection} />
+          <ProgramViewer selection={selection} sdoWaiting={sdoWaiting} />
         </div>
       </ResizablePanel>
 

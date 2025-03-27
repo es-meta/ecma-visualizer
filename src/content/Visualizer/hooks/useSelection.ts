@@ -1,20 +1,47 @@
 import { useState, useEffect } from "react";
-import { Selection } from "@/types/message";
+import {
+  CUSTOM_EVENT_SDO_SELECTION,
+  CUSTOM_EVENT_SELECTION,
+  Selection,
+} from "@/types/custom-event";
 
 function useSelection() {
   const [selection, setSelection] = useState<Selection | null>(null);
+  const [sdoWaiting, setSDOWaiting] = useState<boolean>(false);
+
   useEffect(() => {
-    const handleChange = (e: CustomEvent<Selection>) => {
+    const handleSelection = (e: CustomEvent<Selection>) => {
+      console.log("?");
+      setSDOWaiting(false);
       setSelection(e.detail);
     };
 
-    window.addEventListener("custom", handleChange as EventListener);
+    const handleSDOSelection = (e: CustomEvent) => {
+      setSelection(null);
+      setSDOWaiting(true);
+    };
+
+    window.addEventListener(
+      CUSTOM_EVENT_SELECTION,
+      handleSelection as EventListener,
+    );
+    window.addEventListener(
+      CUSTOM_EVENT_SDO_SELECTION,
+      handleSDOSelection as EventListener,
+    );
     return () => {
-      window.removeEventListener("custom", handleChange as EventListener);
+      window.removeEventListener(
+        CUSTOM_EVENT_SELECTION,
+        handleSelection as EventListener,
+      );
+      window.removeEventListener(
+        CUSTOM_EVENT_SDO_SELECTION,
+        handleSDOSelection as EventListener,
+      );
     };
   }, []);
 
-  return { selection };
+  return { selection, sdoWaiting };
 }
 
 export default useSelection;

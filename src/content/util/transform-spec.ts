@@ -1,19 +1,26 @@
 import { visualizerDebug } from "@/lib/utils";
 import { toStepString } from "./convert-id";
+import { getCallStackFromStorage } from "@/types/call-stack";
 import {
-  alertCallStackUpdate,
-  getCallStackFromStorage,
-} from "@/types/call-stack";
+  customEventSDOSelection,
+  customEventSelection,
+  Selection,
+} from "@/types/custom-event";
 
 /*
     Follow algorithm extract logic of ESMeta
 */
 
+/* [TODO] : handle multiple question marks in one step */
+/* [TODO] : handle DEFAULT SDO (e.g sec-static-semantics-contains / sec-static-semantics-allprivateidentifiersvalid / sec-static-semantics-containsarguments) */
+/* [TODO] : handle callClickEvent for SDO */
+/* [TODO] : handle wrong comma indexes (e.g. WhileLoopEvaluation step e) */
+
 const VISID = "visId";
 
-// calsses
 const VISSTEP = "visStep";
 const VISSDOSTEP = "visSDOStep";
+const VISPRODUCTION = "visProduction";
 const VISQM = "visQM";
 const VISIF = "visIf";
 const VISTHEN = "visThen";
@@ -63,14 +70,12 @@ function transformSpec() {
         case "sdo":
           transformSDOAlgorithm($emuAlg, $parent.id);
           const $emuGrammar = $emuAlg.previousElementSibling as HTMLElement;
-          /* [TODO] : handle DEFAULT SDO (e.g sec-static-semantics-contains / sec-static-semantics-allprivateidentifiersvalid / sec-static-semantics-containsarguments) */
           visualizerDebug(
             !$emuGrammar || $emuGrammar.tagName.toLowerCase() !== "emu-grammar",
             `<emu-clause id="${$parent.id}"/> has a uncomplete pair of <emu-grammar> and <emu-alg>`,
           );
 
-          /* [TODO] : 이거 왜 해놓은거지..? */
-          // transformGrammar($emuGrammar);
+          transformGrammar($emuGrammar);
           break;
         default:
           transformAlgorithm($emuAlg, $parent.id);
@@ -80,41 +85,51 @@ function transformSpec() {
     });
 
   document.addEventListener("click", (e: MouseEvent) => {
-    if (stepClickEvent(e)) e.preventDefault();
-    stepCallEvent(e);
+    if (!(e.target instanceof HTMLElement)) return;
+
+    if (e.altKey) {
+      const $clicked = e.target.closest(
+        `.${VISSTEP}, .${VISSDOSTEP}, .${VISPRODUCTION}`,
+      );
+      if (!$clicked) return;
+
+      stepClickEvent($clicked);
+      e.preventDefault();
+    } else {
+      if (e.target.classList.contains(VISCALL)) callClickEvent(e.target);
+    }
   });
 }
 
-function stepClickEvent(e: MouseEvent): boolean {
-  if (!e.altKey || !(e.target instanceof HTMLElement)) return false;
-
-  const $clickedStep = e.target.closest(`.${VISSTEP}, .${VISSDOSTEP}`);
-  if (!$clickedStep) return false;
-
+let selectionSaver: Selection | null = null;
+function stepClickEvent($clickedStep: Element) {
   const visId = $clickedStep.getAttribute(VISID) ?? "";
   if (!visId) console.error("A step must have a visId");
 
   if ($clickedStep.classList.contains(VISSTEP)) {
+    selectionSaver = null;
     const [secId, step] = visId.split("|");
-    window.dispatchEvent(
-      new CustomEvent("custom", { detail: { secId, step } }),
-    );
+    customEventSelection({ secId, step });
   } else if ($clickedStep.classList.contains(VISSDOSTEP)) {
-    window.dispatchEvent(new CustomEvent("custom", { detail: "SDO" + visId }));
-  }
+    const [secId, step] = visId.split("|");
+    selectionSaver = {
+      secId,
+      step,
+    };
+    customEventSDOSelection();
+  } else if ($clickedStep.classList.contains(VISPRODUCTION)) {
+    if (!selectionSaver) return;
 
-  return true;
+    console.log(`${selectionSaver.secId}|${visId}`);
+    customEventSelection({
+      secId: `${selectionSaver.secId}|${visId}`,
+      step: selectionSaver.step,
+    });
+    selectionSaver = null;
+  }
 }
 
-function stepCallEvent(e: MouseEvent): boolean {
-  const $clickedA = e.target;
-
-  if (
-    !($clickedA instanceof HTMLElement) ||
-    !$clickedA.classList.contains(VISCALL)
-  )
-    return false;
-
+function callClickEvent($clickedA: Element): boolean {
   const visId = $clickedA.getAttribute(VISID) ?? "";
   if (!visId) console.error("A step must have a visId");
 
@@ -123,7 +138,6 @@ function stepCallEvent(e: MouseEvent): boolean {
 
   const callstack = getCallStackFromStorage();
   callstack.push({ callerId, step, calleeId });
-  alertCallStackUpdate();
 
   return true;
 }
@@ -144,21 +158,36 @@ function transformCallLink($emuAlg: HTMLElement) {
   });
 }
 
-// function transformGrammar($emuGrammar: HTMLElement) {
-//   $emuGrammar
-//     .querySelectorAll<HTMLElement>("emu-production")
-//     .forEach(($emuProduction) => {
-//       transformProduction($emuProduction);
-//     });
-// }
+function transformGrammar($emuGrammar: HTMLElement) {
+  $emuGrammar
+    .querySelectorAll<HTMLElement>("emu-production")
+    .forEach(($emuProduction) => {
+      transformProduction($emuProduction);
+    });
+}
 
-// function transformProduction($emuProduction: HTMLElement) {
-//   $emuProduction.querySelectorAll<HTMLElement>("emu-rhs").forEach(($emuRhs) => {
-//     transformRHS($emuRhs);
-//   });
-// }
+function transformProduction($emuProduction: HTMLElement) {
+  $emuProduction.querySelectorAll<HTMLElement>("emu-rhs").forEach(($emuRhs) => {
+    transformRHS($emuRhs, $emuProduction.getAttribute("name") ?? "");
+  });
+}
 
-// function transformRHS($emuRhs: HTMLElement) {}
+function transformRHS($emuRhs: HTMLElement, productionName: string) {
+  const visProduction =
+    `${productionName}|` +
+    [...$emuRhs.children]
+      .filter(
+        (child) =>
+          child.tagName.toLowerCase() === "emu-nt" ||
+          child.tagName.toLowerCase() === "emu-t",
+      )
+      .map((child) => child.textContent?.trim() ?? "")
+      .filter((text) => text.length > 0)
+      .join("|");
+
+  $emuRhs.classList.add(VISPRODUCTION);
+  $emuRhs.setAttribute(VISID, visProduction);
+}
 
 function transformAlgorithm($emuAlg: HTMLElement, visId: string) {
   $emuAlg.setAttribute(VISID, visId);
@@ -201,7 +230,6 @@ function transformStep($li: HTMLLIElement, visId: string, sdo: boolean) {
   transformInlineIf($li, visId, sdo);
 }
 
-/* [TODO] : handle multiple question marks in one step */
 function transformQuestionMark(node: ChildNode, visId: string, sdo: boolean) {
   if (node.nodeType !== Node.TEXT_NODE || !node.nodeValue) return;
 
@@ -255,7 +283,6 @@ function transformInlineIf($li: HTMLLIElement, visId: string, sdo: boolean) {
 
   const html = $li.innerHTML;
 
-  /* [TODO] : handle wrong comma indexes (e.g. WhileLoopEvaluation step e) */
   const commaIndex = html.match(",")?.index;
   if (commaIndex === undefined) return;
 

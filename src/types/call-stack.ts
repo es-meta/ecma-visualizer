@@ -1,3 +1,5 @@
+import { customEventCallStackUpdate } from "./custom-event";
+
 type Node = {
   callerId: string;
   step: string;
@@ -70,7 +72,7 @@ export class CallStack {
 
 function saveAndAlert(cs: CallStack) {
   saveCallStackInStorage(cs);
-  alertCallStackUpdate();
+  customEventCallStackUpdate();
 }
 
 export function getCallStackFromStorage() {
@@ -81,9 +83,4 @@ export function saveCallStackInStorage(cs: CallStack) {
   sessionStorage.setItem(STOARGE_CALLSTACK_KEY, cs.stringify());
 }
 
-export function alertCallStackUpdate() {
-  window.dispatchEvent(new CustomEvent(ALERT_CALLSTACK_UPDATE_KEY, {}));
-}
-
-export const ALERT_CALLSTACK_UPDATE_KEY = "callstack update";
 export const STOARGE_CALLSTACK_KEY = "callstack";

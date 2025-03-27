@@ -1,9 +1,9 @@
 import {
-  ALERT_CALLSTACK_UPDATE_KEY,
   CallStack,
   ConvertedNode,
   getCallStackFromStorage,
 } from "@/types/call-stack";
+import { CUSTOM_EVENT_CALLSTACK_UPDATE } from "@/types/custom-event";
 import { useEffect, useState } from "react";
 
 function useCallStack() {
@@ -26,12 +26,12 @@ function useCallStack() {
     };
 
     window.addEventListener(
-      ALERT_CALLSTACK_UPDATE_KEY,
+      CUSTOM_EVENT_CALLSTACK_UPDATE,
       handleChange as EventListener,
     );
     return () => {
       window.removeEventListener(
-        ALERT_CALLSTACK_UPDATE_KEY,
+        CUSTOM_EVENT_CALLSTACK_UPDATE,
         handleChange as EventListener,
       );
     };
