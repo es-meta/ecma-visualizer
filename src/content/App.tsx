@@ -1,22 +1,6 @@
 import Visualizer from "./visualizer/Visualizer.tsx";
 import { ReactNode, useState } from "react";
-import { Table } from "./util/indexed-db.ts";
 import { Field, Label, Select } from "@headlessui/react";
-
-const tables: Table[] = [
-  "nodeId-to-test262",
-  "step-to-nodeId",
-  "nodeId-to-progId",
-  "progId-to-prog",
-  "func-to-ecId",
-  "ecId-to-func",
-  "funcId-to-func",
-  "func-to-funcId",
-  "func-to-sdo",
-  "ecId-to-algo-name",
-  "testId-to-test262",
-  "callId-to-funcId",
-];
 
 const logo = chrome.runtime.getURL("images/logo.jpeg");
 

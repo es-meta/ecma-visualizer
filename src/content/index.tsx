@@ -3,7 +3,6 @@ import transformSpec from "./util/transform-spec.ts";
 import { MessageType } from "../types/message.ts";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
-import addCallstackLink from "./util/add-callstack-link.ts";
 import { visualizerDebug } from "@/lib/utils.ts";
 
 const $body = document.querySelector("body")!;
@@ -23,7 +22,6 @@ function initDom() {
   visualizerDebug(true, "---- Visualizer debugging running ----");
   transformSpec();
   createEcmaVisualizer();
-  // addCallstackLink().then((_) => _);
   initState().then((_) => _);
 }
 
