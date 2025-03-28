@@ -15,8 +15,11 @@ import {
 /* [TODO] : handle DEFAULT SDO (e.g sec-static-semantics-contains / sec-static-semantics-allprivateidentifiersvalid / sec-static-semantics-containsarguments) */
 /* [TODO] : handle callClickEvent for SDO */
 /* [TODO] : handle wrong comma indexes (e.g. WhileLoopEvaluation step e) */
+/* [TODO] : handle single production clicks */
 
 const VISID = "visId";
+const VISDEFAULTSDO = "visDefaultSDO";
+const MULTIPLEPROD = "multipleProd";
 
 const VISSTEP = "visStep";
 const VISSDOSTEP = "visSDOStep";
@@ -26,6 +29,11 @@ const VISIF = "visIf";
 const VISTHEN = "visThen";
 const VISELSE = "visElse";
 const VISCALL = "visCall";
+
+type SDOInfo = {
+  defaultSDO: string;
+  isMultipleProd: boolean;
+};
 
 function ignoreManually(secId: string, $emuAlg: HTMLElement) {
   if (
@@ -68,7 +76,6 @@ function transformSpec() {
 
       switch (algType) {
         case "sdo":
-          transformSDOAlgorithm($emuAlg, $parent.id);
           const $emuGrammar = $emuAlg.previousElementSibling as HTMLElement;
           visualizerDebug(
             !$emuGrammar || $emuGrammar.tagName.toLowerCase() !== "emu-grammar",
@@ -76,6 +83,20 @@ function transformSpec() {
           );
 
           transformGrammar($emuGrammar);
+
+          const $emuProduction =
+            $emuGrammar.querySelectorAll<HTMLElement>("emu-production");
+          const $emuRhs =
+            $emuProduction[0].querySelectorAll<HTMLElement>("emu-rhs");
+          const isMultipleProd =
+            $emuProduction.length > 1 || $emuRhs.length > 1;
+
+          const defaultSDO = $emuRhs[0].getAttribute(VISID) as string;
+          transformSDOAlgorithm($emuAlg, $parent.id, {
+            defaultSDO,
+            isMultipleProd,
+          });
+
           break;
         default:
           transformAlgorithm($emuAlg, $parent.id);
@@ -104,23 +125,32 @@ function transformSpec() {
 let selectionSaver: Selection | null = null;
 function stepClickEvent($clickedStep: Element) {
   const visId = $clickedStep.getAttribute(VISID) ?? "";
-  if (!visId) console.error("A step must have a visId");
+  if (!visId) console.error("Must have visId");
 
   if ($clickedStep.classList.contains(VISSTEP)) {
     selectionSaver = null;
     const [secId, step] = visId.split("|");
     customEventSelection({ secId, step });
   } else if ($clickedStep.classList.contains(VISSDOSTEP)) {
-    const [secId, step] = visId.split("|");
-    selectionSaver = {
-      secId,
-      step,
-    };
-    customEventSDOSelection();
+    if ($clickedStep.hasAttribute(MULTIPLEPROD)) {
+      const [secId, step] = visId.split("|");
+      selectionSaver = {
+        secId,
+        step,
+      };
+      customEventSDOSelection();
+    } else {
+      const sdo = $clickedStep.getAttribute(VISDEFAULTSDO);
+      if (!sdo) console.error("Must have defaultSDO");
+      const [secId, step] = visId.split("|");
+
+      customEventSelection({
+        secId: `${secId}|${sdo}`,
+        step,
+      });
+    }
   } else if ($clickedStep.classList.contains(VISPRODUCTION)) {
     if (!selectionSaver) return;
-
-    console.log(`${selectionSaver.secId}|${visId}`);
     customEventSelection({
       secId: `${selectionSaver.secId}|${visId}`,
       step: selectionSaver.step,
@@ -131,13 +161,15 @@ function stepClickEvent($clickedStep: Element) {
 
 function callClickEvent($clickedA: Element): boolean {
   const visId = $clickedA.getAttribute(VISID) ?? "";
-  if (!visId) console.error("A step must have a visId");
+  const sdo = $clickedA.getAttribute(VISDEFAULTSDO);
 
   const [callerAndStep, calleeId] = visId.split("->");
   const [callerId, step] = callerAndStep.split("|");
 
   const callstack = getCallStackFromStorage();
-  callstack.push({ callerId, step, calleeId });
+
+  if (sdo) callstack.push({ callerId: `${callerId}|${sdo}`, step, calleeId });
+  else callstack.push({ callerId, step, calleeId });
 
   return true;
 }
@@ -155,6 +187,8 @@ function transformCallLink($emuAlg: HTMLElement) {
 
     $a.classList.add(VISCALL);
     $a.setAttribute(VISID, `${callerIdAndStep}->${calleeId}`);
+    const defaultSDO = $li?.getAttribute(VISDEFAULTSDO);
+    if (defaultSDO) $a.setAttribute(VISDEFAULTSDO, defaultSDO);
   });
 }
 
@@ -194,40 +228,54 @@ function transformAlgorithm($emuAlg: HTMLElement, visId: string) {
   transformStepRec($emuAlg, [], visId);
 }
 
-function transformSDOAlgorithm($emuAlg: HTMLElement, visId: string) {
+function transformSDOAlgorithm(
+  $emuAlg: HTMLElement,
+  visId: string,
+  sdoInfo: SDOInfo,
+) {
   $emuAlg.setAttribute(VISID, visId);
-  transformStepRec($emuAlg, [], visId, true);
+  transformStepRec($emuAlg, [], visId, sdoInfo);
 }
 
 function transformStepRec(
   $parent: HTMLElement,
   stepInNumArr: number[],
   idBase: string,
-  sdo: boolean = false,
+  sdoInfo: SDOInfo | null = null,
 ) {
   const $lis = $parent.querySelectorAll<HTMLLIElement>(":scope > ol > li");
 
   $lis.forEach(($li, idx) =>
-    transformStepRec($li, stepInNumArr.concat(idx + 1), idBase, sdo),
+    transformStepRec($li, stepInNumArr.concat(idx + 1), idBase, sdoInfo),
   );
 
   if (stepInNumArr.length !== 0 && $parent instanceof HTMLLIElement)
-    transformStep($parent, `${idBase}|${toStepString(stepInNumArr)}`, sdo);
+    transformStep($parent, `${idBase}|${toStepString(stepInNumArr)}`, sdoInfo);
 }
 
-function transformStep($li: HTMLLIElement, visId: string, sdo: boolean) {
-  $li.classList.add(sdo ? VISSDOSTEP : VISSTEP);
+function transformStep(
+  $li: HTMLLIElement,
+  visId: string,
+  sdoInfo: SDOInfo | null = null,
+) {
+  const isSdo = sdoInfo ? true : false;
+
+  $li.classList.add(isSdo ? VISSDOSTEP : VISSTEP);
   $li.setAttribute(VISID, visId);
+  if (isSdo && sdoInfo) {
+    $li.setAttribute(VISDEFAULTSDO, sdoInfo.defaultSDO);
+    if (sdoInfo.isMultipleProd) $li.setAttribute(MULTIPLEPROD, "");
+  }
 
   $li.childNodes.forEach((node) =>
-    transformQuestionMark(node, `${visId}|?`, sdo),
+    transformQuestionMark(node, `${visId}|?`, isSdo),
   );
 
   const patterns: string[] = ["else", "otherwise"];
   patterns.forEach((pattern) =>
-    transformInlineIfElse($li, visId, pattern, sdo),
+    transformInlineIfElse($li, visId, pattern, isSdo),
   );
-  transformInlineIf($li, visId, sdo);
+  transformInlineIf($li, visId, isSdo);
 }
 
 function transformQuestionMark(node: ChildNode, visId: string, sdo: boolean) {
