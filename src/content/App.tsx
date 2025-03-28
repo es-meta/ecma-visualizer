@@ -1,6 +1,7 @@
 import Visualizer from "./visualizer/Visualizer.tsx";
+import { Dialog, DialogPanel, Field, Label, Select } from "@headlessui/react";
 import { ReactNode, useState } from "react";
-import { Field, Label, Select } from "@headlessui/react";
+import { Settings } from "lucide-react";
 
 const logo = chrome.runtime.getURL("images/logo.jpeg");
 
@@ -30,6 +31,8 @@ const VisualizerHeader = ({
   width: number;
   setWidth: React.Dispatch<React.SetStateAction<number>>;
 }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <header className="z-[999] flex flex-row items-center justify-between bg-white px-4 py-2 text-sm">
       <div className="flex flex-row items-center gap-2">
@@ -38,20 +41,6 @@ const VisualizerHeader = ({
         <div className="text-base font-normal">ECMA Visualizer</div>
       </div>
       <div className="flex flex-row items-center gap-2">
-        <Field className="flex flex-row items-center gap-2">
-          <Label>Width</Label>
-          <Select
-            name="width"
-            value={width}
-            onChange={(e) => setWidth(Number(e.target.value))}
-          >
-            <option value={500}>500px</option>
-            <option value={700}>700px</option>
-            <option value={900}>900px</option>
-            <option value={1100}>1100px</option>
-            <option value={1300}>1300px</option>
-          </Select>
-        </Field>
         <A href="https://github.com/es-meta/esmeta">
           <GitHubIcon />
           ESMeta
@@ -60,6 +49,36 @@ const VisualizerHeader = ({
           <GitHubIcon />
           ECMA Visualizer
         </A>
+        <Settings
+          className="h-5 w-5 cursor-pointer"
+          onClick={() => setIsOpen(true)}
+        />
+        <Dialog
+          open={isOpen}
+          onClose={() => setIsOpen(false)}
+          className="relative z-50"
+        >
+          <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
+            <DialogPanel className="max-w-lg space-y-4 border bg-white p-12">
+              <Field className="flex flex-row items-center gap-2">
+                <Label>Width</Label>
+                <Select
+                  name="width"
+                  value={width}
+                  onChange={(e) => setWidth(Number(e.target.value))}
+                >
+                  <option value={500}>500px</option>
+                  <option value={700}>700px</option>
+                  <option value={900}>900px</option>
+                  <option value={1100}>1100px</option>
+                  <option value={1300}>1300px</option>
+                </Select>
+              </Field>
+
+              <button onClick={() => setIsOpen(false)}>confirm</button>
+            </DialogPanel>
+          </div>
+        </Dialog>
       </div>
     </header>
   );

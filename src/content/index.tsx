@@ -50,28 +50,7 @@ function messageActive(active: boolean) {
 
 async function initState() {
   const { active } = await request("init");
-
   messageActive(active);
-
-  // if (installType !== "development") return;
-
-  // DOM Extraction for full support in multi page mode
-  // const button = Object.assign(document.createElement("button"), {
-  //   id: "extract-button",
-  //   textContent: "Extract!",
-  // });
-  // document.body.append(button);
-  //
-  // button.addEventListener("click", () => {
-  //   const blob = new Blob([JSON.stringify(extractSDO(), null, 2)], {
-  //     type: "application/json",
-  //   });
-  //
-  //   Object.assign(document.createElement("a"), {
-  //     href: URL.createObjectURL(blob),
-  //     download: "func-to-sdo.json",
-  //   }).click();
-  // });
 }
 
 export async function request(msgTyp: MessageType, request: object = {}) {

@@ -11,7 +11,6 @@ function useSelection() {
 
   useEffect(() => {
     const handleSelection = (e: CustomEvent<Selection>) => {
-      console.log("?");
       setSDOWaiting(false);
       setSelection(e.detail);
     };

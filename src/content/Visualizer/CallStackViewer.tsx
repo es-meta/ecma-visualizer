@@ -17,7 +17,7 @@ const CallStackViewer = ({
           <TH>#</TH>
           <TH>name</TH>
           <TH>step</TH>
-          <th className="text-center" />
+          <TH>pop</TH>
         </tr>
       </thead>
       <tbody>

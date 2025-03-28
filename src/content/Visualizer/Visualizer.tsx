@@ -23,7 +23,6 @@ const Visualizer = () => {
       direction="vertical"
       className="flex min-h-0 w-full flex-auto flex-col items-stretch justify-start p-3"
     >
-      {/* Minimal Program */}
       <ResizablePanel className="relative flex min-h-0 w-full flex-col divide-y divide-neutral-300 overflow-hidden rounded-t-xl border border-neutral-300 bg-white">
         <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
           <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
@@ -33,7 +32,11 @@ const Visualizer = () => {
           <PlayButton href="#" />
         </div>
         <div className="relative w-full flex-auto basis-auto overflow-scroll">
-          <ProgramViewer selection={selection} sdoWaiting={sdoWaiting} />
+          <ProgramViewer
+            selection={selection}
+            callstack={callStack}
+            sdoWaiting={sdoWaiting}
+          />
         </div>
       </ResizablePanel>
 
