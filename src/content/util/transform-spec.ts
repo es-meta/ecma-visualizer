@@ -11,12 +11,6 @@ import {
     Follow algorithm extract logic of ESMeta
 */
 
-/* [TODO] : handle multiple question marks in one step */
-/* [TODO] : handle DEFAULT SDO (e.g sec-static-semantics-contains / sec-static-semantics-allprivateidentifiersvalid / sec-static-semantics-containsarguments) */
-/* [TODO] : handle callClickEvent for SDO */
-/* [TODO] : handle wrong comma indexes (e.g. WhileLoopEvaluation step e) */
-/* [TODO] : handle single production clicks */
-
 const VISID = "visId";
 const VISDEFAULTSDO = "visDefaultSDO";
 const MULTIPLEPROD = "multipleProd";
@@ -47,6 +41,12 @@ function ignoreManually(secId: string, $emuAlg: HTMLElement) {
     "emu-alg"
   )
     return true;
+}
+
+function extractVisId(visId: string) {
+  const [secId, ...stepList] = visId.split("|");
+  const step = stepList.join("");
+  return { secId, step };
 }
 
 function transformSpec() {
@@ -128,12 +128,14 @@ function stepClickEvent($clickedStep: Element) {
   if (!visId) console.error("Must have visId");
 
   if ($clickedStep.classList.contains(VISSTEP)) {
+    console.log(`visId : ${visId}`);
+
     selectionSaver = null;
-    const [secId, step] = visId.split("|");
+    const { secId, step } = extractVisId(visId);
     customEventSelection({ secId, step });
   } else if ($clickedStep.classList.contains(VISSDOSTEP)) {
     if ($clickedStep.hasAttribute(MULTIPLEPROD)) {
-      const [secId, step] = visId.split("|");
+      const { secId, step } = extractVisId(visId);
       selectionSaver = {
         secId,
         step,
@@ -142,8 +144,7 @@ function stepClickEvent($clickedStep: Element) {
     } else {
       const sdo = $clickedStep.getAttribute(VISDEFAULTSDO);
       if (!sdo) console.error("Must have defaultSDO");
-      const [secId, step] = visId.split("|");
-
+      const { secId, step } = extractVisId(visId);
       customEventSelection({
         secId: `${secId}|${sdo}`,
         step,

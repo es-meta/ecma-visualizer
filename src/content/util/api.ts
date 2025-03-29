@@ -44,9 +44,7 @@ async function fetchStepToNodeId(
 }
 
 async function fetchNodeIdToScript(nodeId: number): Promise<string[]> {
-  const featureToProgId = await _fetch<FeatureToProgId>(
-    `${BASE_URL}/nodeIdToProgId/${nodeId}.json`,
-  );
+  const featureToProgId = await fetchFNCByNodeId(nodeId);
 
   // Array of [progId, iterCnt]
   const progIds = Object.keys(featureToProgId).flatMap((feature) => {
@@ -54,16 +52,22 @@ async function fetchNodeIdToScript(nodeId: number): Promise<string[]> {
     return Object.keys(cpToProgId).map((cp) => cpToProgId[cp]);
   });
 
-  return await Promise.all(
-    progIds.map((pair) =>
-      _fetch<string>(`${BASE_URL}/progIdToScript/${pair[0]}.json`),
-    ),
-  );
+  return await Promise.all(progIds.map((pair) => fetchScriptByProgId(pair[0])));
+}
+
+async function fetchFNCByNodeId(nodeId: number) {
+  return _fetch<FeatureToProgId>(`${BASE_URL}/nodeIdToProgId/${nodeId}.json`);
+}
+
+async function fetchScriptByProgId(progId: number) {
+  return _fetch<string>(`${BASE_URL}/progIdToScript/${progId}.json`);
 }
 
 export {
   fetchFuncIdfromSecId,
   fetchFuncNameFromSecId,
+  fetchFNCByNodeId,
+  fetchScriptByProgId,
   fetchStepToNodeId,
   fetchNodeIdToScript,
 };

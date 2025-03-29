@@ -1,5 +1,12 @@
 import Visualizer from "./visualizer/Visualizer.tsx";
-import { Dialog, DialogPanel, Field, Label, Select } from "@headlessui/react";
+import {
+  Dialog,
+  DialogPanel,
+  Field,
+  Input,
+  Label,
+  Select,
+} from "@headlessui/react";
 import { ReactNode, useState } from "react";
 import { Settings } from "lucide-react";
 
@@ -24,6 +31,8 @@ const App = () => {
   );
 };
 
+const DEFAULT_BASE_URL = "default base url";
+const DEFAULT_DEBUGGER_URL = "default debugger url";
 const VisualizerHeader = ({
   width,
   setWidth,
@@ -74,6 +83,9 @@ const VisualizerHeader = ({
                   <option value={1300}>1300px</option>
                 </Select>
               </Field>
+
+              <Input defaultValue={DEFAULT_BASE_URL}></Input>
+              <Input defaultValue={DEFAULT_DEBUGGER_URL}></Input>
 
               <button onClick={() => setIsOpen(false)}>confirm</button>
             </DialogPanel>

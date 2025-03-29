@@ -6,8 +6,13 @@ type Node = {
   calleeId: string;
 };
 
-export type ConvertedNode = {
+export type FuncNameNode = {
   callerName: string;
+  step: string;
+};
+
+export type FuncIdNode = {
+  callerId: string;
   step: string;
 };
 
@@ -58,15 +63,25 @@ export class CallStack {
     return this.size() == 0;
   }
 
-  async convert(): Promise<ConvertedNode[]> {
+  async toFuncName(): Promise<FuncNameNode[]> {
     const nameMap = await chrome.storage.local.get();
 
-    return this.nodes.map((n) => {
+    return this.nodes.reverse().map((n) => {
       return {
         callerName: nameMap["secIdToFuncName"][n.callerId],
         step: n.step,
       };
     });
+  }
+
+  async toFuncId(): Promise<string> {
+    const nameMap = await chrome.storage.local.get();
+
+    return this.nodes
+      .map((n) => {
+        return `${nameMap["secIdToFuncId"][n.callerId]}|${n.step}`;
+      })
+      .join("-");
   }
 }
 

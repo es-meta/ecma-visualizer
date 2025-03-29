@@ -1,6 +1,6 @@
 import {
   CallStack,
-  ConvertedNode,
+  FuncNameNode,
   getCallStackFromStorage,
 } from "@/types/call-stack";
 import { CUSTOM_EVENT_CALLSTACK_UPDATE } from "@/types/custom-event";
@@ -8,14 +8,14 @@ import { useEffect, useState } from "react";
 
 function useCallStack() {
   const [callStack, setCallStack] = useState<CallStack>(new CallStack(null));
-  const [convertedCallStack, setConvertedCallStack] = useState<ConvertedNode[]>(
+  const [convertedCallStack, setConvertedCallStack] = useState<FuncNameNode[]>(
     [],
   );
 
   async function updateCallStack() {
     const cs = getCallStackFromStorage();
     setCallStack(cs);
-    setConvertedCallStack(await cs.convert());
+    setConvertedCallStack(await cs.toFuncName());
   }
 
   useEffect(() => {
