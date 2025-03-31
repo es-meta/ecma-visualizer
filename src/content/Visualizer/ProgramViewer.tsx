@@ -5,6 +5,8 @@ import { Selection } from "@/types/custom-event";
 import { Loading, Error } from "../components";
 import { CallStack } from "@/types/call-stack";
 import useProgram from "./hooks/useProgram";
+import { Code } from "lucide-react";
+import { PlayButton } from "../components/PlayButton.tsx";
 
 const ProgramViewer = ({
   selection,
@@ -15,31 +17,47 @@ const ProgramViewer = ({
   callstack: CallStack;
   sdoWaiting: boolean;
 }) => {
-  const { code, setCode, loading, error } = useProgram(selection, callstack);
+  const { codeAndStepCnt, setCodeAndStepCnt, loading, error } = useProgram(
+    selection,
+    callstack,
+  );
 
-  if (sdoWaiting) {
-    return <SDOWaiting />;
-  } else
-    return loading ? (
-      <Loading />
-    ) : error ? (
-      <Error />
-    ) : (
-      <div className="m-0 size-full">
-        <Controlled
-          className="min-h-full text-sm"
-          value={code}
-          options={{
-            lineNumbers: true,
-            // matchBrackets: true,
-            mode: "javascript",
-          }}
-          onBeforeChange={(editor, data, value) => {
-            setCode(value);
-          }}
-        />
+  const url = `http://localhost:3000?prog=${encodeURIComponent(codeAndStepCnt[0])}&iter=${encodeURIComponent(codeAndStepCnt[1])}`;
+
+  return (
+    <>
+      <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
+        <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
+          <Code />
+          Program
+        </div>
+        <PlayButton href={url} />
       </div>
-    );
+      <div className="relative w-full flex-auto basis-auto overflow-scroll">
+        {sdoWaiting ? (
+          <SDOWaiting />
+        ) : loading ? (
+          <Loading />
+        ) : error ? (
+          <Error />
+        ) : (
+          <div className="m-0 size-full">
+            <Controlled
+              className="min-h-full text-sm"
+              value={codeAndStepCnt[0]}
+              options={{
+                lineNumbers: true,
+                mode: "javascript",
+              }}
+              onBeforeChange={(editor, data, value) => {
+                setCodeAndStepCnt([value, codeAndStepCnt[1]]);
+              }}
+            />
+          </div>
+        )}
+      </div>
+    </>
+  );
 };
 
 const SDOWaiting = () => {

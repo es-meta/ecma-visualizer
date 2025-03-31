@@ -1,7 +1,7 @@
 type SecIdToFuncId = Record<string, string>;
 type SecIdToFuncName = Record<string, string>;
 type StepToNodeId = Record<string, number[]>;
-type FeatureToProgId = Record<string, Record<string, number[]>>;
+type FeatureToProgId = Record<string, Record<string, [number, number]>>;
 
 const BASE_URL =
   "https://raw.githubusercontent.com/Goonco/tmpvis/refs/heads/main";
@@ -43,7 +43,9 @@ async function fetchStepToNodeId(
   return stepToNodeId[step];
 }
 
-async function fetchNodeIdToScript(nodeId: number): Promise<string[]> {
+async function fetchNodeIdToScript(
+  nodeId: number,
+): Promise<[string, number][]> {
   const featureToProgId = await fetchFNCByNodeId(nodeId);
 
   // Array of [progId, iterCnt]
@@ -52,15 +54,25 @@ async function fetchNodeIdToScript(nodeId: number): Promise<string[]> {
     return Object.keys(cpToProgId).map((cp) => cpToProgId[cp]);
   });
 
-  return await Promise.all(progIds.map((pair) => fetchScriptByProgId(pair[0])));
+  return await Promise.all(
+    progIds.map((pair) => fetchScriptByProgId(pair[0], pair[1])),
+  );
 }
 
 async function fetchFNCByNodeId(nodeId: number) {
-  return _fetch<FeatureToProgId>(`${BASE_URL}/nodeIdToProgId/${nodeId}.json`);
+  return await _fetch<FeatureToProgId>(
+    `${BASE_URL}/nodeIdToProgId/${nodeId}.json`,
+  );
 }
 
-async function fetchScriptByProgId(progId: number) {
-  return _fetch<string>(`${BASE_URL}/progIdToScript/${progId}.json`);
+async function fetchScriptByProgId(
+  progId: number,
+  stepCount: number,
+): Promise<[string, number]> {
+  return [
+    await _fetch<string>(`${BASE_URL}/progIdToScript/${progId}.json`),
+    stepCount,
+  ];
 }
 
 export {

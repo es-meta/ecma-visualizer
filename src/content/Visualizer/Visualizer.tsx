@@ -1,4 +1,4 @@
-import { Code, Mouse, OctagonX } from "lucide-react";
+import { Mouse, OctagonX } from "lucide-react";
 import ProgramViewer from "./ProgramViewer.tsx";
 import CallStackViewer from "./CallStackViewer.tsx";
 import {
@@ -7,7 +7,6 @@ import {
   ResizablePanelGroup,
 } from "@/content/components/resizable.tsx";
 import { Layers, Eraser } from "lucide-react";
-import { PlayButton } from "../components/PlayButton.tsx";
 
 import useSelection from "./hooks/useSelection.ts";
 import useCallStack from "./hooks/useCallStack.ts";
@@ -24,20 +23,11 @@ const Visualizer = () => {
       className="flex min-h-0 w-full flex-auto flex-col items-stretch justify-start p-3"
     >
       <ResizablePanel className="relative flex min-h-0 w-full flex-col divide-y divide-neutral-300 overflow-hidden rounded-t-xl border border-neutral-300 bg-white">
-        <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
-          <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
-            <Code />
-            Program
-          </div>
-          <PlayButton href="#" />
-        </div>
-        <div className="relative w-full flex-auto basis-auto overflow-scroll">
-          <ProgramViewer
-            selection={selection}
-            callstack={callStack}
-            sdoWaiting={sdoWaiting}
-          />
-        </div>
+        <ProgramViewer
+          selection={selection}
+          callstack={callStack}
+          sdoWaiting={sdoWaiting}
+        />
       </ResizablePanel>
 
       <ResizableHandle withHandle />
