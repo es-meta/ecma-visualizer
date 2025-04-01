@@ -3,10 +3,12 @@ import { Selection } from "@/types/custom-event";
 import { useState, useEffect } from "react";
 import {
   fetchFNCByNodeId,
-  fetchNodeIdToScript,
+  fetchMinimalScriptByNodeId,
   fetchScriptByProgId,
   fetchStepToNodeId,
 } from "../../util/api";
+
+export type CustomError = "NotFound" | "Error";
 
 function useProgram(selection: Selection | null, callstack: CallStack) {
   const [codeAndStepCnt, setCodeAndStepCnt] = useState<[string, number]>([
@@ -14,24 +16,17 @@ function useProgram(selection: Selection | null, callstack: CallStack) {
     0,
   ]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<boolean>(false);
-
-  // ToDo
-  const [notFound, setNotFound] = useState<boolean>(false);
+  const [error, setError] = useState<CustomError | null>(null);
 
   async function fetchProgram() {
     setLoading(true);
-    setError(false);
+    setError(null);
     try {
       if (!selection) return;
       const nodeIds = await fetchStepToNodeId(selection.secId, selection.step);
 
       if (callstack.isEmpty()) {
-        const progs = await fetchNodeIdToScript(nodeIds[0]);
-        const shortestProg = progs.reduce((shortest, current) =>
-          current[0].length < shortest[0].length ? current : shortest,
-        );
-        setCodeAndStepCnt(shortestProg);
+        setCodeAndStepCnt(await fetchMinimalScriptByNodeId(nodeIds[0]));
       } else {
         const currentCp = await callstack.toFuncId();
         const featureToProgIDArr = await Promise.all(
@@ -56,8 +51,9 @@ function useProgram(selection: Selection | null, callstack: CallStack) {
         }
       }
     } catch (e) {
-      setError(true);
-      console.error(e);
+      if (e instanceof Response && e.status === 404) {
+        setError("NotFound");
+      } else setError("Error");
     } finally {
       setLoading(false);
     }
@@ -67,7 +63,7 @@ function useProgram(selection: Selection | null, callstack: CallStack) {
     fetchProgram();
   }, [selection]);
 
-  return { codeAndStepCnt, setCodeAndStepCnt, loading, error, notFound };
+  return { codeAndStepCnt, setCodeAndStepCnt, loading, error };
 }
 
 export default useProgram;

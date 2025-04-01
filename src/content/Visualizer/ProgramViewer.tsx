@@ -39,7 +39,7 @@ const ProgramViewer = ({
         ) : loading ? (
           <Loading />
         ) : error ? (
-          <Error />
+          <Error error={error} />
         ) : (
           <div className="m-0 size-full">
             <Controlled

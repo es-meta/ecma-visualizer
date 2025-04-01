@@ -29,12 +29,16 @@ type SDOInfo = {
   isMultipleProd: boolean;
 };
 
+/* [ToDo] Hande Default SDO */
+const IGNORE_SEC_IDS = new Set([
+  "sec-ifabruptcloseiterator",
+  "sec-ifabruptrejectpromise",
+  "sec-static-semantics-allprivateidentifiersvalid",
+  "sec-static-semantics-containsarguments",
+]);
+
 function ignoreManually(secId: string, $emuAlg: HTMLElement) {
-  if (
-    secId !== "sec-ifabruptcloseiterator" &&
-    secId !== "sec-ifabruptrejectpromise"
-  )
-    return false;
+  if (IGNORE_SEC_IDS.has(secId)) return false;
 
   if (
     $emuAlg.nextElementSibling?.nextElementSibling?.tagName.toLowerCase() ===
@@ -128,8 +132,6 @@ function stepClickEvent($clickedStep: Element) {
   if (!visId) console.error("Must have visId");
 
   if ($clickedStep.classList.contains(VISSTEP)) {
-    console.log(`visId : ${visId}`);
-
     selectionSaver = null;
     const { secId, step } = extractVisId(visId);
     customEventSelection({ secId, step });
@@ -268,9 +270,11 @@ function transformStep(
     if (sdoInfo.isMultipleProd) $li.setAttribute(MULTIPLEPROD, "");
   }
 
-  $li.childNodes.forEach((node) =>
-    transformQuestionMark(node, `${visId}|?`, isSdo),
-  );
+  let questionCnt = 1;
+  $li.childNodes.forEach((node) => {
+    if (transformQuestionMark(node, `${visId}|?${questionCnt}`, isSdo))
+      questionCnt++;
+  });
 
   const patterns: string[] = ["else", "otherwise"];
   patterns.forEach((pattern) =>
@@ -292,6 +296,7 @@ function transformQuestionMark(node: ChildNode, visId: string, sdo: boolean) {
     .createRange()
     .createContextualFragment(modifiedText);
   node.replaceWith(fragment);
+  return true;
 }
 
 function transformInlineIfElse(

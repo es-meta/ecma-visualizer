@@ -29,10 +29,14 @@ export class CallStack {
   }
 
   push(node: Node) {
-    /* [ToDo] : add recursive logics */
     if (this.peek()?.calleeId !== node.callerId) this.flush();
 
-    this.nodes.push(node);
+    if (this.contains(node)) {
+      while (!this.isEmpty()) {
+        if (this.peek()?.callerId == node.callerId) break;
+        this.pop();
+      }
+    } else this.nodes.push(node);
     saveAndAlert(this);
   }
 
@@ -44,6 +48,10 @@ export class CallStack {
 
   peek(): Node | undefined {
     return this.nodes[this.nodes.length - 1];
+  }
+
+  contains(node: Node): boolean {
+    return this.nodes.some((iter) => iter.callerId == node.callerId);
   }
 
   flush() {

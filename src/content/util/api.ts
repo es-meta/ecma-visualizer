@@ -15,7 +15,7 @@ class FetchError extends Error {
 
 async function _fetch<T>(url: string): Promise<T> {
   const response = await fetch(url);
-  if (!response.ok) throw new FetchError(response);
+  if (!response.ok) throw response;
   return await response.json();
 }
 
@@ -59,6 +59,13 @@ async function fetchNodeIdToScript(
   );
 }
 
+async function fetchMinimalScriptByNodeId(nodeId: number) {
+  const featureToProgId = await fetchFNCByNodeId(nodeId);
+  const [progId, stepCnt] = featureToProgId["minimal"]["minimal"];
+
+  return await fetchScriptByProgId(progId, stepCnt);
+}
+
 async function fetchFNCByNodeId(nodeId: number) {
   return await _fetch<FeatureToProgId>(
     `${BASE_URL}/nodeIdToProgId/${nodeId}.json`,
@@ -76,6 +83,7 @@ async function fetchScriptByProgId(
 }
 
 export {
+  fetchMinimalScriptByNodeId,
   fetchFuncIdfromSecId,
   fetchFuncNameFromSecId,
   fetchFNCByNodeId,
