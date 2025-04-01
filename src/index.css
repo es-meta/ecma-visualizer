@@ -44,22 +44,21 @@ body {
   flex-direction: row;
 }
 
-.visStep {
+body.active .visStep:hover {
   background-color: rgba(0, 0, 0, 0.1);
 }
-.visQM{
-  background-color: rgba(255, 0, 0, 0.6);
+body.active .visQM:hover {
+  background-color: rgba(255, 0, 0, 0.3);
 }
-.visIf{
-  background-color: rgba(0, 255, 0, 0.6);
+body.active .visIf:hover {
+  background-color: rgba(0, 255, 0, 0.3);
 }
-.visThen{
-  background-color: rgba(0,0, 255, 0.6);
+body.active .visThen:hover {
+  background-color: rgba(0, 0, 255, 0.3);
 }
-.visElse{
-  background-color: rgba(255, 255, 0, 0.6);
+body.active .visElse:hover {
+  background-color: rgba(255, 255, 0, 0.3);
 }
-
 
 @media (max-width: 1000px) {
   body {
@@ -79,25 +78,6 @@ body {
   #spec-container {
     margin-bottom: 500px !important;
   }
-}
-
-body.active li {
-  cursor: pointer;
-}
-
-body.active .abrupt {
-  padding: 0 4px;
-}
-body.active .abrupt:hover {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-body.active .step:hover {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-body.active .selected,
-body.active .selected:hover {
-  background-color: rgba(255, 255, 0, 0.7);
 }
 
 #root {
@@ -120,16 +100,6 @@ body.active .selected:hover {
   height: 40px;
   background-color: red;
 }
-
-/*.inlinebranch.if {*/
-/*  background-color: red;*/
-/*}*/
-/*.inlinebranch.then {*/
-/*  background-color: orange;*/
-/*}*/
-/*.inlinebranch.else {*/
-/*  background-color: yellow;*/
-/*}*/
 
 /*
   Manually added style due to tailwind preflight disable

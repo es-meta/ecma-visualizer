@@ -38,8 +38,7 @@ const IGNORE_SEC_IDS = new Set([
 ]);
 
 function ignoreManually(secId: string, $emuAlg: HTMLElement) {
-  if (IGNORE_SEC_IDS.has(secId)) return false;
-
+  if (IGNORE_SEC_IDS.has(secId)) return true;
   if (
     $emuAlg.nextElementSibling?.nextElementSibling?.tagName.toLowerCase() ===
     "emu-alg"
@@ -49,7 +48,7 @@ function ignoreManually(secId: string, $emuAlg: HTMLElement) {
 
 function extractVisId(visId: string) {
   const [secId, ...stepList] = visId.split("|");
-  const step = stepList.join("");
+  const step = stepList.join("|");
   return { secId, step };
 }
 
@@ -58,7 +57,6 @@ function transformSpec() {
     .querySelectorAll<HTMLElement>("emu-alg:not([example])")
     .forEach(($emuAlg) => {
       let $parent = $emuAlg.parentElement;
-
       if (
         $parent &&
         ($parent.id.endsWith("statment-rules") ||

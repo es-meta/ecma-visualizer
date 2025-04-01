@@ -53,7 +53,10 @@ function useProgram(selection: Selection | null, callstack: CallStack) {
     } catch (e) {
       if (e instanceof Response && e.status === 404) {
         setError("NotFound");
-      } else setError("Error");
+      } else {
+        console.error(e);
+        setError("Error");
+      }
     } finally {
       setLoading(false);
     }
