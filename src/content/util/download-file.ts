@@ -10,10 +10,8 @@ async function downloadFile(path: string): Promise<Blob> {
 }
 
 export async function handleDownload(paths: string[]) {
-  console.log("!");
   const zip = new JSZip();
-  const queue = new PQueue({ concurrency: 10 }); // 동시에 5개씩 처리
-  console.log("!");
+  const queue = new PQueue({ concurrency: 10 });
 
   let succeeded = 0;
   let failed = 0;
@@ -25,7 +23,6 @@ export async function handleDownload(paths: string[]) {
         const fileBlob = await downloadFile(path);
         zip.file(path, fileBlob);
         succeeded++;
-        console.log(`Success (${succeeded}/${paths.length}): ${path}`);
       } catch (error) {
         failed++;
         failedPaths.push({
@@ -43,7 +40,7 @@ export async function handleDownload(paths: string[]) {
     const errorLog = failedPaths
       .map((item) => `${item.path}: ${item.error}`)
       .join("\n");
-    zip.file("_errors.log", errorLog); // 실패 로그를 ZIP 파일에 추가
+    zip.file("_errors.log", errorLog);
   }
 
   const zipBlob = await zip.generateAsync({ type: "blob" });

@@ -27,6 +27,9 @@ chrome.runtime.onInstalled.addListener(() => {
       secIdToFuncId: await fetch(
         chrome.runtime.getURL("resources/secIdToFuncId.json"),
       ).then((res) => res.json()),
+      test262IdToTest262: await fetch(
+        chrome.runtime.getURL("resources/test262IdToTest262.json"),
+      ).then((res) => res.json()),
     });
   })();
 });

@@ -1,12 +1,13 @@
 import { DownloadIcon } from "lucide-react";
-import React from "react";
 import { Virtualizer } from "@tanstack/react-virtual";
+import { CustomError } from "./hooks/useProgram";
+import { Loading, Error } from "../components";
 
 export const rawUrl = (test262: string) =>
-  `https://raw.githubusercontent.com/tc39/test262/3a7a72aef5009eb22117231d40f9a5a66a9a595a/test/${test262}`;
+  `${import.meta.env.VITE_TEST262_RAW_URL}/${test262}`;
 
 const url = (test262: string) =>
-  `https://github.com/tc39/test262/blob/3a7a72aef5009eb22117231d40f9a5a66a9a595a/test/${test262}`;
+  `${import.meta.env.VITE_TEST262_URL}/${test262}`;
 
 const fileName = (test262: string) => {
   const nameStr = test262.split("/");
@@ -14,14 +15,16 @@ const fileName = (test262: string) => {
 };
 
 const Test262Viewer = ({
-  test262Set,
+  test262,
   rowVirtualizer,
+  loading,
+  error,
 }: {
-  test262Set: string[];
+  test262: string[];
   rowVirtualizer: Virtualizer<Element, Element>;
+  loading: boolean;
+  error: CustomError | null;
 }) => {
-  const parentRef = React.useRef(null);
-
   const downloadFile = async (filePath: string, fileName: string) => {
     try {
       const response = await fetch(filePath);
@@ -44,7 +47,11 @@ const Test262Viewer = ({
     }
   };
 
-  return (
+  return loading ? (
+    <Loading />
+  ) : error ? (
+    <Error error={error} />
+  ) : (
     <div
       style={{
         height: `${rowVirtualizer.getTotalSize()}px`,
@@ -53,7 +60,7 @@ const Test262Viewer = ({
       }}
     >
       {rowVirtualizer.getVirtualItems().map((vi) => {
-        const test262 = test262Set[vi.index];
+        const test = test262[vi.index];
         return (
           <div
             key={vi.key}
@@ -68,14 +75,14 @@ const Test262Viewer = ({
             }}
           >
             <div className="flex-1 truncate px-2 text-sm">
-              <a href={url(test262)} target="_blank">
-                {test262}
+              <a href={url(test)} target="_blank">
+                {test}
               </a>
             </div>
             <div className="px-1 text-center">
               <button
                 className="group inline cursor-pointer rounded-sm hover:bg-blue-600"
-                onClick={() => downloadFile(rawUrl(test262), fileName(test262))}
+                onClick={() => downloadFile(rawUrl(test), fileName(test))}
               >
                 <DownloadIcon className="h-4 w-4 group-hover:text-white" />
               </button>

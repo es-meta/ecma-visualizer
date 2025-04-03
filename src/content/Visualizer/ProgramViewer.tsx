@@ -1,27 +1,24 @@
 import "codemirror/lib/codemirror.css";
 import "codemirror/mode/javascript/javascript";
 import { Controlled } from "react-codemirror2/.ts";
-import { Selection } from "@/types/custom-event";
 import { Loading, Error } from "../components";
-import { CallStack } from "@/types/call-stack";
-import useProgram from "./hooks/useProgram";
+import { CustomError } from "./hooks/useProgram";
 import { Code } from "lucide-react";
 import { PlayButton } from "../components/PlayButton.tsx";
 
 const ProgramViewer = ({
-  selection,
-  callstack,
+  codeAndStepCnt,
+  setCodeAndStepCnt,
+  loading,
+  error,
   sdoWaiting,
 }: {
-  selection: Selection | null;
-  callstack: CallStack;
+  codeAndStepCnt: [string, number];
+  setCodeAndStepCnt: React.Dispatch<React.SetStateAction<[string, number]>>;
+  loading: boolean;
+  error: CustomError | null;
   sdoWaiting: boolean;
 }) => {
-  const { codeAndStepCnt, setCodeAndStepCnt, loading, error } = useProgram(
-    selection,
-    callstack,
-  );
-
   const url = `http://localhost:3000?prog=${encodeURIComponent(codeAndStepCnt[0])}&iter=${encodeURIComponent(codeAndStepCnt[1])}`;
 
   return (

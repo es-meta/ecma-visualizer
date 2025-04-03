@@ -2,6 +2,8 @@ type SecIdToFuncId = Record<string, string>;
 type SecIdToFuncName = Record<string, string>;
 type StepToNodeId = Record<string, number[]>;
 type FeatureToProgId = Record<string, Record<string, [number, number]>>;
+type FeatureToEncodedTest262 = Record<string, Record<string, string>>;
+import { bitwiseOrStrings, convertToIndex } from "../util/decode.ts";
 
 const BASE_URL =
   "https://raw.githubusercontent.com/Goonco/tmpvis/refs/heads/main";
@@ -43,19 +45,26 @@ async function fetchStepToNodeId(
   return stepToNodeId[step];
 }
 
-async function fetchNodeIdToScript(
-  nodeId: number,
-): Promise<[string, number][]> {
-  const featureToProgId = await fetchFNCByNodeId(nodeId);
+async function fetchAllTest262ByNodeId(nodeId: number): Promise<string[]> {
+  const featureToEncoded = await fetchTest262FNCByNodeId(nodeId);
 
-  // Array of [progId, iterCnt]
-  const progIds = Object.keys(featureToProgId).flatMap((feature) => {
-    const cpToProgId = featureToProgId[feature];
+  const encodings = Object.keys(featureToEncoded).flatMap((feature) => {
+    const cpToProgId = featureToEncoded[feature];
     return Object.keys(cpToProgId).map((cp) => cpToProgId[cp]);
   });
 
+  let accBitString = "";
+  const testIds = encodings
+    .filter((e) => e !== "")
+    .map(
+      (encodeStrings) =>
+        (accBitString = bitwiseOrStrings(accBitString, encodeStrings)),
+    );
+
   return await Promise.all(
-    progIds.map((pair) => fetchScriptByProgId(pair[0], pair[1])),
+    convertToIndex(accBitString).map((testId) =>
+      fetchTest262NameByTest262Id(testId),
+    ),
   );
 }
 
@@ -72,6 +81,12 @@ async function fetchFNCByNodeId(nodeId: number) {
   );
 }
 
+async function fetchTest262FNCByNodeId(nodeId: number) {
+  return await _fetch<FeatureToEncodedTest262>(
+    `${BASE_URL}/nodeIdToTest262/${nodeId}.json`,
+  );
+}
+
 async function fetchScriptByProgId(
   progId: number,
   stepCount: number,
@@ -82,6 +97,11 @@ async function fetchScriptByProgId(
   ];
 }
 
+async function fetchTest262NameByTest262Id(testId: string) {
+  const nameMap = await chrome.storage.local.get();
+  return nameMap["test262IdToTest262"][testId];
+}
+
 export {
   fetchMinimalScriptByNodeId,
   fetchFuncIdfromSecId,
@@ -89,5 +109,5 @@ export {
   fetchFNCByNodeId,
   fetchScriptByProgId,
   fetchStepToNodeId,
-  fetchNodeIdToScript,
+  fetchAllTest262ByNodeId,
 };

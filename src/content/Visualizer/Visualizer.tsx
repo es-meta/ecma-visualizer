@@ -6,16 +6,65 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/content/components/resizable.tsx";
-import { Layers, Eraser } from "lucide-react";
+import {
+  Layers,
+  Eraser,
+  FlaskConical,
+  LoaderCircle,
+  FolderDown,
+} from "lucide-react";
 
+import useProgram from "./hooks/useProgram.ts";
 import useSelection from "./hooks/useSelection.ts";
 import useCallStack from "./hooks/useCallStack.ts";
+import useTest262 from "./hooks/useTest262.ts";
+import Test262Viewer from "./Test262Viewer.tsx";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import { useState, useRef } from "react";
 
-const WEB_DEBUGGER_URL = "http://localhost:3000";
+import { handleDownload } from "../util/download-file.ts";
 
 const Visualizer = () => {
-  const { callStack, convertedCallStack } = useCallStack();
+  const [state, setState] = useState();
+  const { callStack: callstack, convertedCallStack } = useCallStack();
   const { selection, sdoWaiting } = useSelection();
+  const { codeAndStepCnt, setCodeAndStepCnt, loading, error } = useProgram(
+    selection,
+    callstack,
+  );
+  const {
+    test262,
+    loading: test262Loading,
+    error: test262Error,
+  } = useTest262(selection, callstack, loading);
+
+  const parentRef = useRef(null);
+  const rowVirtualizer = useVirtualizer({
+    count: test262 ? test262.length : 0,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 30,
+  });
+
+  const [downloading, setDownloading] = useState(false);
+  const downloadAll = () => {
+    if (test262 === null) return;
+
+    setDownloading(true);
+    if (downloading) {
+      alert("Download is already in progress.");
+      return;
+    }
+
+    (async () => {
+      try {
+        await handleDownload(test262);
+      } catch (error) {
+        console.error("Download failed:", error);
+      } finally {
+        setDownloading(false);
+      }
+    })();
+  };
 
   return (
     <ResizablePanelGroup
@@ -24,8 +73,10 @@ const Visualizer = () => {
     >
       <ResizablePanel className="relative flex min-h-0 w-full flex-col divide-y divide-neutral-300 overflow-hidden rounded-t-xl border border-neutral-300 bg-white">
         <ProgramViewer
-          selection={selection}
-          callstack={callStack}
+          codeAndStepCnt={codeAndStepCnt}
+          setCodeAndStepCnt={setCodeAndStepCnt}
+          loading={loading}
+          error={error}
           sdoWaiting={sdoWaiting}
         />
       </ResizablePanel>
@@ -33,39 +84,38 @@ const Visualizer = () => {
       <ResizableHandle withHandle />
 
       {/* Test262 */}
-      {/* <ResizablePanel className="relative flex w-full flex-col divide-y divide-neutral-300 overflow-hidden border border-neutral-300 bg-white">
+      <ResizablePanel className="relative flex w-full flex-col divide-y divide-neutral-300 overflow-hidden border border-neutral-300 bg-white">
         <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
           <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
             <FlaskConical />
             Test262
           </div>
-          {test262ViewerCondition && (
-            <div className="flex flex-row items-center gap-1">
-              <div className="text-sm font-medium">{`${selectedTest262Set.length} found`}</div>
-              <button
-                className="flex cursor-pointer flex-row items-center justify-center gap-1 rounded-md text-sm hover:bg-blue-600 hover:text-white [&>svg]:size-4"
-                onClick={downloadAll}
-              >
-                {downloading ? (
-                  <LoaderCircle className="animate-spin" />
-                ) : (
-                  <FolderDown />
-                )}
-                {downloading ? "Downloading.." : "Download All"}
-              </button>
-            </div>
-          )}
+
+          <div className="flex flex-row items-center gap-1">
+            <div className="text-sm font-medium">{`${test262.length} found`}</div>
+            <button
+              className="flex cursor-pointer flex-row items-center justify-center gap-1 rounded-md text-sm hover:bg-blue-600 hover:text-white [&>svg]:size-4"
+              onClick={downloadAll}
+            >
+              {downloading ? (
+                <LoaderCircle className="animate-spin" />
+              ) : (
+                <FolderDown />
+              )}
+              {downloading ? "Downloading.." : "Download All"}
+            </button>
+          </div>
         </div>
         <div
           ref={parentRef}
           className="relative min-h-0 w-full flex-auto basis-auto overflow-scroll"
         >
-          {test262ViewerCondition && (
-            <Test262Viewer
-              test262Set={selectedTest262Set}
-              rowVirtualizer={rowVirtualizer}
-            />
-          )}
+          <Test262Viewer
+            test262={test262}
+            loading={test262Loading || loading}
+            error={test262Error}
+            rowVirtualizer={rowVirtualizer}
+          />
         </div>
       </ResizablePanel>
 
@@ -78,10 +128,10 @@ const Visualizer = () => {
             <Layers />
             CallPath
           </div>
-          {callStack.size() > 0 && (
+          {callstack.size() > 0 && (
             <button
               className="flex cursor-pointer flex-row items-center justify-center gap-1 rounded-md text-sm hover:bg-blue-600 hover:text-white [&>svg]:size-4"
-              onClick={() => callStack.flush()}
+              onClick={() => callstack.flush()}
             >
               <Eraser />
               Clear
@@ -90,7 +140,7 @@ const Visualizer = () => {
         </div>
         <section className="w-full flex-auto basis-auto overflow-scroll">
           <CallStackViewer
-            callStack={callStack}
+            callStack={callstack}
             convertedCallStack={convertedCallStack}
           />
         </section>
