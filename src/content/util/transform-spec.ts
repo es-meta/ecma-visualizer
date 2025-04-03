@@ -34,6 +34,7 @@ const IGNORE_SEC_IDS = new Set([
   "sec-ifabruptcloseiterator",
   "sec-ifabruptrejectpromise",
   "sec-static-semantics-allprivateidentifiersvalid",
+  "sec-static-semantics-contains",
   "sec-static-semantics-containsarguments",
 ]);
 
@@ -43,7 +44,7 @@ function ignoreManually(secId: string, $emuAlg: HTMLElement) {
     $emuAlg.nextElementSibling?.nextElementSibling?.tagName.toLowerCase() ===
     "emu-alg"
   )
-    return true;
+    console.log(secId);
 }
 
 function extractVisId(visId: string) {
