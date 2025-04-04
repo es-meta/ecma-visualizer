@@ -64,6 +64,8 @@ function useTest262(
               ),
             ),
           );
+        } else {
+          setError("NotFound");
         }
       }
     } catch (e) {

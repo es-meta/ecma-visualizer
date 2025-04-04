@@ -2,6 +2,7 @@ import { DownloadIcon } from "lucide-react";
 import { Virtualizer } from "@tanstack/react-virtual";
 import { CustomError } from "./hooks/useProgram";
 import { Loading, Error } from "../components";
+import { SDOWaiting } from "./ProgramViewer";
 
 export const rawUrl = (test262: string) =>
   `${import.meta.env.VITE_TEST262_RAW_URL}/${test262}`;
@@ -19,11 +20,13 @@ const Test262Viewer = ({
   rowVirtualizer,
   loading,
   error,
+  sdoWaiting,
 }: {
   test262: string[];
   rowVirtualizer: Virtualizer<Element, Element>;
   loading: boolean;
   error: CustomError | null;
+  sdoWaiting: boolean;
 }) => {
   const downloadFile = async (filePath: string, fileName: string) => {
     try {
@@ -47,7 +50,9 @@ const Test262Viewer = ({
     }
   };
 
-  return loading ? (
+  return sdoWaiting ? (
+    <SDOWaiting />
+  ) : loading ? (
     <Loading />
   ) : error ? (
     <Error error={error} />

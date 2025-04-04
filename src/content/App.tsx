@@ -34,8 +34,6 @@ const App = () => {
   );
 };
 
-const DEFAULT_BASE_URL = "default base url";
-const DEFAULT_DEBUGGER_URL = "default debugger url";
 const VisualizerHeader = ({
   width,
   setWidth,
@@ -53,11 +51,11 @@ const VisualizerHeader = ({
         <div className="text-base font-normal">ECMA Visualizer</div>
       </div>
       <div className="flex flex-row items-center gap-2">
-        <A href="https://github.com/es-meta/esmeta">
+        <A href={import.meta.env.VITE_ESMETA_URL}>
           <GitHubIcon />
           ESMeta
         </A>
-        <A href="https://github.com/ku-plrg/ecma-visualizer">
+        <A href={import.meta.env.VITE_ECMAVISUALIZER_URL}>
           <GitHubIcon />
           ECMA Visualizer
         </A>

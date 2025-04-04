@@ -14,13 +14,6 @@ type FeatureToEncodedTest262 = Record<string, Record<string, string>>;
 
 const BASE_URL = import.meta.env.VITE_RESOURCE_URL;
 
-class FetchError extends Error {
-  constructor(public response: Response) {
-    super("Fetch failed");
-    this.name = "FetchError";
-  }
-}
-
 async function _fetch<T>(url: string): Promise<T> {
   const response = await fetch(url);
   if (!response.ok) throw response;

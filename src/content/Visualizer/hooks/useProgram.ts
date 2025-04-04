@@ -57,6 +57,8 @@ function useProgram(
 
         if (progId) {
           setCodeAndStepCnt(await fetchScriptByProgId(progId[0], progId[1]));
+        } else {
+          setError("NotFound");
         }
       }
     } catch (e) {

@@ -3,7 +3,7 @@ import "codemirror/mode/javascript/javascript";
 import { Controlled } from "react-codemirror2/.ts";
 import { Loading, Error } from "../components";
 import { CustomError } from "./hooks/useProgram";
-import { Code } from "lucide-react";
+import { Code, Mouse } from "lucide-react";
 import { PlayButton } from "../components/PlayButton.tsx";
 
 const ProgramViewer = ({
@@ -57,11 +57,14 @@ const ProgramViewer = ({
   );
 };
 
-const SDOWaiting = () => {
+export const SDOWaiting = () => {
   return (
     <div className="absolute left-0 top-0 z-[900] flex size-full items-center justify-center bg-[#ccc] bg-opacity-35 p-8">
       <div className="items-cener flex items-center justify-center gap-2">
-        <p className="text-sm">Waiting for sdo</p>
+        <Mouse />
+        <p className="text-sm">
+          Start by pressing a production with Option (Alt) + Left Click
+        </p>
       </div>
     </div>
   );

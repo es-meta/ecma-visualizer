@@ -11,6 +11,7 @@ import {
   FlaskConical,
   LoaderCircle,
   FolderDown,
+  Mouse,
 } from "lucide-react";
 
 import useProgram from "./hooks/useProgram.ts";
@@ -72,6 +73,7 @@ const Visualizer = ({ storage }: { storage: Storage }) => {
       direction="vertical"
       className="flex min-h-0 w-full flex-auto flex-col items-stretch justify-start p-3"
     >
+      {!selection && !sdoWaiting && <StepSelectionWaiter />}
       <ResizablePanel className="relative flex min-h-0 w-full flex-col divide-y divide-neutral-300 overflow-hidden rounded-t-xl border border-neutral-300 bg-white">
         <ProgramViewer
           codeAndStepCnt={codeAndStepCnt}
@@ -116,6 +118,7 @@ const Visualizer = ({ storage }: { storage: Storage }) => {
             loading={test262Loading || loading}
             error={test262Error}
             rowVirtualizer={rowVirtualizer}
+            sdoWaiting={sdoWaiting}
           />
         </div>
       </ResizablePanel>
@@ -125,11 +128,12 @@ const Visualizer = ({ storage }: { storage: Storage }) => {
       {/* CallPath */}
       <ResizablePanel className="relative flex min-h-0 w-full flex-1 flex-col divide-y divide-neutral-300 overflow-hidden rounded-b-xl border border-neutral-300 bg-white">
         <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
+          {selection && callstack.isEmpty() && <CallStackSelectionWaiter />}
           <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-500 [&>svg]:size-4">
             <Layers />
             CallPath
           </div>
-          {callstack.size() > 0 && (
+          {!callstack.isEmpty() && (
             <button
               className="flex cursor-pointer flex-row items-center justify-center gap-1 rounded-md text-sm hover:bg-blue-600 hover:text-white [&>svg]:size-4"
               onClick={() => callstack.flush()}
@@ -147,6 +151,32 @@ const Visualizer = ({ storage }: { storage: Storage }) => {
         </section>
       </ResizablePanel>
     </ResizablePanelGroup>
+  );
+};
+
+const StepSelectionWaiter = () => {
+  return (
+    <div className="absolute left-0 top-0 z-[900] flex size-full items-center justify-center bg-[#ccc] bg-opacity-35 p-8">
+      <div className="items-cener flex items-center justify-center gap-2">
+        <Mouse />
+        <p className="text-sm">
+          Start by pressing a step with Option (Alt) + Left Click
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const CallStackSelectionWaiter = () => {
+  return (
+    <div className="absolute left-0 top-0 z-[900] flex size-full items-center justify-center bg-[#ccc] bg-opacity-35 p-8">
+      <div className="items-cener flex items-center justify-center gap-2">
+        <Mouse />
+        <p className="text-sm">
+          Start by pressing a function link with Left Click
+        </p>
+      </div>
+    </div>
   );
 };
 
