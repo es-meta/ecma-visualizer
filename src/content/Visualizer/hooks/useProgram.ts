@@ -7,10 +7,15 @@ import {
   fetchScriptByProgId,
   fetchStepToNodeId,
 } from "../../util/api";
+import { SecIdToFuncId } from "./useStorage";
 
 export type CustomError = "NotFound" | "Error";
 
-function useProgram(selection: Selection | null, callstack: CallStack) {
+function useProgram(
+  selection: Selection | null,
+  callstack: CallStack,
+  secIdToFuncId: SecIdToFuncId,
+) {
   const [codeAndStepCnt, setCodeAndStepCnt] = useState<[string, number]>([
     "",
     0,
@@ -23,7 +28,11 @@ function useProgram(selection: Selection | null, callstack: CallStack) {
     setError(null);
     try {
       if (!selection) return;
-      const nodeIds = await fetchStepToNodeId(selection.secId, selection.step);
+      const nodeIds = await fetchStepToNodeId(
+        selection.secId,
+        selection.step,
+        secIdToFuncId,
+      );
 
       if (callstack.isEmpty()) {
         setCodeAndStepCnt(await fetchMinimalScriptByNodeId(nodeIds[0]));

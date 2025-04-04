@@ -1,12 +1,18 @@
-type SecIdToFuncId = Record<string, string>;
-type SecIdToFuncName = Record<string, string>;
+import {
+  SecIdToFuncId,
+  SecIdToFuncName,
+  Test262IdToTest262,
+} from "../visualizer/hooks/useStorage.ts";
+import {
+  bitwiseOrStrings,
+  convertToIndex,
+  getBitString,
+} from "../util/decode.ts";
 type StepToNodeId = Record<string, number[]>;
 type FeatureToProgId = Record<string, Record<string, [number, number]>>;
 type FeatureToEncodedTest262 = Record<string, Record<string, string>>;
-import { bitwiseOrStrings, convertToIndex } from "../util/decode.ts";
 
-const BASE_URL =
-  "https://raw.githubusercontent.com/Goonco/tmpvis/refs/heads/main";
+const BASE_URL = import.meta.env.VITE_RESOURCE_URL;
 
 class FetchError extends Error {
   constructor(public response: Response) {
@@ -21,23 +27,12 @@ async function _fetch<T>(url: string): Promise<T> {
   return await response.json();
 }
 
-async function fetchFuncIdfromSecId(secId: string): Promise<string> {
-  const nameMap = await chrome.storage.local.get();
-  return nameMap["secIdToFuncId"][secId];
-}
-
-async function fetchFuncNameFromSecId(secId: string): Promise<string> {
-  const secIdToFuncName = await _fetch<SecIdToFuncName>(
-    `${BASE_URL}/secIdToFuncName.json`,
-  );
-  return secIdToFuncName[secId];
-}
-
 async function fetchStepToNodeId(
   secId: string,
   step: string,
+  map: SecIdToFuncId,
 ): Promise<number[]> {
-  const funcId = await fetchFuncIdfromSecId(secId);
+  const funcId = await fetchFuncIdfromSecId(secId, map);
   const stepToNodeId = await _fetch<StepToNodeId>(
     `${BASE_URL}/stepToNodeId/${funcId}.json`,
   );
@@ -45,7 +40,10 @@ async function fetchStepToNodeId(
   return stepToNodeId[step];
 }
 
-async function fetchAllTest262ByNodeId(nodeId: number): Promise<string[]> {
+async function fetchAllTest262ByNodeId(
+  nodeId: number,
+  map: Test262IdToTest262,
+): Promise<string[]> {
   const featureToEncoded = await fetchTest262FNCByNodeId(nodeId);
 
   const encodings = Object.keys(featureToEncoded).flatMap((feature) => {
@@ -54,16 +52,17 @@ async function fetchAllTest262ByNodeId(nodeId: number): Promise<string[]> {
   });
 
   let accBitString = "";
-  const testIds = encodings
+  encodings
     .filter((e) => e !== "")
-    .map(
-      (encodeStrings) =>
-        (accBitString = bitwiseOrStrings(accBitString, encodeStrings)),
-    );
+    .forEach((encodeStrings) => {
+      const bitString = getBitString(encodeStrings);
+      if (accBitString === "") accBitString = bitString;
+      else accBitString = bitwiseOrStrings(accBitString, bitString);
+    });
 
   return await Promise.all(
     convertToIndex(accBitString).map((testId) =>
-      fetchTest262NameByTest262Id(testId),
+      fetchTest262NameByTest262Id(testId, map),
     ),
   );
 }
@@ -97,9 +96,19 @@ async function fetchScriptByProgId(
   ];
 }
 
-async function fetchTest262NameByTest262Id(testId: string) {
-  const nameMap = await chrome.storage.local.get();
-  return nameMap["test262IdToTest262"][testId];
+async function fetchTest262NameByTest262Id(
+  testId: string,
+  map: Test262IdToTest262,
+) {
+  return map[testId];
+}
+
+async function fetchFuncIdfromSecId(secId: string, map: SecIdToFuncId) {
+  return map[secId];
+}
+
+async function fetchFuncNameFromSecId(secId: string, map: SecIdToFuncName) {
+  return map[secId];
 }
 
 export {

@@ -40,11 +40,6 @@ const IGNORE_SEC_IDS = new Set([
 
 function ignoreManually(secId: string, $emuAlg: HTMLElement) {
   if (IGNORE_SEC_IDS.has(secId)) return true;
-  if (
-    $emuAlg.nextElementSibling?.nextElementSibling?.tagName.toLowerCase() ===
-    "emu-alg"
-  )
-    console.log(secId);
 }
 
 function extractVisId(visId: string) {

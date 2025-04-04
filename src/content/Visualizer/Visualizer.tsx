@@ -19,24 +19,26 @@ import useSelection from "./hooks/useSelection.ts";
 import useCallStack from "./hooks/useCallStack.ts";
 import useTest262 from "./hooks/useTest262.ts";
 import Test262Viewer from "./Test262Viewer.tsx";
+
+import { Storage } from "./hooks/useStorage.ts";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useState, useRef } from "react";
 
 import { handleDownload } from "../util/download-file.ts";
 
-const Visualizer = () => {
-  const [state, setState] = useState();
+const Visualizer = ({ storage }: { storage: Storage }) => {
   const { callStack: callstack, convertedCallStack } = useCallStack();
   const { selection, sdoWaiting } = useSelection();
   const { codeAndStepCnt, setCodeAndStepCnt, loading, error } = useProgram(
     selection,
     callstack,
+    storage.secIdToFuncId,
   );
   const {
     test262,
     loading: test262Loading,
     error: test262Error,
-  } = useTest262(selection, callstack, loading);
+  } = useTest262(selection, callstack, loading, storage);
 
   const parentRef = useRef(null);
   const rowVirtualizer = useVirtualizer({

@@ -19,7 +19,7 @@ const ProgramViewer = ({
   error: CustomError | null;
   sdoWaiting: boolean;
 }) => {
-  const url = `http://localhost:3000?prog=${encodeURIComponent(codeAndStepCnt[0])}&iter=${encodeURIComponent(codeAndStepCnt[1])}`;
+  const url = `${import.meta.env.VITE_DOUBLE_DEBUGGER_URL}?prog=${encodeURIComponent(codeAndStepCnt[0])}&iter=${encodeURIComponent(codeAndStepCnt[1])}`;
 
   return (
     <>

@@ -9,6 +9,9 @@ import {
 } from "@headlessui/react";
 import { ReactNode, useState } from "react";
 import { Settings } from "lucide-react";
+import useStorage from "./visualizer/hooks/useStorage.ts";
+import { Loading } from "./components/Loading.tsx";
+import { Error } from "./components/Error.tsx";
 
 const logo = chrome.runtime.getURL("images/logo.jpeg");
 
@@ -19,6 +22,7 @@ export type Response = {
 
 const App = () => {
   const [width, setWidth] = useState<number>(700);
+  const { loading, error, storage } = useStorage();
 
   return (
     <section
@@ -26,7 +30,13 @@ const App = () => {
       style={{ width: width }}
     >
       <VisualizerHeader width={width} setWidth={setWidth} />
-      <Visualizer />
+      {loading ? (
+        <Loading />
+      ) : error ? (
+        <Error error={error} />
+      ) : (
+        <Visualizer storage={storage} />
+      )}
     </section>
   );
 };
