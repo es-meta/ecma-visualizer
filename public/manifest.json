@@ -1,6 +1,6 @@
 {
   "name": "ECMA Visualizer",
-  "description": "visualize a js program for corresponding ECMA spec",
+  "description": "show a js program for corresponding step of ECMAScript specification",
   "version": "1.0",
   "manifest_version": 3,
   "action": {
@@ -11,36 +11,19 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": [
-    "storage",
-    "scripting",
-    "tabs",
-    "activeTab"
-  ],
-  "host_permissions": [
-    "https://tc39.es/ecma262/2024/*"
-  ],
+  "permissions": ["storage", "scripting", "tabs", "activeTab"],
+  "host_permissions": ["https://tc39.es/ecma262/2024/*"],
   "content_scripts": [
     {
-      "js": [
-        "content.js"
-      ],
-      "css": [
-        "content.css"
-      ],
-      "matches": [
-        "https://tc39.es/ecma262/2024/*"
-      ]
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "matches": ["https://tc39.es/ecma262/2024/*"]
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": [
-        "images/logo.jpeg", "resources/*"
-      ],
-      "matches": [
-        "https://tc39.es/*"
-      ]
+      "resources": ["images/logo.jpeg", "resources/*"],
+      "matches": ["https://tc39.es/*"]
     }
   ]
 }
