@@ -2,8 +2,14 @@ import { useState, useEffect } from "react";
 import { CallStack } from "@/types/call-stack";
 import { Selection } from "@/types/custom-event";
 import { CustomError } from "./useProgram.ts";
-import { fetchAllTest262ByNodeId, fetchStepToNodeId } from "../../util/api";
+import {
+  fetchAllTest262ByNodeId,
+  fetchStepToNodeId,
+  fetchTest262FNCByNodeId,
+  fetchTest262NameByTest262Id,
+} from "../../util/api";
 import { Storage } from "./useStorage.ts";
+import { convertToIndex, getBitString } from "@/content/util/decode.ts";
 
 function useTest262(
   selection: Selection | null,
@@ -27,12 +33,38 @@ function useTest262(
       );
 
       if (callstack.isEmpty()) {
-        const testnames = await fetchAllTest262ByNodeId(
-          nodeIds[0],
-          storage.test262IdToTest262,
+        setTest262(
+          await fetchAllTest262ByNodeId(nodeIds[0], storage.test262IdToTest262),
         );
-        setTest262(testnames);
       } else {
+        const currentCp = await callstack.toFuncId();
+        const featureToTest262IDArr = await Promise.all(
+          nodeIds.map((nid) => fetchTest262FNCByNodeId(nid)),
+        );
+        const cpMap = featureToTest262IDArr.flatMap((featureToProgId) =>
+          Object.values(featureToProgId),
+        );
+
+        let test262Encode: String | null = null;
+        cpMap.some((cp) => {
+          const foundCP = Object.keys(cp).find((c) => c.endsWith(currentCp));
+
+          if (foundCP) {
+            test262Encode = cp[foundCP];
+            return true;
+          }
+        });
+
+        if (test262Encode) {
+          const bitString = getBitString(test262Encode);
+          setTest262(
+            await Promise.all(
+              convertToIndex(bitString).map((testId) =>
+                fetchTest262NameByTest262Id(testId, storage.test262IdToTest262),
+              ),
+            ),
+          );
+        }
       }
     } catch (e) {
       if (e instanceof Response && e.status === 404) {

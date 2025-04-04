@@ -116,7 +116,9 @@ export {
   fetchFuncIdfromSecId,
   fetchFuncNameFromSecId,
   fetchFNCByNodeId,
+  fetchTest262FNCByNodeId,
   fetchScriptByProgId,
   fetchStepToNodeId,
   fetchAllTest262ByNodeId,
+  fetchTest262NameByTest262Id,
 };

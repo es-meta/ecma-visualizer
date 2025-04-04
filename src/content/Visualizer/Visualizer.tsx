@@ -1,4 +1,3 @@
-import { Mouse, OctagonX } from "lucide-react";
 import ProgramViewer from "./ProgramViewer.tsx";
 import CallStackViewer from "./CallStackViewer.tsx";
 import {
@@ -148,41 +147,6 @@ const Visualizer = ({ storage }: { storage: Storage }) => {
         </section>
       </ResizablePanel>
     </ResizablePanelGroup>
-  );
-};
-
-export const Click = () => {
-  return (
-    <div className="absolute left-0 top-0 z-[900] flex size-full items-center justify-center bg-[#ccc] bg-opacity-35 p-8">
-      <div className="items-cener flex items-center justify-center gap-2">
-        <Mouse />
-        <p className="text-sm">
-          Start by pressing a step with Option (Alt) + Left Click
-        </p>
-      </div>
-    </div>
-  );
-};
-
-export const Click2 = () => {
-  return (
-    <div className="absolute left-0 top-0 z-[900] flex size-full items-center justify-center bg-[#ccc] bg-opacity-35 p-8">
-      <div className="items-cener flex items-center justify-center gap-2">
-        <Mouse />
-        <p className="text-sm">Start by clicking a function</p>
-      </div>
-    </div>
-  );
-};
-
-export const NotSupported = () => {
-  return (
-    <div className="absolute left-0 top-0 z-[900] flex size-full items-center justify-center bg-[#ccc] bg-opacity-35 p-8">
-      <div className="items-cener flex items-center justify-center gap-2">
-        <OctagonX />
-        <p className="text-sm">Program not supported yet</p>
-      </div>
-    </div>
   );
 };
 

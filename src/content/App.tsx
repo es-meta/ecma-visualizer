@@ -1,12 +1,5 @@
 import Visualizer from "./visualizer/Visualizer.tsx";
-import {
-  Dialog,
-  DialogPanel,
-  Field,
-  Input,
-  Label,
-  Select,
-} from "@headlessui/react";
+import { Dialog, DialogPanel, Field, Label, Select } from "@headlessui/react";
 import { ReactNode, useState } from "react";
 import { Settings } from "lucide-react";
 import useStorage from "./visualizer/hooks/useStorage.ts";
@@ -78,12 +71,13 @@ const VisualizerHeader = ({
           className="relative z-50"
         >
           <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
-            <DialogPanel className="max-w-lg space-y-4 border bg-white p-12">
-              <Field className="flex flex-row items-center gap-2">
+            <DialogPanel className="flex flex-col gap-4 rounded-sm border bg-white p-12 shadow-lg">
+              <Field className="flex flex-row items-center gap-2 text-lg">
                 <Label>Width</Label>
                 <Select
                   name="width"
                   value={width}
+                  className="text-base"
                   onChange={(e) => setWidth(Number(e.target.value))}
                 >
                   <option value={500}>500px</option>
@@ -94,10 +88,29 @@ const VisualizerHeader = ({
                 </Select>
               </Field>
 
-              <Input defaultValue={DEFAULT_BASE_URL}></Input>
-              <Input defaultValue={DEFAULT_DEBUGGER_URL}></Input>
+              <Field className="flex flex-col gap-1 text-lg">
+                <Label>Resource URL</Label>
+                <a className="text-sm" href={import.meta.env.VITE_RESOURCE_URL}>
+                  {import.meta.env.VITE_RESOURCE_URL}
+                </a>
+              </Field>
 
-              <button onClick={() => setIsOpen(false)}>confirm</button>
+              <Field className="flex flex-col gap-1 text-lg">
+                <Label>Double Debugger URL</Label>
+                <a
+                  className="text-sm"
+                  href={import.meta.env.VITE_DOUBLE_DEBUGGER_URL}
+                >
+                  {import.meta.env.VITE_DOUBLE_DEBUGGER_URL}
+                </a>
+              </Field>
+
+              <button
+                className="ml-auto cursor-pointer rounded-md px-2 py-1 hover:bg-blue-500 hover:text-white"
+                onClick={() => setIsOpen(false)}
+              >
+                confirm
+              </button>
             </DialogPanel>
           </div>
         </Dialog>
