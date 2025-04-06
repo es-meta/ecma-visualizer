@@ -47,7 +47,7 @@ function useProgram(
 
         let progId: [number, number] | null = null;
         cpMap.some((cp) => {
-          const foundCP = Object.keys(cp).find((c) => c.endsWith(currentCp));
+          const foundCP = Object.keys(cp).find((c) => c.startsWith(currentCp));
 
           if (foundCP) {
             progId = cp[foundCP];

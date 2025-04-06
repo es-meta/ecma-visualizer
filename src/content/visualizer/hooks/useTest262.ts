@@ -47,7 +47,7 @@ function useTest262(
 
         let test262Encode: String | null = null;
         cpMap.some((cp) => {
-          const foundCP = Object.keys(cp).find((c) => c.endsWith(currentCp));
+          const foundCP = Object.keys(cp).find((c) => c.startsWith(currentCp));
 
           if (foundCP) {
             test262Encode = cp[foundCP];
