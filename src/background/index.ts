@@ -6,8 +6,6 @@ import {
   setTabState,
 } from "./extension-state.ts";
 
-const ECMA_20204_URL: string = "https://tc39.es/ecma262/2024/";
-
 chrome.runtime.onInstalled.addListener(() => {
   (async () => {
     await setExtensionState({
@@ -50,7 +48,7 @@ chrome.tabs.onUpdated.addListener(
 );
 
 async function enableChromeButton(tabId: number, url: string) {
-  if (url.includes(ECMA_20204_URL)) {
+  if (url.includes(import.meta.env.VITE_ENABLED_SPEC_URL)) {
     await chrome.action.enable(tabId);
     await setTabState(tabId, { active: true });
   } else {

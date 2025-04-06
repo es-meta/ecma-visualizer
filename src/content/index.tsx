@@ -3,7 +3,7 @@ import transformSpec from "./util/transform-spec.ts";
 import { MessageType } from "../types/message.ts";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
-import { visualizerDebug } from "@/lib/utils.ts";
+import { visualizerDebug } from "@/content/util/utils.ts";
 
 const $body = document.querySelector("body")!;
 const $root = document.createElement("section");

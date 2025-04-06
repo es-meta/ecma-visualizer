@@ -1,4 +1,4 @@
-import { visualizerDebug } from "@/lib/utils";
+import { visualizerDebug } from "@/content/util/utils";
 import { toStepString } from "./convert-id";
 import { getCallStackFromStorage } from "@/types/call-stack";
 import {
@@ -255,40 +255,46 @@ function transformStep(
   visId: string,
   sdoInfo: SDOInfo | null = null,
 ) {
-  const isSdo = sdoInfo ? true : false;
-
-  $li.classList.add(isSdo ? VISSDOSTEP : VISSTEP);
+  $li.classList.add(sdoInfo ? VISSDOSTEP : VISSTEP);
   $li.setAttribute(VISID, visId);
-  if (isSdo && sdoInfo) {
+  if (sdoInfo) {
     $li.setAttribute(VISDEFAULTSDO, sdoInfo.defaultSDO);
     if (sdoInfo.isMultipleProd) $li.setAttribute(MULTIPLEPROD, "");
   }
 
   let questionCnt = 1;
   $li.childNodes.forEach((node) => {
-    if (transformQuestionMark(node, `${visId}|?${questionCnt}`, isSdo))
+    if (transformQuestionMark(node, `${visId}|?${questionCnt}`, sdoInfo))
       questionCnt++;
   });
 
   const patterns: string[] = ["else", "otherwise"];
   patterns.forEach((pattern) =>
-    transformInlineIfElse($li, visId, pattern, isSdo),
+    transformInlineIfElse($li, visId, pattern, sdoInfo),
   );
-  transformInlineIf($li, visId, isSdo);
+  transformInlineIf($li, visId, sdoInfo);
 }
 
-function transformQuestionMark(node: ChildNode, visId: string, sdo: boolean) {
+function transformQuestionMark(
+  node: ChildNode,
+  visId: string,
+  sdoInfo: SDOInfo | null,
+) {
   if (node.nodeType !== Node.TEXT_NODE || !node.nodeValue) return;
-
+  const visClass = `${sdoInfo ? VISSDOSTEP : VISSTEP} ${VISQM}`;
+  const defaultSDOAttr = sdoInfo
+    ? ` ${VISDEFAULTSDO}="${sdoInfo.defaultSDO}"`
+    : "";
+  const multipleProdAttr = sdoInfo?.isMultipleProd ? ` ${MULTIPLEPROD}=""` : "";
   const modifiedText = node.nodeValue.replace(
     /\?/g,
-    `<span class="${sdo ? VISSDOSTEP : VISSTEP} ${VISQM}" visId="${visId}">?</span>`,
+    `<span class="${visClass}" visId="${visId}"${defaultSDOAttr}${multipleProdAttr}>?</span>`,
   );
-
   if (modifiedText === node.nodeValue) return;
   const fragment = document
     .createRange()
     .createContextualFragment(modifiedText);
+
   node.replaceWith(fragment);
   return true;
 }
@@ -297,7 +303,7 @@ function transformInlineIfElse(
   $li: HTMLLIElement,
   visId: string,
   pattern: string,
-  sdo: boolean,
+  sdoInfo: SDOInfo | null,
 ) {
   const textContent = getChildTextContent($li);
   const regex = new RegExp(`.*if.*${pattern}.*`, "i");
@@ -315,16 +321,24 @@ function transformInlineIfElse(
   const elseToEnd = html.substring(elseIndex);
 
   const newHtml =
-    `<span class="${sdo ? VISSDOSTEP : VISSTEP} ${VISIF}" visId="${visId}|if">${beforeIf}</span>` +
+    `<span class="${sdoInfo ? VISSDOSTEP : VISSTEP} ${VISIF}" visId="${visId}|if">${beforeIf}</span>` +
     ", " +
-    `<span class="${sdo ? VISSDOSTEP : VISSTEP} ${VISTHEN}" visId="${visId}|then">${ifToElse}</span>` +
-    `<span class="${sdo ? VISSDOSTEP : VISSTEP} ${VISELSE}" visId="${visId}|else">${elseToEnd}</span>`;
+    `<span class="${sdoInfo ? VISSDOSTEP : VISSTEP} ${VISTHEN}" visId="${visId}|then">${ifToElse}</span>` +
+    `<span class="${sdoInfo ? VISSDOSTEP : VISSTEP} ${VISELSE}" visId="${visId}|else">${elseToEnd}</span>`;
 
   $li.innerHTML = newHtml;
+  if (sdoInfo) {
+    $li.setAttribute(VISDEFAULTSDO, sdoInfo.defaultSDO);
+    if (sdoInfo.isMultipleProd) $li.setAttribute(MULTIPLEPROD, "");
+  }
   $li.classList.remove(VISSTEP);
 }
 
-function transformInlineIf($li: HTMLLIElement, visId: string, sdo: boolean) {
+function transformInlineIf(
+  $li: HTMLLIElement,
+  visId: string,
+  sdoInfo: SDOInfo | null,
+) {
   const textContent = getChildTextContent($li);
   if (/then$/.test(textContent)) return;
   if (!/if\b/i.test(textContent)) return;
@@ -338,11 +352,15 @@ function transformInlineIf($li: HTMLLIElement, visId: string, sdo: boolean) {
   const ifToElse = html.substring(commaIndex + 2);
 
   const newHtml =
-    `<span class="${sdo ? VISSDOSTEP : VISSTEP} ${VISIF}" visId="${visId}|if">${beforeIf}</span>` +
+    `<span class="${sdoInfo ? VISSDOSTEP : VISSTEP} ${VISIF}" visId="${visId}|if">${beforeIf}</span>` +
     ", " +
-    `<span class="${sdo ? VISSDOSTEP : VISSTEP} ${VISTHEN}" visId="${visId}|then">${ifToElse}</span>`;
+    `<span class="${sdoInfo ? VISSDOSTEP : VISSTEP} ${VISTHEN}" visId="${visId}|then">${ifToElse}</span>`;
 
   $li.innerHTML = newHtml;
+  if (sdoInfo) {
+    $li.setAttribute(VISDEFAULTSDO, sdoInfo.defaultSDO);
+    if (sdoInfo.isMultipleProd) $li.setAttribute(MULTIPLEPROD, "");
+  }
   $li.classList.remove(VISSTEP);
 }
 

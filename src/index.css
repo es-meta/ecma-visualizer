@@ -44,7 +44,8 @@ body {
   flex-direction: row;
 }
 
-body.active .visStep:hover {
+body.active .visStep:hover,
+.visSDOStep:hover {
   background-color: rgba(0, 0, 0, 0.1);
 }
 body.active .visQM:hover {

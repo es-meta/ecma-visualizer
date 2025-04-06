@@ -12,12 +12,12 @@
     "service_worker": "background.js"
   },
   "permissions": ["storage", "scripting", "tabs", "activeTab"],
-  "host_permissions": ["https://tc39.es/ecma262/2024/*"],
+  "host_permissions": ["https://tc39.es/ecma262/*"],
   "content_scripts": [
     {
       "js": ["content.js"],
       "css": ["content.css"],
-      "matches": ["https://tc39.es/ecma262/2024/*"]
+      "matches": ["https://tc39.es/ecma262/*"]
     }
   ],
   "web_accessible_resources": [
