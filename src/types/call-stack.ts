@@ -41,7 +41,7 @@ export class CallStack {
   }
 
   pop(): Node | undefined {
-    const poped = this.nodes.pop();
+    const poped = this.nodes.shift();
     saveAndAlert(this);
     return poped;
   }
