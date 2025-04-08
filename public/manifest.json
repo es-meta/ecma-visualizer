@@ -1,6 +1,6 @@
 {
   "name": "ECMA Visualizer",
-  "description": "show a js program for corresponding step of ECMAScript specification",
+  "description": "providing example programs for ECMAScript Language Specification",
   "version": "1.0",
   "manifest_version": 3,
   "action": {
@@ -11,8 +11,7 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["storage", "scripting", "tabs", "activeTab"],
-  "host_permissions": ["https://tc39.es/ecma262/*"],
+  "permissions": ["storage", "tabs", "activeTab"],
   "content_scripts": [
     {
       "js": ["content.js"],
