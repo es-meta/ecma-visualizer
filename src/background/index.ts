@@ -48,7 +48,13 @@ chrome.tabs.onUpdated.addListener(
 );
 
 async function enableChromeButton(tabId: number, url: string) {
-  if (url.includes(import.meta.env.VITE_ENABLED_SPEC_URL)) {
+  const enabledURL = import.meta.env.VITE_ENABLED_SPEC_URL.split(
+    "|",
+  ) as string[];
+
+  const enable = enabledURL.some((item) => url.includes(item));
+
+  if (enable) {
     await chrome.action.enable(tabId);
     await setTabState(tabId, { active: true });
   } else {

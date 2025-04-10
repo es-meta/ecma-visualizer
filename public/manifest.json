@@ -16,13 +16,16 @@
     {
       "js": ["content.js"],
       "css": ["content.css"],
-      "matches": ["https://tc39.es/ecma262/*"]
+      "matches": [
+        "https://tc39.es/ecma262/2024/*",
+        "https://262.ecma-international.org/15.0/*"
+      ]
     }
   ],
   "web_accessible_resources": [
     {
       "resources": ["images/logo.jpeg", "resources/*"],
-      "matches": ["https://tc39.es/*"]
+      "matches": ["https://tc39.es/*", "https://262.ecma-international.org/*"]
     }
   ]
 }
