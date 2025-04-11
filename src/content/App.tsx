@@ -87,13 +87,6 @@ const VisualizerHeader = ({
               </Field>
 
               <Field className="flex flex-col gap-1 text-lg">
-                <Label>Resource URL</Label>
-                <a className="text-sm" href={import.meta.env.VITE_RESOURCE_URL}>
-                  {import.meta.env.VITE_RESOURCE_URL}
-                </a>
-              </Field>
-
-              <Field className="flex flex-col gap-1 text-lg">
                 <Label>Double Debugger URL</Label>
                 <a
                   className="text-sm"
