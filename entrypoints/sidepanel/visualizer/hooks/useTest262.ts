@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
-import { CallStack } from "@/types/call-stack";
-import { Selection } from "@/types/custom-event";
-import { CustomError } from "./useProgram.ts";
+import { CallStack } from "@/entrypoints/types/call-stack";
+import { Selection } from "@/entrypoints/types/custom-event";
+import { CustomError } from "./useProgram";
 import {
   fetchAllTest262ByNodeId,
   fetchStepToNodeId,
   fetchTest262FNCByNodeId,
   fetchTest262NameByTest262Id,
 } from "../../util/api";
-import { Storage } from "./useStorage.ts";
-import { convertToIndex, getBitString } from "@/content/util/decode.ts";
+import { Storage } from "./useStorage";
+import { convertToIndex, getBitString } from "@/entrypoints/sidepanel/util/decode";
 
 function useTest262(
   selection: Selection | null,

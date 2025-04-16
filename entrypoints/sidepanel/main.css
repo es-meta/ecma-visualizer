@@ -1,8 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+@import "tailwindcss";
 /* Overriding ECMA page css for visualizer layout */
+/* 
 
 @media (max-width: 9999px) {
   #menu.active {
@@ -48,15 +46,19 @@ body.active .visStep:hover,
 .visSDOStep:hover {
   background-color: rgba(0, 0, 0, 0.1);
 }
+
 body.active .visQM:hover {
   background-color: rgba(255, 0, 0, 0.3);
 }
+
 body.active .visIf:hover {
   background-color: rgba(0, 255, 0, 0.3);
 }
+
 body.active .visThen:hover {
   background-color: rgba(0, 0, 255, 0.3);
 }
+
 body.active .visElse:hover {
   background-color: rgba(255, 255, 0, 0.3);
 }
@@ -81,9 +83,9 @@ body.active .visElse:hover {
   }
 }
 
-#root {
+ #root {
   display: none;
-}
+} 
 
 #root.active {
   position: sticky;
@@ -102,10 +104,9 @@ body.active .visElse:hover {
   background-color: red;
 }
 
-/*
-  Manually added style due to tailwind preflight disable
- */
 
+  Manually added style due to tailwind preflight disable
+ 
 *,
 ::before,
 ::after {
@@ -119,3 +120,5 @@ body.active .visElse:hover {
     --radius: 0.5rem;
   }
 }
+
+*/

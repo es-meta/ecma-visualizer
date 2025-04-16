@@ -1,11 +1,11 @@
-import { visualizerDebug } from "@/content/util/utils";
+import { visualizerDebug } from "./utils";
 import { toStepString } from "./convert-id";
-import { getCallStackFromStorage } from "@/types/call-stack";
+import { getCallStackFromStorage } from "@/entrypoints/types/call-stack";
 import {
   customEventSDOSelection,
   customEventSelection,
   Selection,
-} from "@/types/custom-event";
+} from "@/entrypoints/types/custom-event";
 
 /*
     Follow algorithm extract logic of ESMeta

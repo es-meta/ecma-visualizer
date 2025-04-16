@@ -1,10 +1,10 @@
-import ProgramViewer from "./ProgramViewer.tsx";
-import CallStackViewer from "./CallStackViewer.tsx";
+import ProgramViewer from "./ProgramViewer";
+import CallStackViewer from "./CallStackViewer";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "@/content/components/resizable.tsx";
+} from "@/entrypoints/sidepanel/components/resizable";
 import {
   Layers,
   Eraser,
@@ -14,17 +14,17 @@ import {
   Mouse,
 } from "lucide-react";
 
-import useProgram from "./hooks/useProgram.ts";
-import useSelection from "./hooks/useSelection.ts";
-import useCallStack from "./hooks/useCallStack.ts";
-import useTest262 from "./hooks/useTest262.ts";
-import Test262Viewer from "./Test262Viewer.tsx";
+import useProgram from "./hooks/useProgram";
+import useSelection from "./hooks/useSelection";
+import useCallStack from "./hooks/useCallStack";
+import useTest262 from "./hooks/useTest262";
+import Test262Viewer from "./Test262Viewer";
 
-import { Storage } from "./hooks/useStorage.ts";
+import { Storage } from "./hooks/useStorage";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useState, useRef } from "react";
 
-import { handleDownload } from "../util/download-file.ts";
+import { handleDownload } from "../util/download-file";
 
 const Visualizer = ({ storage }: { storage: Storage }) => {
   const { callStack: callstack, convertedCallStack } = useCallStack();

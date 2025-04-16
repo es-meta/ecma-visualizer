@@ -15,9 +15,15 @@ declare global {
   const defineWxtPlugin: typeof import('wxt/utils/define-wxt-plugin')['defineWxtPlugin']
   const fakeBrowser: typeof import('wxt/testing')['fakeBrowser']
   const injectScript: typeof import('wxt/utils/inject-script')['injectScript']
-  const setupCounter: typeof import('/Users/choems/VSCProjects/ecma-visualizer-new/example-wxt/components/counter')['setupCounter']
   const storage: typeof import('wxt/utils/storage')['storage']
   const useAppConfig: typeof import('wxt/utils/app-config')['useAppConfig']
+  const useCallback: typeof import('react')['useCallback']
+  const useContext: typeof import('react')['useContext']
+  const useEffect: typeof import('react')['useEffect']
+  const useMemo: typeof import('react')['useMemo']
+  const useReducer: typeof import('react')['useReducer']
+  const useRef: typeof import('react')['useRef']
+  const useState: typeof import('react')['useState']
 }
 // for type re-export
 declare global {

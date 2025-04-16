@@ -1,6 +1,6 @@
 import { default as JSZip } from "jszip";
 import PQueue from "p-queue";
-import { rawUrl } from "@/content/visualizer/Test262Viewer";
+import { rawUrl } from "@/entrypoints/sidepanel/visualizer/Test262Viewer";
 
 async function downloadFile(path: string): Promise<Blob> {
   const response = await fetch(rawUrl(path));

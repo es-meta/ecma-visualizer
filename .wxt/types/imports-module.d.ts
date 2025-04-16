@@ -16,6 +16,6 @@ declare module '#imports' {
   export { defineWxtPlugin } from 'wxt/utils/define-wxt-plugin';
   export { injectScript, ScriptPublicPath, InjectScriptOptions } from 'wxt/utils/inject-script';
   export { InvalidMatchPattern, MatchPattern } from 'wxt/utils/match-patterns';
+  export { useState, useCallback, useMemo, useEffect, useRef, useContext, useReducer } from 'react';
   export { fakeBrowser } from 'wxt/testing';
-  export { setupCounter } from '../components/counter';
 }

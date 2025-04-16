@@ -3,7 +3,7 @@ import {
   CUSTOM_EVENT_SDO_SELECTION,
   CUSTOM_EVENT_SELECTION,
   Selection,
-} from "@/types/custom-event";
+} from "@/entrypoints/types/custom-event";
 
 function useSelection() {
   const [selection, setSelection] = useState<Selection | null>(null);

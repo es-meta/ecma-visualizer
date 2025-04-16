@@ -6,13 +6,14 @@ declare module "wxt/browser" {
     | "/"
     | "/background.js"
     | "/content-scripts/content.js"
-    | "/icon/128.png"
-    | "/icon/16.png"
-    | "/icon/32.png"
-    | "/icon/48.png"
-    | "/icon/96.png"
-    | "/popup.html"
-    | "/wxt.svg"
+    | "/images/dimmed-icon-16.png"
+    | "/images/icon-16.png"
+    | "/images/logo.jpeg"
+    | "/manifest.json"
+    | "/resources/secIdToFuncId.json"
+    | "/resources/secIdToFuncName.json"
+    | "/resources/test262IdToTest262.json"
+    | "/sidepanel.html"
   type HtmlPublicPath = Extract<PublicPath, `${string}.html`>
   export interface WxtRuntime {
     getURL(path: PublicPath): string;

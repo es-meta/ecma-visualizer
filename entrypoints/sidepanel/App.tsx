@@ -1,10 +1,10 @@
-import Visualizer from "./visualizer/Visualizer.tsx";
+import Visualizer from "./visualizer/Visualizer";
 import { Dialog, DialogPanel, Field, Label, Select } from "@headlessui/react";
 import { ReactNode, useState } from "react";
 import { Settings } from "lucide-react";
-import useStorage from "./visualizer/hooks/useStorage.ts";
-import { Loading } from "./components/Loading.tsx";
-import { Error } from "./components/Error.tsx";
+import useStorage from "./visualizer/hooks/useStorage";
+import { Loading } from "./components/Loading";
+import { Error } from "./components/Error";
 
 const logo = chrome.runtime.getURL("images/logo.jpeg");
 
@@ -13,7 +13,7 @@ export type Response = {
   step: string;
 };
 
-const App = () => {
+export const App = () => {
   const [width, setWidth] = useState<number>(700);
   const { loading, error, storage } = useStorage();
 
@@ -22,6 +22,7 @@ const App = () => {
       className="relative flex h-full flex-col divide-y divide-neutral-300 bg-[#f5f5f5] shadow-[-4px_0_4px_rgba(0,0,0,0.1)]"
       style={{ width: width }}
     >
+      WTF
       <VisualizerHeader width={width} setWidth={setWidth} />
       {loading ? (
         <Loading />
