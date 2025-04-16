@@ -39,7 +39,7 @@ export default defineBackground(() => {
       (async () => {
         if (changeInfo.url) await enableChromeButton(tabId, changeInfo.url);
         if (changeInfo.status === "loading") {
-          await setTabState(tabId, { active: false });
+          // await setTabState(tabId, { active: false });
           await enableChromeButton(
             tabId,
             (await browser.tabs.get(tabId)).url || "",
@@ -56,12 +56,13 @@ export default defineBackground(() => {
     const enable = enabledURL.some((item) => url.includes(item));
     if (enable) {
       await browser.action.enable(tabId);
-      await setTabState(tabId, { active: true });
+      // await setTabState(tabId, { active: true });
     } else {
       await browser.action.disable(tabId);
-      await setTabState(tabId, { active: false });
+      // await setTabState(tabId, { active: false });
     }
   }
+
   /* Extension Icon Event Listener */
   // browser.action.onClicked.addListener((tab) => {
   //   if (!tab.id) return;
@@ -106,11 +107,11 @@ export default defineBackground(() => {
     //   });
     // } else {
       // Disables the side panel on all other sites
-    await browser.sidePanel.setOptions({
-      tabId,
-      enabled: true,
-    }).then(() => console.log("Enabled side panel"))
-      .catch(() => console.log("Failed to enable side panel"));
-    // }
+    // await browser.sidePanel.setOptions({
+    //   tabId,
+    //   enabled: true,
+    // }).then(() => console.log("Enabled side panel"))
+    //   .catch(() => console.log("Failed to enable side panel"));
+    // // }
   });
 });
