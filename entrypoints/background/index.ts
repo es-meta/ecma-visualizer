@@ -34,34 +34,34 @@ export default defineBackground(() => {
   //   })();
   // });
 
-  // browser.tabs.onUpdated.addListener(
-  //   (tabId: number, changeInfo: TabChangeInfo) => {
-  //     (async () => {
-  //       if (changeInfo.url) await enableChromeButton(tabId, changeInfo.url);
-  //       if (changeInfo.status === "loading") {
-  //         await setTabState(tabId, { active: false });
-  //         await enableChromeButton(
-  //           tabId,
-  //           (await chrome.tabs.get(tabId)).url || "",
-  //         );
-  //       }
-  //     })();
-  //   },
-  // );
+  browser.tabs.onUpdated.addListener(
+    (tabId: number, changeInfo: TabChangeInfo) => {
+      (async () => {
+        if (changeInfo.url) await enableChromeButton(tabId, changeInfo.url);
+        if (changeInfo.status === "loading") {
+          await setTabState(tabId, { active: false });
+          await enableChromeButton(
+            tabId,
+            (await browser.tabs.get(tabId)).url || "",
+          );
+        }
+      })();
+    },
+  );
 
-  // async function enableChromeButton(tabId: number, url: string) {
-  //   const enabledURL = import.meta.env.VITE_ENABLED_SPEC_URL.split(
-  //     "|",
-  //   ) as string[];
-  //   const enable = enabledURL.some((item) => url.includes(item));
-  //   if (enable) {
-  //     await chrome.action.enable(tabId);
-  //     await setTabState(tabId, { active: true });
-  //   } else {
-  //     await chrome.action.disable(tabId);
-  //     await setTabState(tabId, { active: false });
-  //   }
-  // }
+  async function enableChromeButton(tabId: number, url: string) {
+    const enabledURL = import.meta.env.VITE_ENABLED_SPEC_URL.split(
+      "|",
+    ) as string[];
+    const enable = enabledURL.some((item) => url.includes(item));
+    if (enable) {
+      await browser.action.enable(tabId);
+      await setTabState(tabId, { active: true });
+    } else {
+      await browser.action.disable(tabId);
+      await setTabState(tabId, { active: false });
+    }
+  }
   /* Extension Icon Event Listener */
   // browser.action.onClicked.addListener((tab) => {
   //   if (!tab.id) return;
@@ -111,8 +111,6 @@ export default defineBackground(() => {
       enabled: true,
     }).then(() => console.log("Enabled side panel"))
       .catch(() => console.log("Failed to enable side panel"));
-    
-    browser.sidePanel.open({ tabId });
     // }
   });
 });

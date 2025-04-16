@@ -11,18 +11,18 @@ import {
     Follow algorithm extract logic of ESMeta
 */
 
-const VISID = "visId";
-const VISDEFAULTSDO = "visDefaultSDO";
-const MULTIPLEPROD = "multipleProd";
+const VISID = "data-esmeta-vis-id";
+const VISDEFAULTSDO = "data-esmeta-vis-default-SDO";
+const MULTIPLEPROD = "data-esmeta-multiple-prod";
 
-const VISSTEP = "visStep";
-const VISSDOSTEP = "visSDOStep";
-const VISPRODUCTION = "visProduction";
-const VISQM = "visQM";
-const VISIF = "visIf";
-const VISTHEN = "visThen";
-const VISELSE = "visElse";
-const VISCALL = "visCall";
+const VISSTEP = "data-esmeta-vis-step";
+const VISSDOSTEP = "data-esmeta-vis-SDO-step";
+const VISPRODUCTION = "data-esmeta-vis-production";
+const VISQM = "data-esmeta-vis-QM";
+const VISIF = "data-esmeta-vis-if";
+const VISTHEN = "data-esmeta-vis-then";
+const VISELSE = "data-esmeta-vis-else";
+const VISCALL = "data-esmeta-vis-call";
 
 type SDOInfo = {
   defaultSDO: string;

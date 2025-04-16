@@ -21,15 +21,9 @@ export default defineContentScript({
 
     function initDom() {
       transformSpec();
-      createEcmaVisualizer();
-      initState().then((_) => _);
-    }
-
-    function createEcmaVisualizer() {
-      $root.id = "root";
-      document.body.appendChild($root);
-
-      createRoot(document.getElementById("root")!).render(<div />);
+      console.log('transform done');
+      // TODO 
+      // initState().then((_) => _);
     }
 
     chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
