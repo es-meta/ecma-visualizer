@@ -1,5 +1,5 @@
 import transformSpec from "./util/transform-spec";
-import { MessageType } from "@/entrypoints/types/message";
+import { MessageType } from "@/types/message";
 import { createRoot } from "react-dom/client";
 
 export default defineContentScript({

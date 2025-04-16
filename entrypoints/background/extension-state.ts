@@ -5,8 +5,8 @@ import {
   isExtensionState,
   isTabState,
   TabState,
-} from "@/entrypoints/types/extension-state";
-import { Message } from "@/entrypoints/types/message";
+} from "@/types/extension-state";
+import { Message } from "@/types/message";
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName !== "session") return;

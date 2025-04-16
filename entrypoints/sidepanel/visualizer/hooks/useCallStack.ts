@@ -2,8 +2,8 @@ import {
   CallStack,
   FuncNameNode,
   getCallStackFromStorage,
-} from "@/entrypoints/types/call-stack";
-import { CUSTOM_EVENT_CALLSTACK_UPDATE } from "@/entrypoints/types/custom-event";
+} from "@/types/call-stack";
+import { CUSTOM_EVENT_CALLSTACK_UPDATE } from "@/types/custom-event";
 import { useEffect, useState } from "react";
 
 function useCallStack() {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { CallStack } from "@/entrypoints/types/call-stack";
-import { Selection } from "@/entrypoints/types/custom-event";
+import { CallStack } from "@/types/call-stack";
+import { Selection } from "@/types/custom-event";
 import { CustomError } from "./useProgram";
 import {
   fetchAllTest262ByNodeId,
