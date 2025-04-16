@@ -1,5 +1,4 @@
 import Visualizer from "./visualizer/Visualizer";
-import { Dialog, DialogPanel, Field, Label, Select } from "@headlessui/react";
 import { ReactNode, useState } from "react";
 import { Settings } from "lucide-react";
 import useStorage from "./visualizer/hooks/useStorage";
@@ -14,16 +13,14 @@ export type Response = {
 };
 
 export const App = () => {
-  const [width, setWidth] = useState<number>(700);
   const { loading, error, storage } = useStorage();
 
   return (
     <section
-      className="relative flex h-full flex-col divide-y divide-neutral-300 bg-[#f5f5f5] shadow-[-4px_0_4px_rgba(0,0,0,0.1)]"
-      style={{ width: width }}
+      className="relative w-full flex h-full flex-col divide-y divide-neutral-300 bg-[#f5f5f5] shadow-[-4px_0_4px_rgba(0,0,0,0.1)]"
     >
       WTF
-      <VisualizerHeader width={width} setWidth={setWidth} />
+      <VisualizerHeader />
       {loading ? (
         <Loading />
       ) : error ? (
@@ -35,13 +32,7 @@ export const App = () => {
   );
 };
 
-const VisualizerHeader = ({
-  width,
-  setWidth,
-}: {
-  width: number;
-  setWidth: React.Dispatch<React.SetStateAction<number>>;
-}) => {
+const VisualizerHeader = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -64,48 +55,6 @@ const VisualizerHeader = ({
           className="h-5 w-5 cursor-pointer"
           onClick={() => setIsOpen(true)}
         />
-        <Dialog
-          open={isOpen}
-          onClose={() => setIsOpen(false)}
-          className="relative z-50"
-        >
-          <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
-            <DialogPanel className="flex flex-col gap-4 rounded-sm border bg-white p-12 shadow-lg">
-              <Field className="flex flex-row items-center gap-2 text-lg">
-                <Label>Width</Label>
-                <Select
-                  name="width"
-                  value={width}
-                  className="text-base"
-                  onChange={(e) => setWidth(Number(e.target.value))}
-                >
-                  <option value={500}>500px</option>
-                  <option value={700}>700px</option>
-                  <option value={900}>900px</option>
-                  <option value={1100}>1100px</option>
-                  <option value={1300}>1300px</option>
-                </Select>
-              </Field>
-
-              <Field className="flex flex-col gap-1 text-lg">
-                <Label>Double Debugger URL</Label>
-                <a
-                  className="text-sm"
-                  href={import.meta.env.VITE_DOUBLE_DEBUGGER_URL}
-                >
-                  {import.meta.env.VITE_DOUBLE_DEBUGGER_URL}
-                </a>
-              </Field>
-
-              <button
-                className="ml-auto cursor-pointer rounded-md px-2 py-1 hover:bg-blue-500 hover:text-white"
-                onClick={() => setIsOpen(false)}
-              >
-                confirm
-              </button>
-            </DialogPanel>
-          </div>
-        </Dialog>
       </div>
     </header>
   );
