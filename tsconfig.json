@@ -1,10 +1,13 @@
 {
+  "extends": "./.wxt/tsconfig.json",
   "compilerOptions": {
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     }
   },
   "files": [],
@@ -16,5 +19,4 @@
       "path": "./tsconfig.node.json"
     }
   ],
-
 }
