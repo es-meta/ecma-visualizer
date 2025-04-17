@@ -1,8 +1,6 @@
 import transformSpec from "./util/transform-spec";
-import { MessageType } from "@/types/message";
-import { createRoot } from "react-dom/client";
 
-export default defineContentScript({
+const ContentScriptDefinition = defineContentScript({
   matches: ["https://tc39.es/*", "https://262.ecma-international.org/*"],
   main() {
     window.addEventListener("popstate", (e) => {
@@ -24,3 +22,5 @@ export default defineContentScript({
     initDom();
   }
 })
+
+export default ContentScriptDefinition;

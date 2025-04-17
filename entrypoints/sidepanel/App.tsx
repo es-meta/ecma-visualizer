@@ -16,7 +16,7 @@ export const App = () => {
 
   return (
     <section
-      className="relative w-full flex h-full flex-col divide-y divide-neutral-300 bg-[#f5f5f5] shadow-[-4px_0_4px_rgba(0,0,0,0.1)]"
+      className="relative w-full flex h-full flex-col divide-y divide-neutral-300 bg-[#f5f5f5] dark:bg-[#050505] shadow-[-4px_0_4px_rgba(0,0,0,0.1)]"
     >
       <VisualizerHeader />
       {loading ? (

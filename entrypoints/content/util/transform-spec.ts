@@ -1,4 +1,3 @@
-import { visualizerDebug } from "./utils";
 import { toStepString } from "./convert-id";
 import { getCallStackFromStorage } from "@/types/call-stack";
 import {
@@ -65,7 +64,7 @@ function transformSpec() {
 
       const algType = $parent.getAttribute("type") ?? "";
 
-      visualizerDebug(
+      console.log(
         algType !== "sdo" &&
           $parent.querySelectorAll(":scope > emu-alg:not([example])").length >
             1,
@@ -75,7 +74,7 @@ function transformSpec() {
       switch (algType) {
         case "sdo":
           const $emuGrammar = $emuAlg.previousElementSibling as HTMLElement;
-          visualizerDebug(
+          console.log(
             !$emuGrammar || $emuGrammar.tagName.toLowerCase() !== "emu-grammar",
             `<emu-clause id="${$parent.id}"/> has a uncomplete pair of <emu-grammar> and <emu-alg>`,
           );
