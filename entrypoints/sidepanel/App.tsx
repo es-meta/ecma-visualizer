@@ -1,6 +1,5 @@
 import Visualizer from "./visualizer/Visualizer";
-import { ReactNode, useState } from "react";
-import { Settings } from "lucide-react";
+import { ReactNode } from "react";
 import useStorage from "./visualizer/hooks/useStorage";
 import { Loading } from "./components/Loading";
 import { Error } from "./components/Error";
@@ -19,7 +18,6 @@ export const App = () => {
     <section
       className="relative w-full flex h-full flex-col divide-y divide-neutral-300 bg-[#f5f5f5] shadow-[-4px_0_4px_rgba(0,0,0,0.1)]"
     >
-      WTF
       <VisualizerHeader />
       {loading ? (
         <Loading />
@@ -33,8 +31,6 @@ export const App = () => {
 };
 
 const VisualizerHeader = () => {
-  const [isOpen, setIsOpen] = useState(false);
-
   return (
     <header className="z-[999] flex flex-row items-center justify-between bg-white px-4 py-2 text-sm">
       <div className="flex flex-row items-center gap-2">
@@ -45,16 +41,7 @@ const VisualizerHeader = () => {
       <div className="flex flex-row items-center gap-2">
         <A href={import.meta.env.VITE_ESMETA_URL}>
           <GitHubIcon />
-          ESMeta
         </A>
-        <A href={import.meta.env.VITE_ECMAVISUALIZER_URL}>
-          <GitHubIcon />
-          ECMA Visualizer
-        </A>
-        <Settings
-          className="h-5 w-5 cursor-pointer"
-          onClick={() => setIsOpen(true)}
-        />
       </div>
     </header>
   );
