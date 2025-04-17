@@ -25,3 +25,4 @@ dist-ssr
 
 .output/
 tsconfig.tsbuildinfo
+.wxt/
