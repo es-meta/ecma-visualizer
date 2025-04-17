@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 
 .output/
-.wxt/
+tsconfig.tsbuildinfo
