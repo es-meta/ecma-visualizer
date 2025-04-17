@@ -1,38 +1,43 @@
 import Visualizer from "./visualizer/Visualizer";
-import { ReactNode } from "react";
-import useStorage from "./visualizer/hooks/useStorage";
+import { ReactNode, Suspense } from "react";
 import { Loading } from "./components/Loading";
 import { Error } from "./components/Error";
 
-const logo = chrome.runtime.getURL("images/logo.jpeg");
+import { useAtomValue } from "jotai";
+import { messageCountAtom } from "./atoms/defs";
+
+const logo = browser.runtime.getURL("/images/logo.jpeg");
 
 export type Response = {
   secId: string;
   step: string;
 };
 
-export const App = () => {
-  const { loading, error, storage } = useStorage();
+export default function App() {
+  const [count, setCount] = useState(0);
+  const countFrom = useAtomValue(messageCountAtom);
 
   return (
     <section
       className="relative w-full flex h-full flex-col divide-y divide-neutral-300 bg-[#f5f5f5] dark:bg-[#050505] shadow-[-4px_0_4px_rgba(0,0,0,0.1)]"
     >
       <VisualizerHeader />
-      {loading ? (
-        <Loading />
-      ) : error ? (
-        <Error error={error} />
-      ) : (
-        <Visualizer storage={storage} />
-      )}
+      <div className="text-black text-5xl flex flex-row items-center justify-between bg-white px-4 py-2">
+        {count} - {countFrom}
+        <button onClick={() => setCount((prev) => prev + 1)}>
+          Add
+        </button>
+      </div>
+      <Suspense fallback={<Loading />}>
+        <Visualizer />
+      </Suspense>
     </section>
   );
 };
 
-const VisualizerHeader = () => {
+function VisualizerHeader(){
   return (
-    <header className="z-[999] flex flex-row items-center justify-between bg-white px-4 py-2 text-sm">
+    <header className="flex flex-row items-center justify-between bg-white px-4 py-2 text-sm">
       <div className="flex flex-row items-center gap-2">
         <img src={logo} className="h-6 w-6" />
         <div className="text-base font-extrabold">ESMeta</div>
@@ -47,11 +52,12 @@ const VisualizerHeader = () => {
   );
 };
 
-const A = ({ href, children }: { href: string; children: ReactNode }) => {
+function A({ href, children }: { href: string; children: ReactNode })  {
   return (
     <a
       href={href}
       target="_blank"
+      rel="noopener noreferrer"
       className="font-500 flex cursor-pointer flex-row items-center gap-1 rounded-lg p-2 text-xs !text-black transition-all hover:bg-neutral-100 hover:text-black hover:no-underline active:scale-90"
     >
       {children}
@@ -59,7 +65,7 @@ const A = ({ href, children }: { href: string; children: ReactNode }) => {
   );
 };
 
-const GitHubIcon = () => {
+function GitHubIcon() {
   return (
     <svg
       aria-disabled
@@ -74,5 +80,3 @@ const GitHubIcon = () => {
     </svg>
   );
 };
-
-export default App;
