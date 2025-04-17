@@ -1,5 +1,12 @@
 @import "tailwindcss";
 /* Overriding ECMA page css for visualizer layout */
+
+body,
+#root {
+  height: 100dvh;
+}
+
+
 /* 
 
 @media (max-width: 9999px) {
