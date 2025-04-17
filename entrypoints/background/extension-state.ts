@@ -8,7 +8,7 @@ import {
 } from "@/types/extension-state";
 import { Message } from "@/types/message";
 
-// chrome.storage.onChanged.addListener((changes, areaName) => {
+// browser.storage.onChanged.addListener((changes, areaName) => {
 //   if (areaName !== "session") return;
 //   (async () => {
 //     for (const key of Object.keys(changes)) {
@@ -31,14 +31,14 @@ import { Message } from "@/types/message";
 // }
 
 // export async function getExtensionState(): Promise<ExtensionState> {
-//   const obj = await chrome.storage.session.get();
+//   const obj = await browser.storage.session.get();
 //   return isExtensionState(obj) ? obj : { ...DEFAULT_EXTENSION_STATE };
 // }
 
 // export async function setExtensionState(state: object) {
 //   const extensionState = await getExtensionState();
 
-//   await chrome.storage.session.set({
+//   await browser.storage.session.set({
 //     ...extensionState,
 //     ...state,
 //   });

@@ -27,7 +27,7 @@ function useStorage() {
     setError(error);
 
     try {
-      const storage = await chrome.storage.local.get();
+      const storage = await browser.storage.local.get();
 
       setSecIdToFuncId(storage["secIdToFuncId"]);
       setSecIdToFuncName(storage["secIdToFuncName"]);

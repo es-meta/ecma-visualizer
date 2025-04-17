@@ -72,7 +72,7 @@ export class CallStack {
   }
 
   async toFuncName(): Promise<FuncNameNode[]> {
-    const nameMap = await chrome.storage.local.get();
+    const nameMap = await browser.storage.local.get();
 
     return this.nodes.reverse().map((n) => {
       return {
@@ -83,7 +83,7 @@ export class CallStack {
   }
 
   async toFuncId(): Promise<string> {
-    const nameMap = await chrome.storage.local.get();
+    const nameMap = await browser.storage.local.get();
 
     return this.nodes
       .map((n) => {

@@ -9,26 +9,27 @@ import {
 export default defineBackground(() => {
   console.log('Hello background!', { id: browser.runtime.id });
 
+  browser.sidePanel.setPanelBehavior({ openPanelOnActionClick: true, });
 
   // browser.runtime.onInstalled.addListener(() => {
   //   (async () => {
   //     await setExtensionState({
-  //       installType: (await chrome.management.getSelf()).installType,
+  //       installType: (await browser.management.getSelf()).installType,
   //     });
-  //     const tabs = await chrome.tabs.query({});
+  //     const tabs = await browser.tabs.query({});
   //     for (const tab of tabs) {
   //       if (!tab.id || !tab.url) return;
   //       await enableChromeButton(tab.id, tab.url);
   //     }
-  //     chrome.storage.local.set({
+  //     browser.storage.local.set({
   //       secIdToFuncName: await fetch(
-  //         chrome.runtime.getURL("resources/secIdToFuncName.json"),
+  //         browser.runtime.getURL("resources/secIdToFuncName.json"),
   //       ).then((res) => res.json()),
   //       secIdToFuncId: await fetch(
-  //         chrome.runtime.getURL("resources/secIdToFuncId.json"),
+  //         browser.runtime.getURL("resources/secIdToFuncId.json"),
   //       ).then((res) => res.json()),
   //       test262IdToTest262: await fetch(
-  //         chrome.runtime.getURL("resources/test262IdToTest262.json"),
+  //         browser.runtime.getURL("resources/test262IdToTest262.json"),
   //       ).then((res) => res.json()),
   //     });
   //   })();
@@ -90,9 +91,6 @@ export default defineBackground(() => {
   // }
 
   ////// legacy code end //////
-
-  browser.sidePanel.setPanelBehavior({ openPanelOnActionClick: true, });
-
   
 
   browser.tabs.onUpdated.addListener(async (tabId, info, tab) => {
