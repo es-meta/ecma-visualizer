@@ -1,46 +1,26 @@
-import TabChangeInfo = chrome.tabs.TabChangeInfo;
-import {
-  getExtensionState,
-  getTabState,
-  setExtensionState,
-  setTabState,
-} from "./extension-state";
+import { setExtensionState } from "./extension-state";
 
 export default defineBackground(() => {
-  console.log('Hello background!', { id: browser.runtime.id });
+  browser.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 
-  browser.sidePanel.setPanelBehavior({ openPanelOnActionClick: true, });
+  browser.runtime.onInstalled.addListener(async () => {
+    await setExtensionState({
+      installType: (await browser.management.getSelf()).installType,
+    });
 
-  // browser.runtime.onInstalled.addListener(() => {
-  //   (async () => {
-  //     await setExtensionState({
-  //       installType: (await browser.management.getSelf()).installType,
-  //     });
-  //     const tabs = await browser.tabs.query({});
-  //     for (const tab of tabs) {
-  //       if (!tab.id || !tab.url) return;
-  //       await enableChromeButton(tab.id, tab.url);
-  //     }
-  //     browser.storage.local.set({
-  //       secIdToFuncName: await fetch(
-  //         browser.runtime.getURL("resources/secIdToFuncName.json"),
-  //       ).then((res) => res.json()),
-  //       secIdToFuncId: await fetch(
-  //         browser.runtime.getURL("resources/secIdToFuncId.json"),
-  //       ).then((res) => res.json()),
-  //       test262IdToTest262: await fetch(
-  //         browser.runtime.getURL("resources/test262IdToTest262.json"),
-  //       ).then((res) => res.json()),
-  //     });
-  //   })();
-  // });
+    const tabs = await browser.tabs.query({});
+    for (const tab of tabs) {
+      if (!tab.id || !tab.url) return;
+      await enableChromeButton(tab.id, tab.url);
+    }
+  });
 
   browser.tabs.onUpdated.addListener(
-    (tabId: number, changeInfo: TabChangeInfo) => {
+    (tabId: number, changeInfo: Browser.tabs.TabChangeInfo) => {
+      logger.log("tab updated", changeInfo);
       (async () => {
         if (changeInfo.url) await enableChromeButton(tabId, changeInfo.url);
         if (changeInfo.status === "loading") {
-          // await setTabState(tabId, { active: false });
           await enableChromeButton(
             tabId,
             (await browser.tabs.get(tabId)).url || "",
@@ -57,59 +37,8 @@ export default defineBackground(() => {
     const enable = enabledURL.some((item) => url.includes(item));
     if (enable) {
       await browser.action.enable(tabId);
-      // await setTabState(tabId, { active: true });
     } else {
       await browser.action.disable(tabId);
-      // await setTabState(tabId, { active: false });
     }
   }
-
-  /* Extension Icon Event Listener */
-  // browser.action.onClicked.addListener((tab) => {
-  //   if (!tab.id) return;
-  //   toggleActivity(tab.id).catch((e) => console.error(e));
-  // });
-  // /* Response to content script */
-  // browser.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  //   (async () => {
-  //     const { msgTyp } = msg;
-  //     const { installType, ...tabs } = await getExtensionState();
-  //     if (msgTyp === "init")
-  //       sendResponse({
-  //         installType: installType,
-  //         active: sender.tab?.id ? tabs[sender.tab.id].active : false,
-  //       });
-  //   })();
-  //   return true;
-  // });
-  // async function toggleActivity(tabId: number) {
-  //   const originTabState = await getTabState(tabId);
-  //   await setTabState(tabId, {
-  //     ...originTabState,
-  //     active: !originTabState.active,
-  //   });
-  // }
-
-  ////// legacy code end //////
-  
-
-  browser.tabs.onUpdated.addListener(async (tabId, info, tab) => {
-    if (!tab.url) return;
-
-    // if (SIDEPANEL_MATCH_PATTERN.includes(tab.url)) {
-    //   // Enables the side panel on google.com
-    //   await browser.sidePanel.setOptions({
-    //     tabId,
-    //     path: "wxt-sidepanel.html",
-    //     enabled: true,
-    //   });
-    // } else {
-      // Disables the side panel on all other sites
-    // await browser.sidePanel.setOptions({
-    //   tabId,
-    //   enabled: true,
-    // }).then(() => console.log("Enabled side panel"))
-    //   .catch(() => console.log("Failed to enable side panel"));
-    // // }
-  });
 });
