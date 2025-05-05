@@ -6,6 +6,15 @@ body,
   height: 100dvh;
 }
 
+body {
+  @apply bg-white text-black dark:bg-neutral-900 dark:text-white;
+}
+
+@layer base {
+  a {
+    @apply transition-all hover:underline hover:opacity-75 active:opacity-50;
+  }
+}
 
 /* 
 

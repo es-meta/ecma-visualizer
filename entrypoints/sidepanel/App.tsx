@@ -1,82 +1,66 @@
-import Visualizer from "./visualizer/Visualizer";
-import { ReactNode, Suspense } from "react";
-import { Loading } from "./components/Loading";
-import { Error } from "./components/Error";
-
-import { useAtomValue } from "jotai";
-import { messageCountAtom } from "./atoms/defs";
-
-const logo = browser.runtime.getURL("/images/logo.jpeg");
-
-export type Response = {
-  secId: string;
-  step: string;
-};
+import { Header } from "./layouts";
+import ProgramViewer from "./features/ProgramViewer";
+import CallStackViewer from "./features/CallStackViewer";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/entrypoints/sidepanel/components/resizable";
+import { LoaderCircle } from "lucide-react";
+import Test262Viewer from "./features/Test262Viewer";
+import { SuspenseBoundary } from "./components/suspense-boundary";
 
 export default function App() {
-  const [count, setCount] = useState(0);
-  const countFrom = useAtomValue(messageCountAtom);
-
   return (
-    <section
-      className="relative w-full flex h-full flex-col divide-y divide-neutral-300 bg-[#f5f5f5] dark:bg-[#050505] shadow-[-4px_0_4px_rgba(0,0,0,0.1)]"
-    >
-      <VisualizerHeader />
-      <div className="text-black text-5xl flex flex-row items-center justify-between bg-white px-4 py-2">
-        {count} - {countFrom}
-        <button onClick={() => setCount((prev) => prev + 1)}>
-          Add
-        </button>
-      </div>
-      <Suspense fallback={<Loading />}>
-        <Visualizer />
-      </Suspense>
+    <section className="relative flex h-full w-full flex-col divide-y divide-neutral-300 dark:divide-neutral-700">
+      <Header />
+      <ResizablePanelGroup
+        direction="vertical"
+        className="flex min-h-0 w-full flex-auto flex-col items-stretch justify-start"
+      >
+        <ResizablePanel
+          className="relative flex min-h-0 w-full flex-col divide-y divide-neutral-300 overflow-hidden dark:divide-neutral-700"
+          minSize={5}
+        >
+          <SuspenseBoundary
+            unexpected
+            loading={<LoaderCircle className="animate-spin" />}
+            error={({ error }) => <aside>{String(error)}</aside>}
+          >
+            <ProgramViewer />
+          </SuspenseBoundary>
+        </ResizablePanel>
+
+        <ResizableHandle withHandle />
+
+        <ResizablePanel
+          className="relative flex w-full flex-col divide-y divide-neutral-300 overflow-hidden"
+          minSize={5}
+        >
+          <SuspenseBoundary
+            unexpected
+            loading={<LoaderCircle className="animate-spin" />}
+            error={({ error }) => <aside>{String(error)}</aside>}
+          >
+            <Test262Viewer />
+          </SuspenseBoundary>
+        </ResizablePanel>
+
+        <ResizableHandle withHandle />
+
+        <ResizablePanel
+          className="relative flex min-h-0 w-full flex-1 flex-col divide-y divide-neutral-300 overflow-hidden dark:divide-neutral-700"
+          minSize={5}
+        >
+          <SuspenseBoundary
+            unexpected
+            loading={<LoaderCircle className="animate-spin" />}
+            error={({ error }) => <aside>{String(error)}</aside>}
+          >
+            <CallStackViewer />
+          </SuspenseBoundary>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </section>
   );
-};
-
-function VisualizerHeader(){
-  return (
-    <header className="flex flex-row items-center justify-between bg-white px-4 py-2 text-sm">
-      <div className="flex flex-row items-center gap-2">
-        <img src={logo} className="h-6 w-6" />
-        <div className="text-base font-extrabold">ESMeta</div>
-        <div className="text-base font-normal">ECMA Visualizer</div>
-      </div>
-      <div className="flex flex-row items-center gap-2">
-        <A href={import.meta.env.VITE_ESMETA_URL}>
-          <GitHubIcon />
-        </A>
-      </div>
-    </header>
-  );
-};
-
-function A({ href, children }: { href: string; children: ReactNode })  {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="font-500 flex cursor-pointer flex-row items-center gap-1 rounded-lg p-2 text-xs !text-black transition-all hover:bg-neutral-100 hover:text-black hover:no-underline active:scale-90"
-    >
-      {children}
-    </a>
-  );
-};
-
-function GitHubIcon() {
-  return (
-    <svg
-      aria-disabled
-      fill="currentColor"
-      width={14}
-      height={14}
-      viewBox="0 0 24 24"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <title>GitHub</title>
-      <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
-    </svg>
-  );
-};
+}

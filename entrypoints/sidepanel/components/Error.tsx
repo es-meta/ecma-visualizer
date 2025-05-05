@@ -1,5 +1,5 @@
 import { Frown } from "lucide-react";
-import { CustomError } from "../visualizer/hooks/useProgram";
+import { CustomError } from "@/types/data";
 
 const ErrorMessage = {
   NotFound: {

@@ -1,19 +1,21 @@
-function toStepString(stepInNumArr : number[]) : string {
-  return stepInNumArr.map((num, idx) => {
-    switch (idx % 3) {
-      case 0:
-        return num.toString();
-      case 1:
-        return AlphabetNumeral(num);
-      case 2:
-        return RomanNumeral(num);
-      default:
-        return "";
-    }
-  }).join(".")
+export function toStepString(stepInNumArr: number[]): string {
+  return stepInNumArr
+    .map((num, idx) => {
+      switch (idx % 3) {
+        case 0:
+          return num.toString();
+        case 1:
+          return AlphabetNumeral(num);
+        case 2:
+          return RomanNumeral(num);
+        default:
+          return "";
+      }
+    })
+    .join(".");
 }
 
-function fromStepString(step: string): number[] {
+export function fromStepString(step: string): number[] {
   const split = step.split(".");
 
   return split.map((sp, idx) => {
@@ -29,8 +31,6 @@ function fromStepString(step: string): number[] {
     }
   });
 }
-
-export {toStepString, fromStepString}
 
 function AlphabetNumeral(num: number) {
   const baseCharCode = "a".charCodeAt(0);

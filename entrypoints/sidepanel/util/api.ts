@@ -2,12 +2,8 @@ import {
   SecIdToFuncId,
   SecIdToFuncName,
   Test262IdToTest262,
-} from "../visualizer/hooks/useStorage.ts";
-import {
-  bitwiseOrStrings,
-  convertToIndex,
-  getBitString,
-} from "../util/decode.ts";
+} from "@/types/data";
+import { bitwiseOrStrings, convertToIndex, getBitString } from "../util/decode";
 type StepToNodeId = Record<string, number[]>;
 type FeatureToProgId = Record<string, Record<string, [number, number]>>;
 type FeatureToEncodedTest262 = Record<string, Record<string, string>>;
