@@ -1,26 +1,16 @@
-import transformSpec from "./util/transform-spec";
+import handleInit from "./handlers/init";
+import "./globals.css";
 
-const ContentScriptDefinition = defineContentScript({
+/**
+ * content script - 메인 페이지 DOM에 접근할 수 있습니다.
+ */
+const definition = defineContentScript({
   matches: ["https://tc39.es/*", "https://262.ecma-international.org/*"],
   main() {
-    window.addEventListener("popstate", (e) => {
-      window.dispatchEvent(new CustomEvent("callstack updated"));
-    });
+    logger.log("content", import.meta.filename, "content script loaded");
+    handleInit();
+    logger.log("content", import.meta.filename, "transform done");
+  },
+});
 
-    window.addEventListener("pageshow", (e) => {
-      window.dispatchEvent(new CustomEvent("callstack updated"));
-    });
-
-    function initDom() {
-      transformSpec();
-      console.log('transform done');
-      // TODO 
-      // initState().then((_) => _);
-    }
-
-    console.log('content script loaded');
-    initDom();
-  }
-})
-
-export default ContentScriptDefinition;
+export default definition;

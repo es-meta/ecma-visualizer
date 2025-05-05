@@ -1,0 +1,21 @@
+/* .active */
+body .esmeta-vis-step:hover,
+.visSDOStep:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+body .esmeta-vis-qm:hover {
+  background-color: rgba(255, 0, 0, 0.3);
+}
+
+body .esmeta-vis-if:hover {
+  background-color: rgba(0, 255, 0, 0.3);
+}
+
+body .esmeta-vis-then:hover {
+  background-color: rgba(0, 0, 255, 0.3);
+}
+
+body .esmeta-vis-else:hover {
+  background-color: rgba(255, 255, 0, 0.3);
+}

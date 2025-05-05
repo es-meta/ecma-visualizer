@@ -1,32 +1,20 @@
-import { toStepString } from "./convert-id";
-import { getCallStackFromStorage } from "@/types/call-stack";
+import { toStepString } from "@/entrypoints/content/handlers/convert-id.utils";
+
+import { handleClick } from "./click";
 import {
-  customEventSDOSelection,
-  customEventSelection,
-  Selection,
-} from "@/types/custom-event";
-
-/*
-    Follow algorithm extract logic of ESMeta
-*/
-
-const VISID = "data-esmeta-vis-id";
-const VISDEFAULTSDO = "data-esmeta-vis-default-SDO";
-const MULTIPLEPROD = "data-esmeta-multiple-prod";
-
-const VISSTEP = "data-esmeta-vis-step";
-const VISSDOSTEP = "data-esmeta-vis-SDO-step";
-const VISPRODUCTION = "data-esmeta-vis-production";
-const VISQM = "data-esmeta-vis-QM";
-const VISIF = "data-esmeta-vis-if";
-const VISTHEN = "data-esmeta-vis-then";
-const VISELSE = "data-esmeta-vis-else";
-const VISCALL = "data-esmeta-vis-call";
-
-type SDOInfo = {
-  defaultSDO: string;
-  isMultipleProd: boolean;
-};
+  MULTIPLEPROD,
+  SDOInfo,
+  VISCALL,
+  VISDEFAULTSDO,
+  VISELSE,
+  VISID,
+  VISIF,
+  VISPRODUCTION,
+  VISQM,
+  VISSDOSTEP,
+  VISSTEP,
+  VISTHEN,
+} from "../constants";
 
 /* [ToDo] Hande Default SDO */
 const IGNORE_SEC_IDS = new Set([
@@ -41,13 +29,7 @@ function ignoreManually(secId: string, $emuAlg: HTMLElement) {
   if (IGNORE_SEC_IDS.has(secId)) return true;
 }
 
-function extractVisId(visId: string) {
-  const [secId, ...stepList] = visId.split("|");
-  const step = stepList.join("|");
-  return { secId, step };
-}
-
-function transformSpec() {
+export default function handleInit() {
   document
     .querySelectorAll<HTMLElement>("emu-alg:not([example])")
     .forEach(($emuAlg) => {
@@ -73,27 +55,29 @@ function transformSpec() {
 
       switch (algType) {
         case "sdo":
-          const $emuGrammar = $emuAlg.previousElementSibling as HTMLElement;
-          console.log(
-            !$emuGrammar || $emuGrammar.tagName.toLowerCase() !== "emu-grammar",
-            `<emu-clause id="${$parent.id}"/> has a uncomplete pair of <emu-grammar> and <emu-alg>`,
-          );
+          void (() => {
+            const $emuGrammar = $emuAlg.previousElementSibling as HTMLElement;
+            console.log(
+              !$emuGrammar ||
+                $emuGrammar.tagName.toLowerCase() !== "emu-grammar",
+              `<emu-clause id="${$parent.id}"/> has a uncomplete pair of <emu-grammar> and <emu-alg>`,
+            );
 
-          transformGrammar($emuGrammar);
+            transformGrammar($emuGrammar);
 
-          const $emuProduction =
-            $emuGrammar.querySelectorAll<HTMLElement>("emu-production");
-          const $emuRhs =
-            $emuProduction[0].querySelectorAll<HTMLElement>("emu-rhs");
-          const isMultipleProd =
-            $emuProduction.length > 1 || $emuRhs.length > 1;
+            const $emuProduction =
+              $emuGrammar.querySelectorAll<HTMLElement>("emu-production");
+            const $emuRhs =
+              $emuProduction[0].querySelectorAll<HTMLElement>("emu-rhs");
+            const isMultipleProd =
+              $emuProduction.length > 1 || $emuRhs.length > 1;
 
-          const defaultSDO = $emuRhs[0].getAttribute(VISID) as string;
-          transformSDOAlgorithm($emuAlg, $parent.id, {
-            defaultSDO,
-            isMultipleProd,
-          });
-
+            const defaultSDO = $emuRhs[0].getAttribute(VISID) as string;
+            transformSDOAlgorithm($emuAlg, $parent.id, {
+              defaultSDO,
+              isMultipleProd,
+            });
+          })();
           break;
         default:
           transformAlgorithm($emuAlg, $parent.id);
@@ -102,72 +86,7 @@ function transformSpec() {
       transformCallLink($emuAlg);
     });
 
-  document.addEventListener("click", (e: MouseEvent) => {
-    if (!(e.target instanceof HTMLElement)) return;
-
-    if (e.altKey) {
-      const $clicked = e.target.closest(
-        `.${VISSTEP}, .${VISSDOSTEP}, .${VISPRODUCTION}`,
-      );
-      if (!$clicked) return;
-
-      stepClickEvent($clicked);
-      e.preventDefault();
-    } else {
-      if (e.target.classList.contains(VISCALL)) callClickEvent(e.target);
-    }
-  });
-}
-
-let selectionSaver: Selection | null = null;
-function stepClickEvent($clickedStep: Element) {
-  const visId = $clickedStep.getAttribute(VISID) ?? "";
-  if (!visId) console.error("Must have visId");
-
-  if ($clickedStep.classList.contains(VISSTEP)) {
-    selectionSaver = null;
-    const { secId, step } = extractVisId(visId);
-    customEventSelection({ secId, step });
-  } else if ($clickedStep.classList.contains(VISSDOSTEP)) {
-    if ($clickedStep.hasAttribute(MULTIPLEPROD)) {
-      const { secId, step } = extractVisId(visId);
-      selectionSaver = {
-        secId,
-        step,
-      };
-      customEventSDOSelection();
-    } else {
-      const sdo = $clickedStep.getAttribute(VISDEFAULTSDO);
-      if (!sdo) console.error("Must have defaultSDO");
-      const { secId, step } = extractVisId(visId);
-      customEventSelection({
-        secId: `${secId}|${sdo}`,
-        step,
-      });
-    }
-  } else if ($clickedStep.classList.contains(VISPRODUCTION)) {
-    if (!selectionSaver) return;
-    customEventSelection({
-      secId: `${selectionSaver.secId}|${visId}`,
-      step: selectionSaver.step,
-    });
-    selectionSaver = null;
-  }
-}
-
-function callClickEvent($clickedA: Element): boolean {
-  const visId = $clickedA.getAttribute(VISID) ?? "";
-  const sdo = $clickedA.getAttribute(VISDEFAULTSDO);
-
-  const [callerAndStep, calleeId] = visId.split("->");
-  const [callerId, step] = callerAndStep.split("|");
-
-  const callstack = getCallStackFromStorage();
-
-  if (sdo) callstack.push({ callerId: `${callerId}|${sdo}`, step, calleeId });
-  else callstack.push({ callerId, step, calleeId });
-
-  return true;
+  document.addEventListener("click", handleClick);
 }
 
 function transformCallLink($emuAlg: HTMLElement) {
@@ -378,5 +297,3 @@ const IGNORE_ALGO_PARENT_IDS = new Set([
   "sec-races",
   "sec-data-races",
 ]);
-
-export default transformSpec;
