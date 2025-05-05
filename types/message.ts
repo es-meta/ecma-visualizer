@@ -1,5 +1,11 @@
-import { ExtensionState, TabState } from "./extension-state.ts";
+type Runtime = "background" | "content" | "sidepanel";
 
-export type MessageType = "init" | "prog";
+export interface Message {
+  from: Runtime;
+  payload: MessagePayload;
+}
 
-export type Message = { check: string[] } & (ExtensionState | TabState);
+export type MessagePayload = {
+  type: string;
+  [key: string]: unknown;
+};
