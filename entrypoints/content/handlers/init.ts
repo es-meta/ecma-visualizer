@@ -46,22 +46,22 @@ export default function handleInit() {
 
       const algType = $parent.getAttribute("type") ?? "";
 
-      console.log(
-        algType !== "sdo" &&
-          $parent.querySelectorAll(":scope > emu-alg:not([example])").length >
-            1,
-        `<emu-clause id="${$parent.id}"/> has multiple <emu-alg>`,
-      );
+      // logger.log(
+      //   algType !== "sdo" &&
+      //     $parent.querySelectorAll(":scope > emu-alg:not([example])").length >
+      //       1,
+      //   `<emu-clause id="${$parent.id}"/> has multiple <emu-alg>`,
+      // );
 
       switch (algType) {
         case "sdo":
           void (() => {
             const $emuGrammar = $emuAlg.previousElementSibling as HTMLElement;
-            console.log(
-              !$emuGrammar ||
-                $emuGrammar.tagName.toLowerCase() !== "emu-grammar",
-              `<emu-clause id="${$parent.id}"/> has a uncomplete pair of <emu-grammar> and <emu-alg>`,
-            );
+            // logger.log(
+            //   !$emuGrammar ||
+            //     $emuGrammar.tagName.toLowerCase() !== "emu-grammar",
+            //   `<emu-clause id="${$parent.id}"/> has a uncomplete pair of <emu-grammar> and <emu-alg>`,
+            // );
 
             transformGrammar($emuGrammar);
 
