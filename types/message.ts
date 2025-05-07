@@ -1,11 +1,25 @@
-type Runtime = "background" | "content" | "sidepanel";
+import { CUSTOM_IS_SUPPORTED } from "./custom-event";
 
-export interface Message {
-  from: Runtime;
+export type Message = {
   payload: MessagePayload;
-}
+} & (
+  | {
+      from: "background";
+      targetWindowId?: number;
+    }
+  | {
+      from: "content" | "sidepanel";
+    }
+);
 
-export type MessagePayload = {
-  type: string;
-  [key: string]: unknown;
-};
+type MessageTypeKnown = typeof CUSTOM_IS_SUPPORTED;
+
+export type MessagePayload =
+  | {
+      type: typeof CUSTOM_IS_SUPPORTED;
+      dataSupported: boolean;
+    }
+  | {
+      type: Exclude<string, MessageTypeKnown>;
+      [key: string]: unknown;
+    };
