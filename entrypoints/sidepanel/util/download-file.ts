@@ -1,6 +1,8 @@
 import { default as JSZip } from "jszip";
 import PQueue from "p-queue";
-import { rawUrl } from "@/entrypoints/sidepanel/features/Test262Viewer";
+
+export const rawUrl = (test262: string) =>
+  `${import.meta.env.VITE_TEST262_RAW_URL}/${test262}`;
 
 async function downloadFile(path: string): Promise<Blob> {
   const response = await fetch(rawUrl(path));
@@ -29,7 +31,7 @@ export async function handleDownload(paths: string[]) {
           path,
           error: error instanceof Error ? error.message : String(error),
         });
-        console.error(`Failed (${failed}): ${path}`);
+        logger.error(`Failed (${failed}): ${path}`);
       }
     });
   }

@@ -1,9 +1,9 @@
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircleIcon } from "lucide-react";
 
-export const Loading = () => {
+export function Loading() {
   return (
     <div className="flex size-full items-center justify-center">
-      <LoaderCircle className="h-10 w-10 animate-spin font-bold text-[#E79118]" />
+      <LoaderCircleIcon className="h-10 w-10 animate-spin font-bold text-amber-500" />
     </div>
   );
-};
+}

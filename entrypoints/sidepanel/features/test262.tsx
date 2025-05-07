@@ -5,14 +5,13 @@ import {
   LoaderCircleIcon,
 } from "lucide-react";
 import { useVirtualizer, Virtualizer } from "@tanstack/react-virtual";
-import { SDOWaiting } from "./ProgramViewer";
 import { useAtomValue } from "jotai";
-import { test262Atom } from "../atoms/app";
-import { handleDownload } from "../util/download-file";
-
-// TODO Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.eslint(react-refresh/only-export-components)
-export const rawUrl = (test262: string) =>
-  `${import.meta.env.VITE_TEST262_RAW_URL}/${test262}`;
+import { selectionAtom, test262Atom } from "../atoms/app";
+import { handleDownload, rawUrl } from "../util/download-file";
+import { Card, CardHeader } from "../components/card";
+import { SuspenseBoundary } from "../components/suspense-boundary";
+import { ErrorConsumer, KnownError } from "../components/ErrorConsumer";
+import { Loading } from "../components";
 
 const url = (test262: string) =>
   `${import.meta.env.VITE_TEST262_URL}/${test262}`;
@@ -25,15 +24,9 @@ const fileName = (test262: string) => {
 const Test262ViewerContent = ({
   test262,
   rowVirtualizer,
-  // loading,
-  // error,
-  sdoWaiting,
 }: {
   test262: string[];
   rowVirtualizer: Virtualizer<Element, Element>;
-  // loading: boolean;
-  // error: CustomError | null;
-  sdoWaiting: boolean;
 }) => {
   const downloadFile = async (filePath: string, fileName: string) => {
     try {
@@ -53,17 +46,11 @@ const Test262ViewerContent = ({
       document.body.removeChild(link);
       window.URL.revokeObjectURL(downloadUrl);
     } catch (e) {
-      console.error(`failed to download ${fileName} ${filePath}`, e);
+      logger.error(`failed to download ${fileName} ${filePath}`, e);
     }
   };
 
-  return sdoWaiting ? (
-    <SDOWaiting />
-  ) : (
-    // ) : loading ? (
-    //   <Loading />
-    // ) : error ? (
-    //   <Error error={error} />
+  return (
     <div
       style={{
         height: `${rowVirtualizer.getTotalSize()}px`,
@@ -93,10 +80,10 @@ const Test262ViewerContent = ({
             </div>
             <div className="px-1 text-center">
               <button
-                className="group inline cursor-pointer rounded-sm hover:bg-blue-600"
+                className="inline-block rounded hover:bg-neutral-100 dark:hover:bg-neutral-800"
                 onClick={() => downloadFile(rawUrl(test), fileName(test))}
               >
-                <DownloadIcon className="h-4 w-4 group-hover:text-white" />
+                <DownloadIcon strokeWidth={2} />
               </button>
             </div>
           </div>
@@ -106,8 +93,10 @@ const Test262ViewerContent = ({
   );
 };
 
-export default function Test262262Viewer() {
-  const test262 = useAtomValue(test262Atom);
+function Test262262ViewerLargerContent() {
+  const test262Raw = useAtomValue(test262Atom);
+
+  const test262 = test262Raw instanceof Error ? [] : test262Raw;
 
   const parentRef = useRef(null);
   const rowVirtualizer = useVirtualizer({
@@ -116,9 +105,27 @@ export default function Test262262Viewer() {
     estimateSize: () => 30,
   });
 
+  if (test262Raw instanceof Error) {
+    return <KnownError error={test262Raw} />;
+  }
+
+  return (
+    <div
+      ref={parentRef}
+      className="relative min-h-0 w-full flex-auto basis-auto overflow-scroll"
+    >
+      <Test262ViewerContent test262={test262} rowVirtualizer={rowVirtualizer} />
+    </div>
+  );
+}
+
+function DownloadButton() {
+  const test262 = useAtomValue(test262Atom);
   const [downloading, setDownloading] = useState(false);
-  const downloadAll = () => {
+
+  const downloadAll = useCallback(() => {
     if (test262 === null) return;
+    if (test262 instanceof Error) return;
 
     setDownloading(true);
     if (downloading) {
@@ -126,52 +133,60 @@ export default function Test262262Viewer() {
       return;
     }
 
-    (async () => {
+    run(async () => {
       try {
         await handleDownload(test262);
       } catch (error) {
-        console.error("Download failed:", error);
+        logger.error("Download failed:", error);
       } finally {
         setDownloading(false);
       }
-    })();
-  };
+    });
+  }, [test262, downloading]);
+
+  if (test262 instanceof Error) {
+    throw test262;
+  }
+
+  const disabled = downloading;
 
   return (
     <>
-      <div className="flex shrink-0 grow-0 basis-auto flex-row items-center justify-between p-2">
-        <div className="flex flex-row items-center gap-1 text-sm font-semibold text-neutral-700 dark:text-neutral-300 [&>svg]:size-4">
-          <FlaskConicalIcon />
-          Test262
-        </div>
-
-        <div className="flex flex-row items-center gap-1">
-          <div className="text-sm font-medium">{`${test262.length} found`}</div>
-          <button
-            className="flex cursor-pointer flex-row items-center justify-center gap-1 rounded-md text-sm hover:bg-blue-600 hover:text-white [&>svg]:size-4"
-            onClick={downloadAll}
-          >
-            {downloading ? (
-              <LoaderCircleIcon className="animate-spin" />
-            ) : (
-              <FolderDownIcon />
-            )}
-            {downloading ? "Downloading.." : "Download All"}
-          </button>
-        </div>
-      </div>
-      <div
-        ref={parentRef}
-        className="relative min-h-0 w-full flex-auto basis-auto overflow-scroll"
+      <div className="text-sm font-medium">{`${test262.length} found`}</div>
+      <button
+        disabled={disabled}
+        className="text-blue-500 dark:text-blue-400"
+        onClick={downloadAll}
       >
-        <Test262ViewerContent
-          test262={test262}
-          // loading={test262Loading}
-          // error={test262Error}
-          rowVirtualizer={rowVirtualizer}
-          sdoWaiting={false} // TODO wtf
-        />
-      </div>
+        {downloading ? "Downloading.." : " Download All"}
+        {downloading ? (
+          <LoaderCircleIcon className="animate-spin" strokeWidth={2} />
+        ) : (
+          <FolderDownIcon strokeWidth={2} />
+        )}
+      </button>
     </>
+  );
+}
+
+export function Test262Viewer() {
+  const selection = useAtomValue(selectionAtom);
+
+  return (
+    <Card>
+      <CardHeader title="Test262" icon={<FlaskConicalIcon />}>
+        <SuspenseBoundary intentional>
+          <DownloadButton />
+        </SuspenseBoundary>
+      </CardHeader>
+
+      <SuspenseBoundary unexpected loading={<Loading />} error={ErrorConsumer}>
+        {selection === null ? (
+          <KnownError error={waitingSdoError()} />
+        ) : (
+          <Test262262ViewerLargerContent />
+        )}
+      </SuspenseBoundary>
+    </Card>
   );
 }

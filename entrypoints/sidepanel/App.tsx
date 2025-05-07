@@ -1,14 +1,15 @@
 import { Header } from "./layouts";
-import ProgramViewer from "./features/ProgramViewer";
-import CallStackViewer from "./features/CallStackViewer";
+import {
+  CallStackViewer,
+  NotifyStrip,
+  ProgramViewer,
+  Test262Viewer,
+} from "./features";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/entrypoints/sidepanel/components/resizable";
-import { LoaderCircle } from "lucide-react";
-import Test262Viewer from "./features/Test262Viewer";
-import { SuspenseBoundary } from "./components/suspense-boundary";
 
 export default function App() {
   return (
@@ -22,13 +23,7 @@ export default function App() {
           className="relative flex min-h-0 w-full flex-col divide-y divide-neutral-300 overflow-hidden dark:divide-neutral-700"
           minSize={5}
         >
-          <SuspenseBoundary
-            unexpected
-            loading={<LoaderCircle className="animate-spin" />}
-            error={({ error }) => <aside>{String(error)}</aside>}
-          >
-            <ProgramViewer />
-          </SuspenseBoundary>
+          <ProgramViewer />
         </ResizablePanel>
 
         <ResizableHandle withHandle />
@@ -37,13 +32,7 @@ export default function App() {
           className="relative flex w-full flex-col divide-y divide-neutral-300 overflow-hidden"
           minSize={5}
         >
-          <SuspenseBoundary
-            unexpected
-            loading={<LoaderCircle className="animate-spin" />}
-            error={({ error }) => <aside>{String(error)}</aside>}
-          >
-            <Test262Viewer />
-          </SuspenseBoundary>
+          <Test262Viewer />
         </ResizablePanel>
 
         <ResizableHandle withHandle />
@@ -52,15 +41,10 @@ export default function App() {
           className="relative flex min-h-0 w-full flex-1 flex-col divide-y divide-neutral-300 overflow-hidden dark:divide-neutral-700"
           minSize={5}
         >
-          <SuspenseBoundary
-            unexpected
-            loading={<LoaderCircle className="animate-spin" />}
-            error={({ error }) => <aside>{String(error)}</aside>}
-          >
-            <CallStackViewer />
-          </SuspenseBoundary>
+          <CallStackViewer />
         </ResizablePanel>
       </ResizablePanelGroup>
+      <NotifyStrip />
     </section>
   );
 }

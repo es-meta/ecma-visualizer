@@ -1,10 +1,16 @@
 import type { Message } from "@/types/message";
 import type { createStore } from "jotai";
-import { messageCountAtom, selectionAtom, callStackAtom } from "./app";
+import {
+  messageCountAtom,
+  selectionAtom,
+  callStackAtom,
+  currentTabSupported,
+} from "./app";
 import {
   CUSTOM_EVENT_CALLSTACK_UPDATE,
   CUSTOM_EVENT_SDO_SELECTION,
   CUSTOM_EVENT_SELECTION,
+  CUSTOM_IS_SUPPORTED,
   Selection,
 } from "@/types/custom-event";
 import { Context } from "@/types/data";
@@ -35,12 +41,21 @@ export const createMessageListener = function (
       store.set(messageCountAtom, (prev) => prev + 1);
 
       if (from === "content") {
-        const tabId = sender.tab?.windowId;
+        const tabWindowId = sender.tab?.windowId;
         const thisWindowId = (await browser.windows.getCurrent())?.id;
-        const fromSameWindow = tabId === thisWindowId && tabId !== undefined;
-        console.log("same window?", fromSameWindow);
+        const fromSameWindow =
+          tabWindowId === thisWindowId && tabWindowId !== undefined;
         if (!fromSameWindow) {
-          console.warn("message from content script, but not from same window");
+          return;
+        }
+      }
+
+      if (from === "background") {
+        const tabWindowId = message.targetWindowId;
+        const thisWindowId = (await browser.windows.getCurrent())?.id;
+        const fromSameWindow =
+          tabWindowId === thisWindowId && tabWindowId !== undefined;
+        if (!fromSameWindow) {
           return;
         }
       }
@@ -68,6 +83,13 @@ export const createMessageListener = function (
           }
           break;
 
+        case CUSTOM_IS_SUPPORTED:
+          {
+            const supported = payload.dataSupported as boolean;
+            store.set(currentTabSupported, supported);
+          }
+
+          break;
         default:
           break;
       }
@@ -82,14 +104,12 @@ function run<T>(f: () => Promise<T>) {
   f();
 }
 
-function __context_contains(current: Context[], node: Context) {
-  return current.some((iter) => iter.callerId == node.callerId);
-}
-
 function computePushResult(current: Context[], node: Context) {
   if (current.at(-1)?.calleeId !== node.callerId) current = [];
 
-  if (__context_contains(current, node)) {
+  const contains = current.some((iter) => iter.callerId == node.callerId);
+
+  if (contains) {
     while (current.length > 0) {
       if (current.at(-1)?.callerId == node.callerId) break;
       current.pop();

@@ -5,6 +5,7 @@ import {
   type PropsWithChildren,
   type FC,
 } from "react";
+import { getQueryClient } from "../atoms/qc";
 
 type DisjointBooleanFlag<K extends string> = {
   [Key in K]: {
@@ -92,7 +93,10 @@ class ErrorBoundary extends Component<
       return (
         this.props.fallback?.({
           error: this.state.__error,
-          retry: () => this.setState({ hasError: false, __error: undefined }),
+          retry: () => {
+            this.setState({ hasError: false, __error: undefined });
+            getQueryClient().invalidateQueries();
+          },
         }) ?? null
       );
     }

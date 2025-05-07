@@ -12,7 +12,11 @@ const BASE_URL = import.meta.env.VITE_RESOURCE_URL;
 
 async function _fetch<T>(url: string): Promise<T> {
   const response = await fetch(url);
-  if (!response.ok) throw response;
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw notFoundError();
+    } else throw response;
+  }
   return await response.json();
 }
 
@@ -26,7 +30,12 @@ async function fetchStepToNodeId(
     `${BASE_URL}/stepToNodeId/${funcId}.json`,
   );
 
-  return stepToNodeId[step];
+  const result = stepToNodeId[step];
+  if (result === undefined) {
+    alert("stepToNodeId not found for " + secId + " " + step);
+    throw notFoundError();
+  }
+  return result;
 }
 
 async function fetchAllTest262ByNodeId(

@@ -1,140 +1,21 @@
 @import "tailwindcss";
-/* Overriding ECMA page css for visualizer layout */
 
 body,
 #root {
-  height: 100dvh;
+  @apply h-dvh;
 }
 
 body {
-  @apply bg-white text-black dark:bg-neutral-900 dark:text-white;
+  @apply bg-white text-black dark:bg-neutral-800 dark:text-white;
 }
 
 @layer base {
-  a {
-    @apply transition-all hover:underline hover:opacity-75 active:opacity-50;
-  }
-}
-
-/* 
-
-@media (max-width: 9999px) {
-  #menu.active {
-    position: fixed !important;
-    height: 100% !important;
-    left: 0 !important;
-    top: 0 !important;
-    right: 300px !important;
+  a,
+  button {
+    @apply inline-flex flex-row items-center justify-center gap-1 transition-all hover:underline hover:opacity-75 active:opacity-50;
   }
 
-  #menu.active {
-    display: flex !important;
-    opacity: 1 !important;
-    z-index: 2 !important;
-  }
-
-  #menu {
-    display: none !important;
-    padding-top: 3em !important;
-    width: 450px !important;
-  }
-
-  #spec-container {
-    flex-basis: auto !important;
-    overflow: scroll !important;
+  :where(a, button) svg {
+    @apply inline-block size-[1em];
   }
 }
-
-#menu-spacer {
-  display: none !important;
-}
-
-#menu-toggle {
-  visibility: visible !important;
-}
-
-body {
-  display: flex;
-  flex-direction: row;
-}
-
-body.active .visStep:hover,
-.visSDOStep:hover {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-body.active .visQM:hover {
-  background-color: rgba(255, 0, 0, 0.3);
-}
-
-body.active .visIf:hover {
-  background-color: rgba(0, 255, 0, 0.3);
-}
-
-body.active .visThen:hover {
-  background-color: rgba(0, 0, 255, 0.3);
-}
-
-body.active .visElse:hover {
-  background-color: rgba(255, 255, 0, 0.3);
-}
-
-@media (max-width: 1000px) {
-  body {
-    flex-direction: column !important;
-    display: flex !important;
-  }
-
-  #root.active {
-    display: block;
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    width: 100dvw !important;
-    height: 500px !important;
-  }
-
-  #spec-container {
-    margin-bottom: 500px !important;
-  }
-}
-
- #root {
-  display: none;
-} 
-
-#root.active {
-  position: sticky;
-  top: 0;
-  right: 0;
-  display: block;
-  height: 100dvh;
-}
-
-#extract-button {
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  width: 80px;
-  height: 40px;
-  background-color: red;
-}
-
-
-  Manually added style due to tailwind preflight disable
- 
-*,
-::before,
-::after {
-  box-sizing: border-box;
-  border-width: 0;
-  border-style: solid;
-}
-
-@layer base {
-  :root {
-    --radius: 0.5rem;
-  }
-}
-
-*/
