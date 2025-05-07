@@ -8,9 +8,12 @@ export default defineConfig({
     description:
       "providing example programs for ECMAScript Language Specification",
     version: "2.0",
+    icons: {
+      64: "images/logo-64.jpeg",
+    },
     action: {
       default_icon: {
-        "16": "images/icon-16.png",
+        16: "images/icon-16.png",
       },
     },
     permissions: ["storage", "tabs", "activeTab", "sidePanel"],
