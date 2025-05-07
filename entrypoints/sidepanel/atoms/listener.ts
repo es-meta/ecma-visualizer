@@ -105,16 +105,14 @@ function run<T>(f: () => Promise<T>) {
 }
 
 function computePushResult(current: Context[], node: Context) {
-  if (current.at(-1)?.calleeId !== node.callerId) current = [];
-
-  const contains = current.some((iter) => iter.callerId == node.callerId);
+  const contains = current.some((iter) => iter.callerId === node.callerId);
 
   if (contains) {
     while (current.length > 0) {
-      if (current.at(-1)?.callerId == node.callerId) break;
-      current.pop();
+      if (current.at(0)?.callerId === node.callerId) break;
+      current = current.slice(1);
     }
-  } else current.push(node);
+  } else current = [node, ...current];
 
   return [...current];
 }
