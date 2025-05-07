@@ -1,5 +1,4 @@
 import { GitHubIcon } from "@/entrypoints/sidepanel/icons";
-import { Suspense } from "react";
 
 const logo = browser.runtime.getURL("/images/logo.jpeg");
 
@@ -27,9 +26,6 @@ export function Header() {
           <GitHubIcon />
         </a>
       </div>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Test />
-      </Suspense>
     </header>
   );
 }

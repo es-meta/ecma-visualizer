@@ -51,7 +51,7 @@ export const convertedCallStackAtom = atom<Promise<FuncNameNode[]>>(
     const callStack = get(callStackAtom);
     const nameMap = await get(secIdToFuncNameAtom);
 
-    return callStack.reverse().map((n) => {
+    return callStack.toReversed().map((n) => {
       return {
         callerName: nameMap[n.callerId],
         step: n.step,
@@ -175,7 +175,7 @@ export const convertedToNameCallStackAtom = atom(async (get) => {
   const callStack = get(callStackAtom);
   const secIdToFuncName = await get(secIdToFuncNameAtom);
 
-  return callStack.reverse().map((n) => {
+  return callStack.map((n) => {
     return {
       callerName: secIdToFuncName[n.callerId],
       step: n.step,
