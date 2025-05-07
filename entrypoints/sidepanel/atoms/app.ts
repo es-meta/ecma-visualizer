@@ -1,5 +1,5 @@
 import { FuncNameNode } from "@/types/data";
-import { atom, ExtractAtomValue } from "jotai";
+import { atom } from "jotai";
 import { type Selection } from "@/types/custom-event";
 import { Atom } from "jotai";
 import { convertToIndex, getBitString } from "../util/decode";
