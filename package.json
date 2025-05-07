@@ -8,6 +8,7 @@
     "dev:firefox": "wxt -b firefox",
     "build": "tsc -b && wxt build",
     "build:firefox": "tsc -b && wxt build -b firefox",
+    "build:all": "tsc -b && wxt build && wxt build -b firefox",
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
     "compile": "tsc --noEmit",
