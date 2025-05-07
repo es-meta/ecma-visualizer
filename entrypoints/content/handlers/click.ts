@@ -39,7 +39,7 @@ export function handleClick(e: MouseEvent) {
 let selectionSaver: Selection | null = null;
 function stepClickEvent($clickedStep: Element) {
   const visId = $clickedStep.getAttribute(VISID) ?? "";
-  if (!visId) console.error("Must have visId");
+  if (!visId) logger.error("Must have visId");
 
   if ($clickedStep.classList.contains(VISSTEP)) {
     selectionSaver = null;
@@ -55,7 +55,7 @@ function stepClickEvent($clickedStep: Element) {
       customEventSDOSelection();
     } else {
       const sdo = $clickedStep.getAttribute(VISDEFAULTSDO);
-      if (!sdo) console.error("Must have defaultSDO");
+      if (!sdo) logger.error("Must have defaultSDO");
       const { secId, step } = extractVisId(visId);
       customEventSelection({
         secId: `${secId}|${sdo}`,
