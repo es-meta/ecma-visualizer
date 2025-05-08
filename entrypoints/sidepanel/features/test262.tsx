@@ -145,7 +145,7 @@ function DownloadButton() {
   }, [test262, downloading]);
 
   if (test262 instanceof Error) {
-    return <KnownError error={test262} />;
+    return null;
   }
 
   const disabled = downloading;
