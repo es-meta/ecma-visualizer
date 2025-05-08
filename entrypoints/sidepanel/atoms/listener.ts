@@ -35,7 +35,7 @@ export const createMessageListener = function (
     if (sendResponse) sendResponse({ success: true });
 
     // 메시지가 사이드 패널용인지 확인
-    run(async () => {
+    fire(async () => {
       const { from, payload } = message;
 
       store.set(messageCountAtom, (prev) => prev + 1);
@@ -78,7 +78,10 @@ export const createMessageListener = function (
             store.set(
               callStackAtom,
               // TODO validate
-              computePushResult(callStack, payload.dataCallstack as Context),
+              computeCallStackAppend(
+                callStack,
+                payload.dataCallstack as Context,
+              ),
             );
           }
           break;
@@ -100,11 +103,7 @@ export const createMessageListener = function (
   };
 };
 
-function run<T>(f: () => Promise<T>) {
-  f();
-}
-
-function computePushResult(current: Context[], node: Context) {
+function computeCallStackAppend(current: Context[], node: Context) {
   const contains = current.some((iter) => iter.callerId === node.callerId);
 
   if (contains) {

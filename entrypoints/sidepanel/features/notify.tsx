@@ -6,7 +6,7 @@ export function NotifyStrip() {
   const isSupported = useAtomValue(currentTabSupported);
 
   useEffect(() => {
-    run(async () => {
+    fire(async () => {
       const windowId = (await browser.windows.getCurrent())?.id;
       if (windowId === undefined) {
         jotaiStore.set(currentTabSupported, true);

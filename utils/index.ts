@@ -1,12 +1,6 @@
-export function run<T>(f: () => T): void {
+export function fire<T>(f: () => Promise<T>): void {
   f();
 }
 
-export function thrower<T>(e: T): () => never {
-  return () => {
-    throw e;
-  };
-}
-
-export * from "./logger.utils";
+export * as logger from "./logger.utils";
 export * from "./support.utils";

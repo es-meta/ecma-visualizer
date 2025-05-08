@@ -133,7 +133,7 @@ function DownloadButton() {
       return;
     }
 
-    run(async () => {
+    fire(async () => {
       try {
         await handleDownload(test262);
       } catch (error) {

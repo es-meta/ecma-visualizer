@@ -1,15 +1,11 @@
-type LoggerTypeBasic = {
-  info: (...data: unknown[]) => void;
-  log: (...data: unknown[]) => void;
-  error: (...data: unknown[]) => void;
-  warn: (...data: unknown[]) => void;
-};
+const USE_LOGGER = false;
 
-const _loggerShow = Object.freeze({
-  info: console.info,
-  log: console.log,
-  error: console.error,
-  warn: console.warn,
-});
+type LogFunc = (...data: unknown[]) => void;
 
-export const logger: LoggerTypeBasic = _loggerShow;
+function empty() {}
+
+export const info: LogFunc = USE_LOGGER ? console.info : empty;
+export const log: LogFunc = USE_LOGGER ? console.log : empty;
+export const error: LogFunc = USE_LOGGER ? console.error : empty;
+export const warn: LogFunc = USE_LOGGER ? console.warn : empty;
+export const group: LogFunc = USE_LOGGER ? console.group : empty;
