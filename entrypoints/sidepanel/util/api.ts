@@ -32,7 +32,6 @@ async function fetchStepToNodeId(
 
   const result = stepToNodeId[step];
   if (result === undefined) {
-    alert("stepToNodeId not found for " + secId + " " + step);
     throw notFoundError();
   }
   return result;
