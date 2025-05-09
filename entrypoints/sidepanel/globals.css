@@ -19,3 +19,15 @@ body {
     @apply inline-block size-[1em];
   }
 }
+
+@utility th-callstack {
+  @apply border-r border-neutral-300 py-1 text-center text-sm font-medium dark:border-neutral-700;
+}
+
+@utility td-callstack {
+  @apply h-fit border-r border-neutral-300 py-1 text-center text-sm dark:border-neutral-700;
+}
+
+@utility tr-callstack {
+  @apply h-fit py-2 odd:bg-neutral-50 odd:dark:bg-neutral-950;
+}

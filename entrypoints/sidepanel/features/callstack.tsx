@@ -1,5 +1,3 @@
-import React from "react";
-import clsx from "clsx";
 import { ArrowUpIcon, LayersIcon, Trash2Icon } from "lucide-react";
 import { useAtom, useAtomValue } from "jotai";
 
@@ -16,18 +14,18 @@ function CallStackViewerContent() {
     <table className="w-full border-collapse">
       <thead className="sticky top-0 left-0 w-full">
         <tr>
-          <TH>#</TH>
-          <TH>name</TH>
-          <TH>step</TH>
+          <th className="th-callstack">#</th>
+          <th className="th-callstack">name</th>
+          <th className="th-callstack">step</th>
         </tr>
       </thead>
       <tbody>
         {convertedCallStack.map((node, idx) => (
-          <TR>
-            <TD>{idx}</TD>
-            <TD>{node.callerName}</TD>
-            <TD>{node.step}</TD>
-          </TR>
+          <tr className="tr-callstack">
+            <td className="td-callstack">{idx}</td>
+            <td className="td-callstack">{node.callerName}</td>
+            <td className="td-callstack">{node.step}</td>
+          </tr>
         ))}
       </tbody>
     </table>
@@ -87,61 +85,3 @@ export function CallStackViewer() {
   );
 }
 
-/* aux */
-
-const TR = ({
-  className,
-  children,
-}: {
-  className?: string;
-  children: React.ReactNode;
-}) => {
-  return (
-    <tr
-      className={clsx(
-        "h-fit py-2 odd:bg-neutral-50 odd:dark:bg-neutral-950",
-        className,
-      )}
-    >
-      {children}
-    </tr>
-  );
-};
-
-const TD = ({
-  className,
-  children,
-}: {
-  className?: string;
-  children: React.ReactNode;
-}) => {
-  return (
-    <td
-      className={clsx(
-        "h-fit border-r border-neutral-300 py-1 text-center text-sm dark:border-neutral-700",
-        className,
-      )}
-    >
-      {children}
-    </td>
-  );
-};
-
-const TH = ({
-  className,
-  children,
-}: {
-  className?: string;
-  children: React.ReactNode;
-}) => {
-  return (
-    <th
-      className={clsx(
-        "border-r border-neutral-300 py-1 text-center text-sm font-medium dark:border-neutral-700",
-        className,
-      )}
-    >
-      {children}
-    </th>
-  );
-};
