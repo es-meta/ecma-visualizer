@@ -2,21 +2,16 @@ import { defineConfig } from "wxt";
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
-  modules: ["@wxt-dev/module-react"],
-  manifest: () => ({
+  modules: ["@wxt-dev/module-react", "@wxt-dev/auto-icons"],
+  manifest: async () => ({
     name: "ECMA Visualizer",
     description:
       "providing example programs for ECMAScript Language Specification",
     version: import.meta.env.VITE_EXTENSION_VERSION,
-    icons: {
-      64: "images/logo-64.jpeg",
+    autoIcons: {
+      baseIconPath: "assets/icon.png",
     },
-    action: {
-      default_icon: {
-        64: "images/icon-64.png",
-      },
-    },
-    permissions: ["storage", "tabs", "activeTab", "sidePanel"],
+    permissions: ["storage", "tabs", "sidePanel"],
     web_accessible_resources: [
       {
         resources: ["images/logo.jpeg", "resources/*"],
