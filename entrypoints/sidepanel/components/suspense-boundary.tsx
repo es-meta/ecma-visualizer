@@ -95,14 +95,15 @@ class ErrorBoundary extends Component<
 
     if (hasError) {
       return (
-        Fallback === undefined ? null :
+        Fallback === undefined ? null : (
           <Fallback
-          error={__error}
-          retry={() => {
-            setState({ hasError: false, __error: undefined });
-            getQueryClient().invalidateQueries();
-          }}
-        />
+            error={__error}
+            retry={() => {
+              setState({ hasError: false, __error: undefined });
+              getQueryClient().invalidateQueries();
+            }}
+          />
+        )
       ) satisfies React.ReactNode;
     }
 

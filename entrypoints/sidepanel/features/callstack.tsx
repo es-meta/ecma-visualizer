@@ -84,4 +84,3 @@ export function CallStackViewer() {
     </Card>
   );
 }
-
