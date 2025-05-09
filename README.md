@@ -1,13 +1,13 @@
 # ECMAScript Visualizer
 
-**ECMAScript Visualizer** is a Chrome extension that provides example programs for each part of the ECMAScript/JavaScript specification [(ECMA-262)](https://tc39.es/ecma262). The example programs are served from [`ecma-visualizer-resources`](https://github.com/ku-plrg/ecma-visualizer-resources).
+**ECMAScript Visualizer** is a Chrome extension that provides example programs for each part of the ECMAScript/JavaScript specification [(ECMA-262)](https://tc39.es/ecma262). The example programs are served from [`ecma-visualizer-resources`](https://github.com/es-meta/ecma-visualizer-resources).
 
 ## Installation Guide
 
 Download the repository and enter the directory:
 
 ```
-git clone https://github.com/ku-plrg/ecma-visualizer
+git clone https://github.com/es-meta/ecma-visualizer
 cd ecma-visualizer
 ```
 

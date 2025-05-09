@@ -7,7 +7,7 @@ export default defineConfig({
     name: "ECMA Visualizer",
     description:
       "providing example programs for ECMAScript Language Specification",
-    version: "1.1",
+    version: import.meta.env.VITE_EXTENSION_VERSION,
     icons: {
       64: "images/logo-64.jpeg",
     },

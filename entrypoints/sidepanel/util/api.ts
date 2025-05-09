@@ -8,7 +8,7 @@ type StepToNodeId = Record<string, number[]>;
 type FeatureToProgId = Record<string, Record<string, [number, number]>>;
 type FeatureToEncodedTest262 = Record<string, Record<string, string>>;
 
-const BASE_URL = import.meta.env.VITE_RESOURCE_URL;
+const BASE_URL = (new URL(import.meta.env.VITE_EXTENSION_VERSION, import.meta.env.VITE_RESOURCE_URL)).href;
 
 async function _fetch<T>(url: string): Promise<T> {
   const response = await fetch(url);
