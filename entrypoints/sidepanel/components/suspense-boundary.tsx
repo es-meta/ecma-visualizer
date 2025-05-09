@@ -89,18 +89,23 @@ class ErrorBoundary extends Component<
   }
 
   render() {
-    if (this.state.hasError) {
+    const { hasError, __error } = this.state;
+    const { fallback: Fallback, children } = this.props;
+    const { setState } = this;
+
+    if (hasError) {
       return (
-        this.props.fallback?.({
-          error: this.state.__error,
-          retry: () => {
-            this.setState({ hasError: false, __error: undefined });
+        Fallback === undefined ? null :
+          <Fallback
+          error={__error}
+          retry={() => {
+            setState({ hasError: false, __error: undefined });
             getQueryClient().invalidateQueries();
-          },
-        }) ?? null
-      );
+          }}
+        />
+      ) satisfies React.ReactNode;
     }
 
-    return this.props.children;
+    return children;
   }
 }
