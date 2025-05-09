@@ -13,7 +13,7 @@ export default defineConfig({
     },
     action: {
       default_icon: {
-        16: "images/icon-16.png",
+        64: "images/icon-64.png",
       },
     },
     permissions: ["storage", "tabs", "activeTab", "sidePanel"],
