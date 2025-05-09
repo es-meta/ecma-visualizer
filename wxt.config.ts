@@ -7,7 +7,7 @@ export default defineConfig({
     name: "ECMA Visualizer",
     description:
       "providing example programs for ECMAScript Language Specification",
-    version: "2.0",
+    version: "1.1",
     icons: {
       64: "images/logo-64.jpeg",
     },
