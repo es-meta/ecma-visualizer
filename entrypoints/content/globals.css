@@ -26,7 +26,7 @@
   position: fixed;
   bottom: 24px;
   right: 24px;
-  background-color: light-dark(#FFF, #333);
+  background-color: #FFF;
   border-radius: 12px;
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
   z-index: 9999;
@@ -34,8 +34,15 @@
 
   padding: 16px 24px;
   text-align: center;
-  color: light-dark(#000, #FFF);
+  color: #000;
   font-family: sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  .vis--toast {
+    background-color: #333;
+    color: #FFF;
+  }
 }
 
 .vis--toast > .vis--toast-progress {
