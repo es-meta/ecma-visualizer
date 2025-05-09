@@ -3,7 +3,7 @@ import { defineConfig } from "wxt";
 // See https://wxt.dev/api/config.html
 export default defineConfig({
   modules: ["@wxt-dev/module-react"],
-  manifest: {
+  manifest: () => ({
     name: "ECMA Visualizer",
     description:
       "providing example programs for ECMAScript Language Specification",
@@ -23,5 +23,5 @@ export default defineConfig({
         matches: ["https://tc39.es/*", "https://262.ecma-international.org/*"],
       },
     ],
-  },
+  }),
 });
