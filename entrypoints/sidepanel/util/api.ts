@@ -8,7 +8,10 @@ type StepToNodeId = Record<string, number[]>;
 type FeatureToProgId = Record<string, Record<string, [number, number]>>;
 type FeatureToEncodedTest262 = Record<string, Record<string, string>>;
 
-const BASE_URL = (new URL(import.meta.env.VITE_EXTENSION_VERSION, import.meta.env.VITE_RESOURCE_URL)).href;
+const BASE_URL = new URL(
+  import.meta.env.VITE_EXTENSION_VERSION,
+  new URL(import.meta.env.VITE_RESOURCE_URL),
+).href;
 
 async function _fetch<T>(url: string): Promise<T> {
   const response = await fetch(url);
@@ -27,7 +30,7 @@ async function fetchStepToNodeId(
 ): Promise<number[]> {
   const funcId = await fetchFuncIdfromSecId(secId, map);
   const stepToNodeId = await _fetch<StepToNodeId>(
-    `${BASE_URL}/stepToNodeId/${funcId}.json`,
+    new URL(`stepToNodeId/${funcId}.json`, BASE_URL).href,
   );
 
   const result = stepToNodeId[step];
@@ -73,13 +76,13 @@ async function fetchMinimalScriptByNodeId(nodeId: number) {
 
 async function fetchFNCByNodeId(nodeId: number) {
   return await _fetch<FeatureToProgId>(
-    `${BASE_URL}/nodeIdToProgId/${nodeId}.json`,
+    new URL(`nodeIdToProgId/${nodeId}.json`, BASE_URL).href,
   );
 }
 
 async function fetchTest262FNCByNodeId(nodeId: number) {
   return await _fetch<FeatureToEncodedTest262>(
-    `${BASE_URL}/nodeIdToTest262/${nodeId}.json`,
+    new URL(`nodeIdToTest262/${nodeId}.json`, BASE_URL).href,
   );
 }
 
@@ -88,7 +91,9 @@ async function fetchScriptByProgId(
   stepCount: number,
 ): Promise<[string, number]> {
   return [
-    await _fetch<string>(`${BASE_URL}/progIdToScript/${progId}.json`),
+    await _fetch<string>(
+      new URL(`progIdToScript/${progId}.json`, BASE_URL).href,
+    ),
     stepCount,
   ];
 }

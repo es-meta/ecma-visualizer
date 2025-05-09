@@ -2,7 +2,7 @@ import { default as JSZip } from "jszip";
 import PQueue from "p-queue";
 
 export const rawUrl = (test262: string) =>
-  `${import.meta.env.VITE_TEST262_RAW_URL}/${test262}`;
+  new URL(test262, import.meta.env.VITE_TEST262_RAW_URL).href;
 
 async function downloadFile(path: string): Promise<Blob> {
   const response = await fetch(rawUrl(path));
