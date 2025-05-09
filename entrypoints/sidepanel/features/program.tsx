@@ -48,10 +48,14 @@ function ResumeButton() {
     return null;
   }
 
-  const url = `${import.meta.env.VITE_DOUBLE_DEBUGGER_URL}?prog=${encodeURIComponent(userCode)}&iter=${encodeURIComponent(foundIter)}`;
+  const url = new URL(import.meta.env.VITE_DOUBLE_DEBUGGER_URL);
+  url.searchParams.set("prog", userCode);
+  url.searchParams.set("iter", foundIter.toString());
+
+  const href = url.toString();
 
   return (
-    <a href={url} target="_blank" rel="noopener noreferrer">
+    <a href={href} target="_blank" rel="noopener noreferrer">
       Run on Double Debugger
       <PlayIcon strokeWidth={2} />
     </a>

@@ -13,8 +13,7 @@ import { SuspenseBoundary } from "../components/suspense-boundary";
 import { ErrorConsumer, KnownError } from "../components/ErrorConsumer";
 import { Loading } from "../components";
 
-const url = (test262: string) =>
-  `${import.meta.env.VITE_TEST262_URL}/${test262}`;
+const url = (test262: string) => new URL(test262, import.meta.env.VITE_TEST262_URL).href;
 
 const fileName = (test262: string) => {
   const nameStr = test262.split("/");
