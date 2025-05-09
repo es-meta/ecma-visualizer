@@ -6,7 +6,7 @@ export default defineConfig({
   manifest: async () => ({
     name: "ECMA Visualizer",
     description:
-      "providing example programs for ECMAScript Language Specification",
+      "Provides Example Programs for ECMA-262, the ECMAScript Language Specification.",
     version: import.meta.env.VITE_EXTENSION_VERSION,
     autoIcons: {
       baseIconPath: "assets/icon.png",
