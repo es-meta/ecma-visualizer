@@ -8,8 +8,15 @@ type StepToNodeId = Record<string, number[]>;
 type FeatureToProgId = Record<string, Record<string, [number, number]>>;
 type FeatureToEncodedTest262 = Record<string, Record<string, string>>;
 
+function getAB(str: string) {
+  // a.b.c => a.b, a.b => a.b
+  return str.split(".").slice(0, 2).join(".");
+}
+
+const minorVersion = getAB(import.meta.env.VITE_EXTENSION_VERSION);
+
 const BASE_URL = new URL(
-  import.meta.env.VITE_EXTENSION_VERSION,
+  minorVersion + "/",
   new URL(import.meta.env.VITE_RESOURCE_URL),
 ).href;
 
