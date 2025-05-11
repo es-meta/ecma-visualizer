@@ -17,7 +17,7 @@ export function NotifyStrip() {
       ).at(0);
       jotaiStore.set(
         currentTabSupported,
-        isUrlSupported(currentTab?.url ?? ""),
+        url.isSupportedSpec(currentTab?.url ?? ""),
       );
     });
   });
