@@ -3,4 +3,5 @@ export function fire<T>(f: () => Promise<T>): void {
 }
 
 export * as logger from "./logger.utils";
-export * from "./support.utils";
+export * as str from "./str.utils";
+export * as url from "./url.utils";
