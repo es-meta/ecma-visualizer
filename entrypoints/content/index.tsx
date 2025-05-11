@@ -8,7 +8,7 @@ import { showToast } from "./toast.utils";
 const definition = defineContentScript({
   matches: ["https://tc39.es/*", "https://262.ecma-international.org/*"],
   main() {
-    if (!isUrlSupported(window.location.href)) return;
+    if (!url.isSupportedSpec(window.location.href)) return;
     logger.log("content", import.meta.filename, "content script loaded");
     handleInit();
     logger.log("content", import.meta.filename, "transform done");

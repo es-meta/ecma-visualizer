@@ -12,7 +12,7 @@ export default defineBackground(() => {
       targetWindowId: activeInfo.windowId,
       payload: {
         type: CUSTOM_IS_SUPPORTED,
-        dataSupported: isUrlSupported(tab.url ?? ""),
+        dataSupported: url.isSupportedSpec(tab.url ?? ""),
       },
     } satisfies Message);
   });
@@ -23,7 +23,7 @@ export default defineBackground(() => {
         targetWindowId: tab.windowId,
         payload: {
           type: CUSTOM_IS_SUPPORTED,
-          dataSupported: isUrlSupported(changeInfo.url ?? ""),
+          dataSupported: url.isSupportedSpec(changeInfo.url ?? ""),
         },
       } satisfies Message);
     }
