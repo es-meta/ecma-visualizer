@@ -34,7 +34,7 @@ export function ErrorConsumer({
     }
   }
 
-  logger.error("Unknown Error Propagted", error);
+  logger.error("Unknown Error Propagated", error);
 
   return <LastFallback retry={retry} />;
 }

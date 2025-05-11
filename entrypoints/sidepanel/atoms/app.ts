@@ -217,7 +217,7 @@ export function recover<T, A extends unknown[]>(
     } catch (e) {
       if (e instanceof CustomError) return e;
       else {
-        logger.error("Unknown Error Propagted", e);
+        logger.error("Unknown Error Propagated", e);
         return unknownError();
       }
     }
