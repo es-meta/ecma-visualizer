@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+body,
+#root {
+  @apply h-dvh;
+}
+
+body {
+  @apply bg-white text-black dark:bg-neutral-800 dark:text-white;
+}
+
+@layer base {
+  a,
+  button {
+    @apply inline-flex flex-row items-center justify-center gap-1 transition-all hover:underline hover:opacity-75 active:opacity-50;
+  }
+
+  :where(a, button) svg {
+    @apply inline-block size-[1em];
+  }
+}
+
+@utility th-callstack {
+  @apply border-r border-neutral-300 py-1 text-center text-sm font-medium dark:border-neutral-700;
+}
+
+@utility td-callstack {
+  @apply h-fit border-r border-neutral-300 py-1 text-center text-sm dark:border-neutral-700;
+}
+
+@utility tr-callstack {
+  @apply h-fit py-2 odd:bg-neutral-50 odd:dark:bg-neutral-950;
+}
