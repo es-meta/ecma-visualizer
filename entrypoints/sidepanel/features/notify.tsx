@@ -1,6 +1,5 @@
-import { useAtomValue } from "jotai";
 import { jotaiStore } from "@/entrypoints/sidepanel/atoms/store";
-import { currentTabSupported } from "@/entrypoints/sidepanel/atoms/app";
+import { currentTabSupported } from "../atoms/app";
 
 export function NotifyStrip() {
   const isSupported = useAtomValue(currentTabSupported);

@@ -1,5 +1,4 @@
 import { ArrowUpIcon, LayersIcon, Trash2Icon } from "lucide-react";
-import { useAtom, useAtomValue } from "jotai";
 
 import { callStackAtom, convertedToNameCallStackAtom } from "../atoms/app";
 import { SuspenseBoundary } from "../components/suspense-boundary";
