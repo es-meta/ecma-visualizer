@@ -5,7 +5,6 @@ import {
   LoaderCircleIcon,
 } from "lucide-react";
 import { useVirtualizer, Virtualizer } from "@tanstack/react-virtual";
-import { useAtomValue } from "jotai";
 import { selectionAtom, test262Atom } from "../atoms/app";
 import { handleDownload, rawUrl } from "../util/download-file";
 import { Card, CardHeader } from "../components/card";
