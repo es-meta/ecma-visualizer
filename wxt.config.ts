@@ -11,7 +11,7 @@ export default defineConfig({
     autoIcons: {
       baseIconPath: "assets/icon.png",
     },
-    permissions: ["storage", "tabs", "sidePanel"],
+    permissions: ["sidePanel"],
     web_accessible_resources: [
       {
         resources: ["images/logo.jpeg", "resources/*"],
