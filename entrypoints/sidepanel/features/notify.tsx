@@ -11,7 +11,9 @@ export function NotifyStrip() {
       });
       const activeTab = tabs.at(0);
       if (activeTab) {
-        setIsSupported(activeTab.url ? url.isSupportedSpec(activeTab.url) : false);
+        setIsSupported(
+          activeTab.url ? url.isSupportedSpec(activeTab.url) : false,
+        );
       }
     }),
   );
