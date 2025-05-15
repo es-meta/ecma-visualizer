@@ -1,8 +1,7 @@
 import CodeMirror, { EditorView } from "@uiw/react-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { Code, PlayIcon } from "lucide-react";
-import { usePreferredColorScheme } from "./hooks/use-preferred-color-scheme";
-import { atom, useAtom, useAtomValue } from "jotai";
+import { atom } from "jotai";
 import { programAtom, selectionAtom } from "../atoms/app";
 import { SuspenseBoundary } from "../components/suspense-boundary";
 import { ErrorConsumer, KnownError } from "../components/ErrorConsumer";

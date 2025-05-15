@@ -1,26 +1,22 @@
-import { useAtomValue } from "jotai";
-import { jotaiStore } from "@/entrypoints/sidepanel/atoms/store";
-import { currentTabSupported } from "@/entrypoints/sidepanel/atoms/app";
+import { currentTabSupported } from "../atoms/app";
 
 export function NotifyStrip() {
-  const isSupported = useAtomValue(currentTabSupported);
+  const [isSupported, setIsSupported] = useAtom(currentTabSupported);
 
-  useEffect(() => {
+  useEffect(() =>
     fire(async () => {
-      const windowId = (await browser.windows.getCurrent())?.id;
-      if (windowId === undefined) {
-        jotaiStore.set(currentTabSupported, true);
-        return;
+      const tabs = await browser.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
+      const activeTab = tabs.at(0);
+      if (activeTab) {
+        setIsSupported(
+          activeTab.url ? url.isSupportedSpec(activeTab.url) : false,
+        );
       }
-      const currentTab = (
-        await browser.tabs.query({ windowId, active: true })
-      ).at(0);
-      jotaiStore.set(
-        currentTabSupported,
-        url.isSupportedSpec(currentTab?.url ?? ""),
-      );
-    });
-  });
+    }),
+  );
 
   if (isSupported) {
     return null;
@@ -36,7 +32,7 @@ export function NotifyStrip() {
           )
         }
       >
-        ! Current tab is not supported
+        ⚠️ Current tab is not supported
       </button>
     </aside>
   );
