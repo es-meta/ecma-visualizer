@@ -12,6 +12,10 @@ export default defineConfig({
       baseIconPath: "assets/icon.png",
     },
     permissions: ["sidePanel"],
+    host_permissions: [
+      "https://tc39.es/*",
+      "https://262.ecma-international.org/*",
+    ],
     web_accessible_resources: [
       {
         resources: ["images/logo.jpeg", "resources/*"],

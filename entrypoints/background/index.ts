@@ -12,18 +12,19 @@ export default defineBackground(() => {
       targetWindowId: activeInfo.windowId,
       payload: {
         type: CUSTOM_IS_SUPPORTED,
-        dataSupported: url.isSupportedSpec(tab.url ?? ""),
+        dataSupported: tab.url ? url.isSupportedSpec(tab.url) : false,
       },
     } satisfies Message);
   });
-  browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+
+  browser.tabs.onUpdated.addListener(async (_tabId, changeInfo, tab) => {
     if (changeInfo.url) {
       browser.runtime.sendMessage({
         from: "background",
         targetWindowId: tab.windowId,
         payload: {
           type: CUSTOM_IS_SUPPORTED,
-          dataSupported: url.isSupportedSpec(changeInfo.url ?? ""),
+          dataSupported: tab.url ? url.isSupportedSpec(tab.url) : false,
         },
       } satisfies Message);
     }
