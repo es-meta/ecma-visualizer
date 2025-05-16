@@ -2,6 +2,7 @@ import { defineConfig } from "wxt";
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
+  srcDir: "src",
   vite: () => ({
     define: {
       __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
