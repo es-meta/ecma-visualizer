@@ -8,7 +8,7 @@ type StepToNodeId = Record<string, number[]>;
 type FeatureToProgId = Record<string, Record<string, [number, number]>>;
 type FeatureToEncodedTest262 = Record<string, Record<string, string>>;
 
-const minorVersion = str.getAB(import.meta.env.VITE_EXTENSION_VERSION);
+const minorVersion = str.getAB(__APP_VERSION__);
 
 const BASE_URL = url.appendURL(minorVersion, import.meta.env.VITE_RESOURCE_URL);
 
