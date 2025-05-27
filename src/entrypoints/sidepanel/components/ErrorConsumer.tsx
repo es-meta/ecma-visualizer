@@ -76,10 +76,9 @@ export function SDOWaiting() {
 export function NotFound() {
   const [callstack, setCallstack] = useAtom(callStackAtom);
 
-  const clearCallstack = useCallback( () => {
+  const clearCallstack = useCallback(() => {
     setCallstack([]);
   }, [setCallstack]);
-    
 
   return (
     <div className="bg-opacity-35 flex size-full items-center justify-center p-8">
@@ -87,9 +86,14 @@ export function NotFound() {
         <p className="text-sm">
           <TextSelectIcon className="inline-block size-[1em]" />
           Program not found, Try another step or callpath.
-          {callstack.length > 0 && <a onClick={clearCallstack} className="text-blue-600 dark:text-blue-400 ml-2 cursor-pointer">
-            clear callstack
-          </a>}
+          {callstack.length > 0 && (
+            <a
+              onClick={clearCallstack}
+              className="ml-2 cursor-pointer text-blue-600 dark:text-blue-400"
+            >
+              clear callstack
+            </a>
+          )}
         </p>
       </div>
     </div>

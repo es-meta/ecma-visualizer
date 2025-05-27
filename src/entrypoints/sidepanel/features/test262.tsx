@@ -175,10 +175,14 @@ export function Test262Viewer() {
   return (
     <Card>
       <CardHeader title="Test262" icon={<FlaskConicalIcon />}>
-        <button onClick={
-          () => alert("Tests using features not yet supported by ESMeta are excluded from the list.")
-        } >
-        <InfoIcon className="inline-block size-4"/>
+        <button
+          onClick={() =>
+            alert(
+              "Tests using features not yet supported by ESMeta are excluded from the list.",
+            )
+          }
+        >
+          <InfoIcon className="inline-block size-4" />
         </button>
         <SuspenseBoundary intentional>
           <DownloadButton />

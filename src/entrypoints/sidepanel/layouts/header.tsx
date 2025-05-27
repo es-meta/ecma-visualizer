@@ -4,15 +4,17 @@ import { devModeAtom } from "../atoms/dev";
 const logo = browser.runtime.getURL("/images/logo.jpeg");
 
 export function Header() {
-
   const [dev, setDev] = useAtom(devModeAtom);
 
   return (
-    <header className="flex flex-row items-center justify-between px-2 py-2" onClick={(e) => {
-      if (e.metaKey && e.shiftKey) {
-        setDev(dev => !dev);
-      }
-    }}>
+    <header
+      className="flex flex-row items-center justify-between px-2 py-2"
+      onClick={(e) => {
+        if (e.metaKey && e.shiftKey) {
+          setDev((dev) => !dev);
+        }
+      }}
+    >
       <div className="flex flex-row items-center justify-start gap-1 text-sm">
         <a
           href={import.meta.env.VITE_ESMETA_URL}
@@ -24,9 +26,7 @@ export function Header() {
         </a>
         <span>ECMA Visualizer</span>
       </div>
-      {
-        dev && "🟢 dev mode"
-      }
+      {dev && "🟢 dev mode"}
       <div className="flex flex-row items-center justify-end gap-1">
         <a
           className="text-lg"
