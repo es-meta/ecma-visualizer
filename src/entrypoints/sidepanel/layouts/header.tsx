@@ -11,7 +11,6 @@ export function Header() {
     <header className="flex flex-row items-center justify-between px-2 py-2" onClick={(e) => {
       if (e.metaKey && e.shiftKey) {
         setDev(dev => !dev);
-        alert("Toggle dev mode by clicking on the header with meta + shift keys.");
       }
     }}>
       <div className="flex flex-row items-center justify-start gap-1 text-sm">
