@@ -5,12 +5,11 @@ import {
   fetchScriptByProgId,
   fetchStepToNodeId,
   fetchTest262FNCByNodeId,
-  fetchTest262NameByTest262Id,
 } from "../util/api";
 
 import { atomFamily } from "jotai/utils";
 import { atomWithSuspenseQuery } from "jotai-tanstack-query";
-import { secIdToFuncIdAtom, test262IdToTest262Atom } from "./resources";
+import { secIdToFuncAtom, test262IdToTest262Atom } from "./resources";
 import { getQueryClient } from "./qc";
 
 type QueryOption = Omit<
@@ -83,9 +82,9 @@ export const fetchStepToNodeIdAtom = atomFamily(
   ([secId, step]: [string, string]) =>
     atomWithSuspenseQuery(
       (get) => ({
-        queryKey: ["stepToNodeId", secId, step],
+        queryKey: ["stepIdToNodeId", secId, step],
         queryFn: catchAsNull(async () => {
-          const secIdToFuncId = await get(secIdToFuncIdAtom);
+          const secIdToFuncId = await get(secIdToFuncAtom);
           return await fetchStepToNodeId(secId, step, secIdToFuncId);
         }),
         ...option,
@@ -113,7 +112,7 @@ export const fetchTest262NameByTest262IdAtom = atomFamily((test262Id: string) =>
       queryKey: ["test262Name", test262Id],
       queryFn: catchAsNull(async () => {
         const test262IdToTest262 = await get(test262IdToTest262Atom);
-        return await fetchTest262NameByTest262Id(test262Id, test262IdToTest262);
+        return test262IdToTest262[test262Id];
       }),
       ...option,
     }),

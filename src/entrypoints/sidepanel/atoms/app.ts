@@ -15,7 +15,7 @@ import {
   fetchTest262FNCByNodeIdAtom,
   fetchTest262NameByTest262IdAtom,
 } from "./api";
-import { secIdToFuncIdAtom, secIdToFuncNameAtom } from "./resources";
+import { secIdToFuncAtom } from "./resources";
 import { AtomWithSuspenseQueryResult } from "jotai-tanstack-query";
 import { DefaultError } from "@tanstack/query-core";
 
@@ -44,21 +44,6 @@ export const sdoWaitingAtom = atom<boolean>((get) => {
   const selection = get(selectionAtom);
   return selection === null;
 });
-
-// derived atom
-export const convertedCallStackAtom = atom<Promise<FuncNameNode[]>>(
-  async (get) => {
-    const callStack = get(callStackAtom);
-    const nameMap = await get(secIdToFuncNameAtom);
-
-    return callStack.map((n) => {
-      return {
-        callerName: nameMap[n.callerId],
-        step: n.step,
-      };
-    });
-  },
-);
 
 export const programAtom: Atom<Promise<readonly [string, number] | Error>> =
   atom(
@@ -171,25 +156,29 @@ export const callStackAtom = atom<Context[], [SetStateAction<Context[]>], void>(
 
 /* callstacks */
 
-export const convertedToNameCallStackAtom = atom(async (get) => {
-  const callStack = get(callStackAtom);
-  const secIdToFuncName = await get(secIdToFuncNameAtom);
+export const convertedToNameCallStackAtom = atom<Promise<FuncNameNode[]>>(
+  async (get) => {
+    const callStack = get(callStackAtom);
+    const secIdToFunc = await get(secIdToFuncAtom);
 
-  return callStack.map((n) => {
-    return {
-      callerName: secIdToFuncName[n.callerId],
-      step: n.step,
-    };
-  });
-});
+    return callStack.map((n) => {
+      const [, funcName] = secIdToFunc[n.callerId] ?? [-1, "unknown"];
+      return {
+        callerName: funcName,
+        step: n.step,
+      };
+    });
+  },
+);
 
 export const convertedToIdCallStackAtom = atom(async (get) => {
   const callStack = get(callStackAtom);
-  const secIdToFuncId = await get(secIdToFuncIdAtom);
+  const secIdToFunc = await get(secIdToFuncAtom);
 
   return callStack
     .map((n) => {
-      return `${secIdToFuncId[n.callerId]}|${n.step}`;
+      const [funcId] = secIdToFunc[n.callerId] ?? [-1];
+      return `${funcId}|${n.step}`;
     })
     .join("-");
 });

@@ -13,14 +13,13 @@ async function downloadFile(path: string): Promise<Blob> {
 
 export async function handleDownload(paths: string[]) {
   const zip = new JSZip();
-  const queue = new PQueue({ concurrency: 10 });
-
   let succeeded = 0;
   let failed = 0;
   const failedPaths: { path: string; error: string }[] = [];
 
-  for (const path of paths) {
-    queue.add(async () => {
+  await concurrency.enqueue(
+    10,
+    paths.map((path) => async () => {
       try {
         const fileBlob = await downloadFile(path);
         zip.file(path, fileBlob);
@@ -33,10 +32,8 @@ export async function handleDownload(paths: string[]) {
         });
         logger.error(`Failed (${failed}): ${path}`);
       }
-    });
-  }
-
-  await queue.onIdle();
+    }),
+  );
 
   if (failedPaths.length > 0) {
     const errorLog = failedPaths

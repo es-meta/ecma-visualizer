@@ -1,10 +1,11 @@
-export type SecIdToFuncId = Record<string, string>;
-export type SecIdToFuncName = Record<string, string>;
+export type SecIdToFunc = Record<
+  string,
+  [number, string, number[]] | undefined
+>;
 export type Test262IdToTest262 = Record<string, string>;
 
 export type Storage = {
-  secIdToFuncId: SecIdToFuncId;
-  secIdToFuncName: SecIdToFuncName;
+  secIdToFunc: SecIdToFunc;
   test262IdToTest262: Test262IdToTest262;
 };
 
