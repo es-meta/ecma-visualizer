@@ -2,6 +2,7 @@ import {
   DownloadIcon,
   FlaskConicalIcon,
   FolderDownIcon,
+  InfoIcon,
   LoaderCircleIcon,
 } from "lucide-react";
 import { useVirtualizer, Virtualizer } from "@tanstack/react-virtual";
@@ -73,7 +74,7 @@ const Test262ViewerContent = ({
             }}
           >
             <div className="flex-1 truncate px-2 text-sm">
-              <a href={url(test)} target="_blank">
+              <a href={url(test)} target="_blank" content={test}>
                 {test}
               </a>
             </div>
@@ -174,6 +175,11 @@ export function Test262Viewer() {
   return (
     <Card>
       <CardHeader title="Test262" icon={<FlaskConicalIcon />}>
+        <button onClick={
+          () => alert("Tests using features not yet supported by ESMeta are excluded from the list.")
+        } >
+        <InfoIcon className="inline-block size-4"/>
+        </button>
         <SuspenseBoundary intentional>
           <DownloadButton />
         </SuspenseBoundary>
