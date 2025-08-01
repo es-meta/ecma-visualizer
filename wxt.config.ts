@@ -4,6 +4,10 @@ import { defineConfig } from "wxt";
 export default defineConfig({
   srcDir: "src",
   vite: () => ({
+    build: {
+      minify: false,
+      sourcemap: true,
+    },
     define: {
       __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
     },
