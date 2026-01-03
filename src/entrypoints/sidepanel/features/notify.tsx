@@ -26,11 +26,7 @@ export function NotifyStrip() {
     <aside className="flex h-8 w-full bg-amber-200 dark:bg-amber-800">
       <button
         className="flex size-full flex-row items-center justify-center text-sm"
-        onClick={() =>
-          alert(
-            "ECMA Visualizer currently only supports ECMA-262 2024 (14th Edition). The current page's URL doesn’t seem to be supported.",
-          )
-        }
+        onClick={() => alert(import.meta.env.VITE_TEST262_MESSAGE)}
       >
         ⚠️ Current tab is not supported
       </button>

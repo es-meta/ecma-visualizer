@@ -25,7 +25,7 @@ And follow the instructions below to install the visualizer extension:
 2. Turn on the Developer mode on the top right corner.
 3. Click the Load unpacked button and select the `ecma-visualizer/.output/chrome-mv3` directory.
 
-The chrome extension currently works on ES2024 web page: https://tc39.es/ecma262/2024/.
+The chrome extension currently works on ES2025 web page: https://tc39.es/ecma262/2025/.
 
 ## Other Browsers
 
