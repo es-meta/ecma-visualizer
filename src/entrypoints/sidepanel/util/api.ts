@@ -1,5 +1,6 @@
 import { SecIdToFunc, Test262IdToTest262 } from "@/types/data";
 import { bitwiseOrStrings, convertToIndex, getBitString } from "../util/decode";
+import { getAllFuncIds, isTemplateFuncInfo } from "./func-info";
 type StepToNodeId = Record<string, number[]>;
 type FeatureToProgId = Record<string, Record<string, [number, number]>>;
 type FeatureToEncodedTest262 = Record<string, Record<string, string>>;
@@ -23,16 +24,26 @@ export async function fetchStepToNodeId(
   step: string,
   map: SecIdToFunc,
 ): Promise<number[]> {
-  const [id, , fallbacks] = map[secId] || [-1, undefined, []];
-  const cadidates = [id, ...fallbacks].filter((n) => n >= 0);
-
-  for (const funcId of cadidates) {
-    const stepToNodeId = await _fetch<StepToNodeId>(
+  const info = map[secId];
+  const fetchNodeIds = (funcId: number) =>
+    _fetch<StepToNodeId>(
       url.appendURL(`stepIdToNodeId/${funcId}.json`, BASE_URL),
+    )
+      .then((stepToNodeId) => stepToNodeId[step] ?? [])
+      .catch(() => []);
+
+  if (isTemplateFuncInfo(info)) {
+    // the section is one template; every instance contributes its own nodes
+    const perInstance = await Promise.all(
+      getAllFuncIds(info).map(fetchNodeIds),
     );
-    const result = stepToNodeId[step];
-    if (result !== undefined) {
-      return result;
+    const nodeIds = [...new Set(perInstance.flat())];
+    if (nodeIds.length > 0) return nodeIds;
+  } else {
+    // an ordinary section: exactly one of its functions owns the step
+    for (const funcId of getAllFuncIds(info)) {
+      const nodeIds = await fetchNodeIds(funcId);
+      if (nodeIds.length > 0) return nodeIds;
     }
   }
 

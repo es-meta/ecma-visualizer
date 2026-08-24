@@ -2,7 +2,11 @@ import { FuncNameNode } from "@/types/data";
 import { atom } from "jotai";
 import { type Selection } from "@/types/custom-event";
 import { Atom } from "jotai";
-import { convertToIndex, getBitString } from "../util/decode";
+import { bitwiseOrStrings, convertToIndex, getBitString } from "../util/decode";
+import {
+  findMatchingCallPathValues,
+  getCallPathCandidates,
+} from "../util/func-info";
 
 import { Context } from "../../../types/data";
 import { SetStateAction } from "jotai";
@@ -66,26 +70,17 @@ export const programAtom: Atom<Promise<readonly [string, number] | Error>> =
           await get(fetchMinimalScriptByNodeIdAtom(nodeIds[0])),
         );
       } else {
-        const currentCp = await get(convertedToIdCallStackAtom);
-        const featureToProgIDArr = await Promise.all(
-          nodeIds.map(async (nid) =>
-            checkNonNull(await get(fetchFNCByNodeIdAtom(nid))),
-          ),
-        );
-        const cpMap = featureToProgIDArr.flatMap((featureToProgId) =>
-          Object.values(featureToProgId),
+        const cpMaps = (
+          await Promise.all(
+            nodeIds.map((nid) => get(fetchFNCByNodeIdAtom(nid))),
+          )
+        ).flatMap(({ data }) => (data ? Object.values(data) : []));
+        const [progId] = findMatchingCallPathValues(
+          cpMaps,
+          await get(callPathCandidatesAtom),
         );
 
-        let progId: [number, number] | null = null;
-        cpMap.some((cp) => {
-          const foundCP = Object.keys(cp).find((c) => c.startsWith(currentCp));
-          if (foundCP) {
-            progId = cp[foundCP];
-            return true;
-          }
-        });
-
-        if (progId) {
+        if (progId !== undefined) {
           return checkNonNull(
             await get(fetchScriptByProgIdAtom([progId[0], progId[1]])),
           );
@@ -108,36 +103,32 @@ export const test262Atom = atom<Promise<string[] | Error>>(
     );
 
     if (callstack.length === 0) {
-      return checkNonNull(await get(fetchAllTest262ByNodeIdAtom(nodeIds[0])));
+      const tests = (
+        await Promise.all(
+          nodeIds.map((nodeId) => get(fetchAllTest262ByNodeIdAtom(nodeId))),
+        )
+      ).flatMap(({ data }) => data ?? []);
+      if (tests.length === 0) throw notFoundError();
+      return [...new Set(tests)];
     }
-    const currentCp = await get(convertedToIdCallStackAtom);
-    const featureToTest262IDArr = await Promise.all(
-      nodeIds.map(async (nid) => {
-        return checkNonNull(await get(fetchTest262FNCByNodeIdAtom(nid)));
-      }),
-    );
-    const cpMap = featureToTest262IDArr.flatMap((featureToProgId) =>
-      Object.values(featureToProgId),
-    );
+    const cpMaps = (
+      await Promise.all(
+        nodeIds.map((nid) => get(fetchTest262FNCByNodeIdAtom(nid))),
+      )
+    ).flatMap(({ data }) => (data ? Object.values(data) : []));
+    const encodings = findMatchingCallPathValues(
+      cpMaps,
+      await get(callPathCandidatesAtom),
+    ).filter((encoding) => encoding !== "");
 
-    let test262Encode: string | null = null;
-    cpMap.some((cp) => {
-      const foundCP = Object.keys(cp).find((c) => c.startsWith(currentCp));
-
-      if (foundCP) {
-        test262Encode = cp[foundCP];
-        return true;
-      }
-    });
-
-    if (test262Encode) {
-      const bitString = getBitString(test262Encode);
-      return await Promise.all(
-        convertToIndex(bitString).map(async (testId) => {
-          return checkNonNull(
-            await get(fetchTest262NameByTest262IdAtom(testId)),
-          );
-        }),
+    if (encodings.length > 0) {
+      const bitString = encodings
+        .map(getBitString)
+        .reduce(bitwiseOrStrings, "");
+      return Promise.all(
+        convertToIndex(bitString).map(async (testId) =>
+          checkNonNull(await get(fetchTest262NameByTest262IdAtom(testId))),
+        ),
       );
     } else {
       throw notFoundError();
@@ -171,16 +162,11 @@ export const convertedToNameCallStackAtom = atom<Promise<FuncNameNode[]>>(
   },
 );
 
-export const convertedToIdCallStackAtom = atom(async (get) => {
+export const callPathCandidatesAtom = atom(async (get) => {
   const callStack = get(callStackAtom);
   const secIdToFunc = await get(secIdToFuncAtom);
 
-  return callStack
-    .map((n) => {
-      const [funcId] = secIdToFunc[n.callerId] ?? [-1];
-      return `${funcId}|${n.step}`;
-    })
-    .join("-");
+  return getCallPathCandidates(callStack, secIdToFunc);
 });
 
 function checkNonNull<TData = unknown, TError = DefaultError>(

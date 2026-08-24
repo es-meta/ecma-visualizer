@@ -2507,7 +2507,7 @@
   ],
   "sec-typedarray" : [
     2629,
-    "Int32Array",
+    "_TypedArray_",
     [
       2618,
       2619,
@@ -14681,7 +14681,7 @@
   ],
   "sec-nativeerror" : [
     2138,
-    "SyntaxError",
+    "_NativeError_",
     [
       2133,
       2134,
